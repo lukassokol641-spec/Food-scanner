@@ -150,7 +150,7 @@ function normalizeLang(lang) { return ["sk", "en", "de"].includes(lang) ? lang :
 
 function buildJsonPrompt(lang) {
   const languageName = LANG_NAMES[normalizeLang(lang)];
-  return `Analyze this food package / label image and return STRICTLY VALID JSON with EXACTLY these top-level keys: {"scan":{"detectedText":["..."],"highlights":[{"label":"string","severity":"danger|warn","x":10,"y":20,"w":30,"h":12}]},"product":{"name":"string","category":"string","portion":"string","brand":"string"},"analysis":{"verdict":{"label":"string","severity":"green|orange|red","score":0,"summary":"string"},"scores":{"sugar":{"value":"string","level":"string","severity":"green|orange|red"},"salt":{"value":"string","level":"string","severity":"green|orange|red"},"additives":{"value":"string","level":"string","severity":"green|orange|red"},"processing":{"value":"string","level":"string","severity":"green|orange|red"}},"recommendation":"string","healthierSwap":{"enabled":true,"title":"string","summary":"string","improvement":"+NN% string","product":{"name":"string","score":0,"sugar":"string","salt":"string","additives":"string","processing":"string"}}},"ui":{"ocrStatus":"string","progressTitle":"string","progressText":"string"}} Rules: Return ONLY JSON, no markdown fences, no explanation. Write ALL user-facing string values (labels, summaries, level names, recommendation, healthierSwap, ui) in ${languageName}. Keep JSON keys in English exactly as specified. Estimate conservatively when exact values are not visible. highlights coordinates are percentages relative to image for overlay placement. healthierSwap must be filled with a plausible healthier alternative from the same category, described in ${languageName}.`.trim();
+  return `Analyze this food package / label image and return STRICTLY VALID JSON with EXACTLY these top-level keys: {"scan":{"detectedText":["..."],"highlights":[{"label":"string","severity":"danger|warn","x":10,"y":20,"w":30,"h":12}]},"product":{"name":"string","category":"string","portion":"string","brand":"string"},"analysis":{"verdict":{"label":"string","severity":"green|orange|red","score":0,"summary":"string"},"scores":{"sugar":{"value":"string","level":"string","severity":"green|orange|red"},"salt":{"value":"string","level":"string","severity":"green|orange|red"},"additives":{"value":"string","level":"string","severity":"green|orange|red"},"processing":{"value":"string","level":"string","severity":"green|orange|red"}},"recommendation":"string","healthierSwap":{"enabled":true,"title":"string","summary":"string","improvement":"+NN% string","product":{"name":"string","score":0,"sugar":"string","salt":"string","additives":"string","processing":"string"}}},"ui":{"ocrStatus":"string","progressTitle":"string","progressText":"string"}} Rules: Return ONLY JSON, no markdown fences, no explanation. Write ALL user-facing string values (labels, summaries, level names, recommendation, healthierSwap, ui) in ${languageName}. Keep JSON keys in English exactly as specified. Estimate conservatively when exact values are not visible. The product label may be in Swedish, German, Polish or other European languages. Read the exact printed text first before classifying the product. If the text is not readable, do not guess the product. Return exactly this JSON error object instead: {"error":"Text na etikete nie je čitateľný, skúste odfotiť zblízka"}. highlights coordinates are percentages relative to image for overlay placement. healthierSwap must be filled with a plausible healthier alternative from the same category, described in ${languageName}.`.trim();
 }
 
 function extractJson(text) { const start = text.indexOf("{"); const end = text.lastIndexOf("}"); if (start === -1 || end === -1) throw new Error("Nepodarilo sa najst JSON v odpovedi modelu."); return text.slice(start, end + 1); }
@@ -165,7 +165,7 @@ async function callOpenAiVision(base64Image, mimeType, lang) {
       temperature: 0.2,
       response_format: { type: "json_object" },
       messages: [
-        { role: "system", content: `You are a food label analysis engine. Return ONLY valid JSON matching the requested schema. Write all user-facing text strictly in ${languageName}. No markdown, no explanation.` },
+        { role: "system", content: `You are a food label analysis engine. Perform precise OCR first, then classify only from the exact printed text. Return ONLY valid JSON matching the requested schema. Write all user-facing text strictly in ${languageName}. No markdown, no explanation. If the image text is unreadable, return exactly: {"error":"Text na etikete nie je čitateľný, skúste odfotiť zblízka"}.` },
         { role: "user", content: [{ type: "text", text: buildJsonPrompt(lang) }, { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Image}` } }] }
       ]
     })
@@ -174,7 +174,9 @@ async function callOpenAiVision(base64Image, mimeType, lang) {
   const data = await response.json();
   const content = data?.choices?.[0]?.message?.content;
   if (!content) throw new Error("OpenAI nevratil ziadny content.");
-  return JSON.parse(extractJson(content));
+  const parsed = JSON.parse(extractJson(content));
+  if (parsed && parsed.error) throw new Error(parsed.error);
+  return parsed;
 }
 
 const FALLBACK_MESSAGES = {
@@ -201,6 +203,10 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
     try {
       aiRaw = await callOpenAiVision(base64Image, mimeType, lang);
     } catch (aiError) {
+      const msg = String(aiError?.message || "");
+      if (msg.includes("Text na etikete nie je čitateľný")) {
+        return res.status(422).json({ error: "Text na etikete nie je čitateľný, skúste odfotiť zblízka" });
+      }
       console.error("[/api/scan] OpenAI zlyhalo, vracam demo fallback:", aiError.message);
       return res.json({ ...DEMO_RESPONSE, ui: { ...DEMO_RESPONSE.ui, progressText: messages.aiFailed } });
     }
