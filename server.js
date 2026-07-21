@@ -22,17 +22,14 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 8 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith("image/")) {
-      return cb(new Error("Iba obrazkove formaty su povolene."));
-    }
+    if (!file.mimetype.startsWith("image/")) return cb(new Error("Iba obrazkove formaty su povolene."));
     cb(null, true);
   }
 });
 
 function buildPrompt(lang) {
-  const languageName = { sk: "Slovak", en: "English", de: "German" }[["sk", "en", "de"].includes(lang) ? lang : "sk"];
-  return `Analyze this food package / label image and return STRICT JSON only. Read the exact printed text first before classifying the product. The product label may be in Swedish, German, Polish or other European languages. Read the exact printed text first before classifying the product. If the text is not readable, return exactly this JSON error object: {"error":"Text na etikete nie je čitateľný, skúste odfotiť zblízka"}.
-Return keys scan, product, analysis, ui. Write all user-facing strings in ${languageName}. No markdown.`;
+  const languageName = { sk: "Slovak", en: "English", de: "German" }[(["sk", "en", "de"].includes(lang) ? lang : "sk")];
+  return `Analyze this food package / label image and return STRICT JSON only. Read the exact printed text first before classifying the product. The product label may be in Swedish, German, Polish or other European languages. Read the exact printed text first before classifying the product. If the text is not readable, return exactly this JSON error object: {"error":"Text na etikete nie je čitateľný, skúste odfotiť zblízka"}. Return keys scan, product, analysis, ui. Write all user-facing strings in ${languageName}. No markdown.`;
 }
 
 function extractText(content) {
