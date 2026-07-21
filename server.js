@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
 const path = require("path");
-app.use(express.static(__dirname));
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -15,7 +15,6 @@ if (!OPENAI_API_KEY) {
 
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json({ limit: "2mb" }));
-
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, "../frontend")));
 
@@ -23,9 +22,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 8 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith("image/")) {
-      return cb(new Error("Iba obrazkove formaty su povolene."));
-    }
+    if (!file.mimetype.startsWith("image/")) return cb(new Error("Iba obrazkove formaty su povolene."));
     cb(null, true);
   }
 });
@@ -70,33 +67,25 @@ function toHighlightSeverity(v) { return v === "danger" ? "danger" : "warn"; }
 
 function sanitizeScoreBlock(block, fallback) {
   const b = block || {};
-  return {
-    value: toStr(b.value, fallback.value),
-    level: toStr(b.level, fallback.level),
-    severity: toSeverity(b.severity)
-  };
+  return { value: toStr(b.value, fallback.value), level: toStr(b.level, fallback.level), severity: toSeverity(b.severity) };
 }
 
 function sanitizeHighlights(list) {
   if (!Array.isArray(list)) return DEMO_RESPONSE.scan.highlights;
-  const cleaned = list
-    .filter(h => h && typeof h === "object")
-    .map(h => ({
-      label: toStr(h.label, "neznama zlozka"),
-      severity: toHighlightSeverity(h.severity),
-      x: Math.min(100, Math.max(0, toNum(h.x, 10))),
-      y: Math.min(100, Math.max(0, toNum(h.y, 10))),
-      w: Math.min(100, Math.max(4, toNum(h.w, 20))),
-      h: Math.min(100, Math.max(4, toNum(h.h, 10)))
-    }))
-    .slice(0, 8);
+  const cleaned = list.filter(h => h && typeof h === "object").map(h => ({
+    label: toStr(h.label, "neznama zlozka"),
+    severity: toHighlightSeverity(h.severity),
+    x: Math.min(100, Math.max(0, toNum(h.x, 10))),
+    y: Math.min(100, Math.max(0, toNum(h.y, 10))),
+    w: Math.min(100, Math.max(4, toNum(h.w, 20))),
+    h: Math.min(100, Math.max(4, toNum(h.h, 10)))
+  })).slice(0, 8);
   return cleaned.length ? cleaned : DEMO_RESPONSE.scan.highlights;
 }
 
 function sanitizeAiResponse(raw) {
   const fb = DEMO_RESPONSE;
   const data = raw && typeof raw === "object" ? raw : {};
-
   const scan = data.scan || {};
   const product = data.product || {};
   const analysis = data.analysis || {};
@@ -105,14 +94,11 @@ function sanitizeAiResponse(raw) {
   const swap = analysis.healthierSwap || {};
   const swapProduct = swap.product || {};
   const ui = data.ui || {};
-
   return {
     scan: {
       source: "live",
       imagePreview: null,
-      detectedText: Array.isArray(scan.detectedText) && scan.detectedText.length
-        ? scan.detectedText.slice(0, 12).map(t => toStr(t, "")).filter(Boolean)
-        : fb.scan.detectedText,
+      detectedText: Array.isArray(scan.detectedText) && scan.detectedText.length ? scan.detectedText.slice(0, 12).map(t => toStr(t, "")).filter(Boolean) : fb.scan.detectedText,
       highlights: sanitizeHighlights(scan.highlights)
     },
     product: {
@@ -159,61 +145,32 @@ function sanitizeAiResponse(raw) {
   };
 }
 
-const LANG_NAMES = {
-  sk: "Slovak",
-  en: "English",
-  de: "German"
-};
-
-function normalizeLang(lang) {
-  return ["sk", "en", "de"].includes(lang) ? lang : "sk";
-}
+const LANG_NAMES = { sk: "Slovak", en: "English", de: "German" };
+function normalizeLang(lang) { return ["sk", "en", "de"].includes(lang) ? lang : "sk"; }
 
 function buildJsonPrompt(lang) {
   const languageName = LANG_NAMES[normalizeLang(lang)];
   return `Analyze this food package / label image and return STRICTLY VALID JSON with EXACTLY these top-level keys: {"scan":{"detectedText":["..."],"highlights":[{"label":"string","severity":"danger|warn","x":10,"y":20,"w":30,"h":12}]},"product":{"name":"string","category":"string","portion":"string","brand":"string"},"analysis":{"verdict":{"label":"string","severity":"green|orange|red","score":0,"summary":"string"},"scores":{"sugar":{"value":"string","level":"string","severity":"green|orange|red"},"salt":{"value":"string","level":"string","severity":"green|orange|red"},"additives":{"value":"string","level":"string","severity":"green|orange|red"},"processing":{"value":"string","level":"string","severity":"green|orange|red"}},"recommendation":"string","healthierSwap":{"enabled":true,"title":"string","summary":"string","improvement":"+NN% string","product":{"name":"string","score":0,"sugar":"string","salt":"string","additives":"string","processing":"string"}}},"ui":{"ocrStatus":"string","progressTitle":"string","progressText":"string"}} Rules: Return ONLY JSON, no markdown fences, no explanation. Write ALL user-facing string values (labels, summaries, level names, recommendation, healthierSwap, ui) in ${languageName}. Keep JSON keys in English exactly as specified. Estimate conservatively when exact values are not visible. highlights coordinates are percentages relative to image for overlay placement. healthierSwap must be filled with a plausible healthier alternative from the same category, described in ${languageName}.`.trim();
 }
 
-function extractJson(text) {
-  const start = text.indexOf("{");
-  const end = text.lastIndexOf("}");
-  if (start === -1 || end === -1) throw new Error("Nepodarilo sa najst JSON v odpovedi modelu.");
-  return text.slice(start, end + 1);
-}
+function extractJson(text) { const start = text.indexOf("{"); const end = text.lastIndexOf("}"); if (start === -1 || end === -1) throw new Error("Nepodarilo sa najst JSON v odpovedi modelu."); return text.slice(start, end + 1); }
 
 async function callOpenAiVision(base64Image, mimeType, lang) {
   const languageName = LANG_NAMES[normalizeLang(lang)];
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${OPENAI_API_KEY}`
-    },
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${OPENAI_API_KEY}` },
     body: JSON.stringify({
       model: "gpt-4o",
       temperature: 0.2,
       response_format: { type: "json_object" },
       messages: [
-        {
-          role: "system",
-          content: `You are a food label analysis engine. Return ONLY valid JSON matching the requested schema. Write all user-facing text strictly in ${languageName}. No markdown, no explanation.`
-        },
-        {
-          role: "user",
-          content: [
-            { type: "text", text: buildJsonPrompt(lang) },
-            { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Image}` } }
-          ]
-        }
+        { role: "system", content: `You are a food label analysis engine. Return ONLY valid JSON matching the requested schema. Write all user-facing text strictly in ${languageName}. No markdown, no explanation.` },
+        { role: "user", content: [{ type: "text", text: buildJsonPrompt(lang) }, { type: "image_url", image_url: { url: `data:${mimeType};base64,${base64Image}` } }] }
       ]
     })
   });
-
-  if (!response.ok) {
-    const errText = await response.text();
-    throw new Error(`OpenAI API chyba (${response.status}): ${errText}`);
-  }
-
+  if (!response.ok) throw new Error(`OpenAI API chyba (${response.status}): ${await response.text()}`);
   const data = await response.json();
   const content = data?.choices?.[0]?.message?.content;
   if (!content) throw new Error("OpenAI nevratil ziadny content.");
@@ -221,45 +178,25 @@ async function callOpenAiVision(base64Image, mimeType, lang) {
 }
 
 const FALLBACK_MESSAGES = {
-  sk: {
-    missingKey: "API kluc chyba na serveri - zobrazene demo data.",
-    aiFailed: "AI analyza zlyhala - zobrazene demo data."
-  },
-  en: {
-    missingKey: "API key is missing on the server - showing demo data.",
-    aiFailed: "AI analysis failed - showing demo data."
-  },
-  de: {
-    missingKey: "API-Schluessel fehlt auf dem Server - Demo-Daten werden angezeigt.",
-    aiFailed: "KI-Analyse fehlgeschlagen - Demo-Daten werden angezeigt."
-  }
+  sk: { missingKey: "API kluc chyba na serveri - zobrazene demo data.", aiFailed: "AI analyza zlyhala - zobrazene demo data." },
+  en: { missingKey: "API key is missing on the server - showing demo data.", aiFailed: "AI analysis failed - showing demo data." },
+  de: { missingKey: "API-Schluessel fehlt auf dem Server - Demo-Daten werden angezeigt.", aiFailed: "KI-Analyse fehlgeschlagen - Demo-Daten werden angezeigt." }
 };
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
-});
-
-app.get("/api/health", (req, res) => {
-  res.json({ ok: true, hasApiKey: Boolean(OPENAI_API_KEY) });
-});
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "../frontend/index.html")));
+app.get("/api/health", (req, res) => res.json({ ok: true, hasApiKey: Boolean(OPENAI_API_KEY) }));
 
 app.post("/api/scan", upload.single("image"), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "Chyba priloha 'image' vo FormData." });
-    }
-
+    if (!req.file) return res.status(400).json({ error: "Chyba priloha 'image' vo FormData." });
     const lang = normalizeLang(req.body?.lang);
     const messages = FALLBACK_MESSAGES[lang];
-
     if (!OPENAI_API_KEY) {
       console.warn("[/api/scan] OPENAI_API_KEY chyba, vracam demo fallback.");
       return res.json({ ...DEMO_RESPONSE, ui: { ...DEMO_RESPONSE.ui, progressText: messages.missingKey } });
     }
-
     const base64Image = req.file.buffer.toString("base64");
     const mimeType = req.file.mimetype || "image/jpeg";
-
     let aiRaw;
     try {
       aiRaw = await callOpenAiVision(base64Image, mimeType, lang);
@@ -267,9 +204,7 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
       console.error("[/api/scan] OpenAI zlyhalo, vracam demo fallback:", aiError.message);
       return res.json({ ...DEMO_RESPONSE, ui: { ...DEMO_RESPONSE.ui, progressText: messages.aiFailed } });
     }
-
-    const safeResult = sanitizeAiResponse(aiRaw);
-    return res.json(safeResult);
+    return res.json(sanitizeAiResponse(aiRaw));
   } catch (err) {
     console.error("[/api/scan] Neocakavana chyba:", err);
     return res.status(500).json({ error: "Interna chyba servera pri spracovani skenu." });
@@ -277,12 +212,8 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    return res.status(400).json({ error: `Chyba uploadu: ${err.message}` });
-  }
-  if (err) {
-    return res.status(400).json({ error: err.message || "Neznama chyba." });
-  }
+  if (err instanceof multer.MulterError) return res.status(400).json({ error: `Chyba uploadu: ${err.message}` });
+  if (err) return res.status(400).json({ error: err.message || "Neznama chyba." });
   next();
 });
 
