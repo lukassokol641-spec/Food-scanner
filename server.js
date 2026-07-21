@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
+const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -14,7 +15,9 @@ if (!OPENAI_API_KEY) {
 
 app.use(cors({ origin: CORS_ORIGIN }));
 app.use(express.json({ limit: "2mb" }));
-app.use(express.static("../frontend"));
+
+app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, "../frontend")));
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -27,10 +30,6 @@ const upload = multer({
   }
 });
 
-/* ---------------------------------------------------------
-   DEMO FALLBACK - garantovana struktura pre pripad, ze
-   OpenAI zlyha alebo API key chyba.
----------------------------------------------------------- */
 const DEMO_RESPONSE = {
   scan: {
     source: "demo",
@@ -63,10 +62,6 @@ const DEMO_RESPONSE = {
   ui: { mode: "demo", ocrStatus: "Demo OCR zvyraznenie", progressTitle: "Demo analyza pripravena", progressText: "Ukazkove data z demo scenara." }
 };
 
-/* ---------------------------------------------------------
-   VALIDACIA / SANITIZACIA - zaruci, ze FE dostane vzdy
-   kompletnu a spravne typovanu strukturu.
----------------------------------------------------------- */
 function toStr(v, fallback) { return typeof v === "string" && v.trim() ? v : fallback; }
 function toNum(v, fallback) { const n = Number(v); return Number.isFinite(n) ? n : fallback; }
 function toBool(v, fallback) { return typeof v === "boolean" ? v : fallback; }
@@ -240,9 +235,10 @@ const FALLBACK_MESSAGES = {
   }
 };
 
-/* ---------------------------------------------------------
-   ROUTES
----------------------------------------------------------- */
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+});
+
 app.get("/api/health", (req, res) => {
   res.json({ ok: true, hasApiKey: Boolean(OPENAI_API_KEY) });
 });
