@@ -31,11 +31,6 @@ body{background:#f7f6f2;color:#171614;font-family:Inter,ui-sans-serif,system-ui,
 .btn-primary{background:linear-gradient(180deg,#0f9f74,#0a7f5b);color:#fff;box-shadow:0 12px 24px rgba(15,159,116,0.22);}
 .btn-secondary{background:#fbfbf9;color:#171614;border:1px solid rgba(23,22,20,0.10);}
 [data-theme="dark"] .btn-secondary{background:#1d1c1a;color:#f1efe9;border-color:rgba(255,255,255,0.10);}
-.btn-ghost{width:100%;border-radius:16px;padding:12px 16px;font-size:14px;font-weight:600;border:1px dashed rgba(23,22,20,0.15);background:transparent;color:#6f6d68;cursor:pointer;}
-[data-theme="dark"] .btn-ghost{border-color:rgba(255,255,255,0.15);color:#a6a39b;}
-.kpi-list{display:flex;flex-direction:column;gap:12px;}
-.kpi{background:rgba(251,251,249,0.7);border:1px solid rgba(23,22,20,0.10);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;}
-[data-theme="dark"] .kpi{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.10);}
 .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600;white-space:nowrap;}
 .badge-demo{background:rgba(218,113,1,0.12);color:#da7101;}
 .badge-ok{background:rgba(15,159,116,0.12);color:#0f9f74;}
@@ -53,43 +48,33 @@ body{background:#f7f6f2;color:#171614;font-family:Inter,ui-sans-serif,system-ui,
 .scan-line{position:absolute;left:8%;right:8%;top:18%;height:2px;background:linear-gradient(90deg,transparent,rgba(79,190,153,0.25),rgba(79,190,153,1),rgba(79,190,153,0.25),transparent);box-shadow:0 0 18px rgba(79,190,153,0.65);animation:scanMove 2.2s ease-in-out infinite;z-index:4;}
 @keyframes scanMove{0%{top:18%;opacity:.8;}50%{top:74%;opacity:1;}100%{top:18%;opacity:.8;}}
 .hidden{display:none !important;}
-.ocr-overlay{position:absolute;inset:0;z-index:6;pointer-events:none;}
-.ocr-box{position:absolute;border-radius:16px;border:2px solid;backdrop-filter:blur(1px);}
-.ocr-danger{background:rgba(200,59,59,0.16);border-color:rgba(255,107,107,0.95);}
-.ocr-warn{background:rgba(218,113,1,0.14);border-color:rgba(243,162,60,0.95);}
-.ocr-chip{position:absolute;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:700;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,0.18);}
 .progress-panel{position:absolute;left:16px;right:16px;bottom:16px;z-index:7;background:rgba(23,22,20,0.55);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(10px);border-radius:16px;padding:12px;color:#fff;display:flex;flex-direction:column;gap:4px;}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .score-card{border:1px solid rgba(23,22,20,0.10);background:rgba(0,0,0,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 [data-theme="dark"] .score-card{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.10);}
-.swap-card{border:1px solid rgba(15,159,116,0.25);background:rgba(15,159,116,0.06);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:16px;}
-[data-theme="dark"] .swap-card{background:rgba(79,190,153,0.08);border-color:rgba(79,190,153,0.25);}
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.compare-box{background:rgba(255,255,255,0.7);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;}
-[data-theme="dark"] .compare-box{background:rgba(255,255,255,0.06);}
-table.compare-table{width:100%;border-collapse:collapse;font-size:14px;}
-table.compare-table th,table.compare-table td{padding:10px 12px;text-align:left;border-top:1px solid rgba(23,22,20,0.08);}
-[data-theme="dark"] table.compare-table th, [data-theme="dark"] table.compare-table td{border-color:rgba(255,255,255,0.08);}
+
+/* --- VIZUÁLNA SILUETA TELA --- */
+.body-impact-card{background:rgba(0,0,0,0.03);border:1px solid rgba(23,22,20,0.10);border-radius:24px;padding:16px;display:flex;align-items:center;gap:16px;}
+[data-theme="dark"] .body-impact-card{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.10);}
+.body-svg-container{width:90px;height:140px;flex-shrink:0;position:relative;}
+.organ-glow{transition:all 0.4s ease-in-out;filter:drop-shadow(0 0 6px currentColor);}
+.organ-inactive{fill:#6f6d68;opacity:0.3;}
+.organ-red{fill:#df5252;color:#df5252;opacity:1;}
+.organ-orange{fill:#f29a2e;color:#f29a2e;opacity:1;}
+.organ-green{fill:#0f9f74;color:#0f9f74;opacity:1;}
+
 .verdict-row{display:flex;align-items:flex-start;gap:16px;}
 .verdict-ring{position:relative;width:96px;height:96px;flex-shrink:0;border-radius:999px;background:conic-gradient(var(--verdict-color,#f29a2e) 0 68%, rgba(127,127,127,0.14) 68% 100%);display:flex;align-items:center;justify-content:center;}
 .verdict-ring-inner{position:absolute;inset:12px;border-radius:999px;background:#fbfbf9;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 [data-theme="dark"] .verdict-ring-inner{background:#1d1c1a;}
-.toggle-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .toggle-pill{border-radius:16px;border:1px solid rgba(23,22,20,0.10);padding:12px;font-weight:600;font-size:14px;background:#fbfbf9;color:#171614;cursor:pointer;text-align:center;}
 [data-theme="dark"] .toggle-pill{background:#1d1c1a;color:#f1efe9;border-color:rgba(255,255,255,0.10);}
-.toggle-pill[data-active="true"]{background:rgba(15,159,116,0.12);color:#0f9f74;border-color:rgba(15,159,116,0.3);}
-input[type="password"], input[type="text"], select{width:100%;border-radius:16px;border:1px solid rgba(23,22,20,0.15);background:rgba(255,255,255,0.7);padding:12px 14px;font-size:14px;outline:none;}
-[data-theme="dark"] input[type="password"], [data-theme="dark"] input[type="text"], [data-theme="dark"] select{background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.15);color:#f1efe9;}
-.checkbox-row{display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(23,22,20,0.10);border-radius:16px;padding:12px;font-size:14px;}
-[data-theme="dark"] .checkbox-row{border-color:rgba(255,255,255,0.10);}
 .icon-btn{width:44px;height:44px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:#fbfbf9;border:1px solid rgba(23,22,20,0.10);cursor:pointer;flex-shrink:0;}
 [data-theme="dark"] .icon-btn{background:#1d1c1a;border-color:rgba(255,255,255,0.10);}
 .logo-badge{width:44px;height:44px;border-radius:16px;flex-shrink:0;background:rgba(15,159,116,0.12);color:#0a7f5b;display:flex;align-items:center;justify-content:center;}
-[data-theme="dark"] .logo-badge{background:rgba(79,190,153,0.15);color:#4fbe99;}
 .muted{color:#6f6d68;}
 [data-theme="dark"] .muted{color:#a6a39b;}
 .title-xs{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#6f6d68;}
-[data-theme="dark"] .title-xs{color:#a6a39b;}
 .upload-label{cursor:pointer;}
 .file-hidden{display:none;}
 </style>
@@ -100,16 +85,11 @@ input[type="password"], input[type="text"], select{width:100%;border-radius:16px
     <div class="row-between">
       <div class="row">
         <div class="logo-badge">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-label="Food Scanner logo">
-            <path d="M5 12C5 7.029 9.029 3 14 3c2.685 0 5.095 1.176 6.744 3.042" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M19 12c0 4.971-4.029 9-9 9-2.685 0-5.095-1.176-6.744-3.042" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <circle cx="10" cy="12" r="2.5" fill="currentColor"/>
-            <path d="M15 9.5h4M17 7.5v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12C5 7.029 9.029 3 14 3c2.685 0 5.095 1.176 6.744 3.042" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M19 12c0 4.971-4.029 9-9 9-2.685 0-5.095-1.176-6.744-3.042" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="12" r="2.5" fill="currentColor"/><path d="M15 9.5h4M17 7.5v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         </div>
         <div>
-          <p class="title-xs" data-i18n="appBrand">Food Scanner</p>
-          <h1 style="font-size:16px;font-weight:600;margin:0;" data-i18n="appTitle">AI čítanie etikiet</h1>
+          <p class="title-xs">Food Scanner</p>
+          <h1 style="font-size:16px;font-weight:600;margin:0;">AI čítanie etikiet</h1>
         </div>
       </div>
       <div class="row" style="gap:8px;flex-shrink:0;">
@@ -118,246 +98,190 @@ input[type="password"], input[type="text"], select{width:100%;border-radius:16px
           <option value="en">🇬🇧 EN</option>
           <option value="de">🇩🇪 DE</option>
         </select>
-        <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">
-          <i data-lucide="moon" style="width:18px;height:18px;"></i>
-        </button>
+        <button id="themeToggle" class="icon-btn"><i data-lucide="moon" style="width:18px;height:18px;"></i></button>
       </div>
-    </div>
-    <div class="settings-panel">
-      <div class="row-between">
-        <p style="font-size:14px;font-weight:600;margin:0;" data-i18n="liveAiScanning">Live AI skenovanie</p>
-        <div id="apiStatus" class="badge badge-demo" data-server-state="checking" data-i18n="checkServer">Kontrola servera...</div>
-      </div>
-      <p class="muted" style="font-size:13px;margin:0;" data-i18n="serverNotice">Fotka etikety sa bezpečne odosiela na náš backend, ktorý volá OpenAI GPT-4o Vision. API kľúč sa nikdy nenachádza vo frontende.</p>
     </div>
   </header>
 
   <main class="stack-lg">
     <section id="screen-hero" class="screen active">
       <div class="card">
-        <div class="badge badge-ok" style="align-self:flex-start;"><span style="width:8px;height:8px;border-radius:999px;background:#0f9f74;display:inline-block;"></span><span data-i18n="badgeIntro">Rýchla kontrola cukru, éčok a spracovania</span></div>
+        <div class="badge badge-ok"><span style="width:8px;height:8px;border-radius:999px;background:#0f9f74;display:inline-block;"></span><span>Rýchla kontrola potravín</span></div>
         <div class="stack" style="gap:10px;">
-          <h2 style="font-size:28px;font-weight:800;line-height:1.2;margin:0;"><span data-i18n="heroTitlePre">Odfoť etiketu a zisti,</span> <span style="color:#0f9f74;" data-i18n="heroTitleHighlight">čo kupuješ</span>.</h2>
-          <p class="muted" style="font-size:14px;line-height:1.5;margin:0;" data-i18n="heroSubtitle">Food Scanner analyzuje zloženie z fotky a okamžite ukáže cukor, soľ, aditíva, mieru spracovania aj zdravšiu alternatívu.</p>
+          <h2 style="font-size:28px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu a zisti, <span style="color:#0f9f74;">čo kupuješ</span>.</h2>
+          <p class="muted" style="font-size:14px;line-height:1.5;margin:0;">Analýza zloženia, E-čiek, dopadu na ľudské telo a návrh zdravších alternatív.</p>
         </div>
         <div class="stack">
-          <button id="heroCameraBtn" class="btn btn-primary"><i data-lucide="camera" style="width:20px;height:20px;"></i><span data-i18n="cameraBtn">Odfotiť etiketu</span></button>
-          <button id="heroUploadBtn" class="btn btn-secondary"><i data-lucide="upload" style="width:20px;height:20px;"></i><span data-i18n="uploadBtn">Nahrať fotku</span></button>
+          <button id="heroCameraBtn" class="btn btn-primary"><i data-lucide="camera" style="width:20px;height:20px;"></i><span>Odfotiť etiketu</span></button>
           <input id="photoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
-        </div>
-        <div class="kpi-list">
-          <div class="kpi"><div class="row" style="font-size:14px;font-weight:600;"><i data-lucide="scan-search" style="width:16px;height:16px;color:#0f9f74;"></i><span data-i18n="kpi1Title">Jasný verdikt</span></div><p class="muted" style="font-size:14px;margin:0;" data-i18n="kpi1Text">Za pár sekúnd vieš, či produkt zaradiť, obmedziť alebo radšej vymeniť.</p></div>
-          <div class="kpi"><div class="row" style="font-size:14px;font-weight:600;"><i data-lucide="sparkles" style="width:16px;height:16px;color:#da7101;"></i><span data-i18n="kpi2Title">AI zvýraznenie rizík</span></div><p class="muted" style="font-size:14px;margin:0;" data-i18n="kpi2Text">Appka ukáže, kde na etikete našla pridaný cukor, sirupy alebo problematické aditíva.</p></div>
-          <div class="kpi"><div class="row" style="font-size:14px;font-weight:600;"><i data-lucide="refresh-ccw" style="width:16px;height:16px;color:#df5252;"></i><span data-i18n="kpi3Title">Health Swap</span></div><p class="muted" style="font-size:14px;margin:0;" data-i18n="kpi3Text">Pri slabšom produkte odporučí vhodnejšiu alternatívu s lepším skóre.</p></div>
         </div>
       </div>
     </section>
 
     <section id="screen-scan" class="screen">
       <div class="row-between">
-        <button id="backToHeroBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i><span data-i18n="backBtn">Späť</span></button>
-        <div id="scanModeBadge" class="badge badge-ok" data-mode="live" data-i18n="liveMode">Live AI pripravené</div>
+        <button id="backToHeroBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i><span>Späť</span></button>
+        <div class="badge badge-ok">Live OpenAI</div>
       </div>
       <div class="card">
-        <div class="stack" style="gap:4px;"><h2 style="font-size:20px;font-weight:700;margin:0;" data-i18n="scanTitle">Skenovanie etikety</h2><p class="muted" style="font-size:14px;margin:0;" data-i18n="scanSubtitle">Náhľad fotky, OCR vrstvy a AI analýza v reálnom čase.</p></div>
         <div class="camera-frame">
           <img id="previewImage" class="product-image hidden" alt="Preview" />
-          <div id="cameraPlaceholder" class="camera-placeholder"><div class="icon-btn" style="width:72px;height:72px;background:rgba(255,255,255,0.15);border:none;color:#fff;"><i data-lucide="image-plus" style="width:36px;height:36px;"></i></div><p style="font-size:17px;font-weight:600;margin:0;color:#fff;" data-i18n="placeholderTitle">Pridaj fotku obalu alebo etikety</p><p style="font-size:13px;margin:0;max-width:280px;color:rgba(255,255,255,0.8);" data-i18n="placeholderSubtitle">Najlepšie funguje ostrá fotka so zoznamom zložiek a výživovými hodnotami.</p></div>
+          <div id="cameraPlaceholder" class="camera-placeholder"><p>Pridaj fotku obalu</p></div>
           <div id="scanLine" class="scan-line hidden"></div>
-          <div id="ocrOverlay" class="ocr-overlay"></div>
-          <div class="overlay-top"><div class="chip-dark">Live OCR</div><div id="ocrStateChip" class="chip-dark" data-state="waiting" data-i18n="ocrWaiting">Čaká na fotku</div></div>
-          <div class="progress-panel"><div class="row-between"><p id="scanProgressTitle" style="font-size:14px;font-weight:600;margin:0;" data-i18n="progressIdleTitle">Pripravené na sken</p><div id="scanProgressBadge" class="chip-dark" style="background:rgba(255,255,255,0.18);" data-state="idle" data-i18n="idleBadge">Idle</div></div><p id="scanProgressText" style="font-size:12px;margin:0;color:rgba(255,255,255,0.85);" data-i18n="progressIdleText">Nahraj fotku alebo otvor kameru na spustenie analýzy.</p></div>
         </div>
-        <div class="stack">
-          <label class="btn btn-primary upload-label"><i data-lucide="camera" style="width:20px;height:20px;"></i><span data-i18n="retakeBtn">Odfotiť / nahrať novú fotku</span><input id="scanPhotoInput" type="file" accept="image/*" capture="environment" class="file-hidden" /></label>
-          <button id="tryLiveScanBtn" class="btn btn-secondary"><i data-lucide="sparkles" style="width:20px;height:20px;"></i><span data-i18n="scanBtn">Spustiť AI analýzu</span></button>
-        </div>
-        <div class="kpi"><div class="row" style="font-size:14px;font-weight:600;"><i data-lucide="brain" style="width:16px;height:16px;color:#0f9f74;"></i><span data-i18n="ocrDetailTitle">AI OCR detail</span></div><p class="muted" style="font-size:14px;margin:0;" data-i18n="ocrDetailText">Po spracovaní sa na fotke zvýraznia rizikové zložky a rovnaké dáta sa použijú aj pre výsledok a odporúčaný Health Swap.</p></div>
+        <button id="tryLiveScanBtn" class="btn btn-primary"><i data-lucide="sparkles" style="width:20px;height:20px;"></i><span>Spustiť AI analýzu</span></button>
       </div>
     </section>
 
     <section id="screen-result" class="screen">
       <div class="row-between">
-        <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i><span data-i18n="scanBackBtn">Sken</span></button>
-        <div id="resultModeBadge" class="badge badge-ok" data-mode="live" data-i18n="liveMode">Live OpenAI</div>
+        <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i><span>Sken</span></button>
+        <div class="badge badge-ok">Live OpenAI</div>
       </div>
+
       <div class="card">
-        <div class="verdict-row"><div id="verdictRing" class="verdict-ring"><div class="verdict-ring-inner"><div id="verdictPercent" style="font-size:20px;font-weight:800;">0</div><div class="title-xs" style="font-size:9px;" data-i18n="scoreLabel">Score</div></div></div><div class="stack" style="gap:6px;flex:1;min-width:0;"><div id="verdictBadge" class="badge badge-demo" style="align-self:flex-start;" data-default-label="true"><span class="risk-dot risk-orange"></span><span data-i18n="verdictLabelDemo">Radšej obmedziť</span></div><h2 id="productName" style="font-size:22px;font-weight:800;margin:0;line-height:1.2;">—</h2><p id="productMeta" class="muted" style="font-size:14px;margin:0;"></p><p id="recommendationText" class="muted" style="font-size:14px;line-height:1.5;margin:0;"></p></div></div>
-        <div id="scoresGrid" class="grid-2"></div>
-        <div id="healthSwapSection" class="swap-card">
-          <div class="row-between" style="align-items:flex-start;">
-            <div class="stack" style="gap:4px;">
-              <p class="title-xs" style="color:#0a7f5b;" data-i18n="healthSwapLabel">Health Swap</p>
-              <h3 style="font-size:18px;font-weight:700;margin:0;" data-i18n="healthSwapTitle">Zdravšia alternatíva</h3>
-              <p id="swapSummary" style="font-size:14px;margin:0;color:#0a7f5b;"></p>
-            </div>
-            <div id="swapDeltaBadge" class="badge" style="background:rgba(255,255,255,0.8);color:#0a7f5b;flex-shrink:0;"></div>
-          </div>
-          <div class="compare-grid">
-            <div class="compare-box">
-              <div class="row-between">
-                <p style="font-size:14px;font-weight:600;margin:0;" data-i18n="scannedProductLabel">Skenovaný produkt</p>
-                <span id="compareCurrentScore" class="badge" style="background:rgba(242,154,46,0.15);color:#da7101;"></span>
-              </div>
-              <p id="compareCurrentName" class="muted" style="font-size:13px;margin:0;"></p>
-            </div>
-            <div class="compare-box">
-              <div class="row-between">
-                <p style="font-size:14px;font-weight:600;margin:0;" data-i18n="recommendedChoiceLabel">Odporúčaná voľba</p>
-                <span id="compareSwapScore" class="badge" style="background:rgba(58,167,109,0.15);color:#0f9f74;"></span>
-              </div>
-              <p id="compareSwapName" class="muted" style="font-size:13px;margin:0;"></p>
-            </div>
-          </div>
-          <button id="toggleComparisonBtn" class="btn" style="background:rgba(255,255,255,0.7);color:#0a6248;border:1px solid rgba(15,159,116,0.25);" data-i18n="showComparisonBtn">Zobraziť detailné porovnanie</button>
-          <div id="comparisonTableWrap" class="hidden" style="overflow-x:auto;border-radius:16px;border:1px solid rgba(23,22,20,0.10);">
-            <table class="compare-table">
-              <thead style="background:rgba(0,0,0,0.03);">
-                <tr>
-                  <th data-i18n="tableMetric">Metrika</th>
-                  <th data-i18n="tableProduct">Produkt</th>
-                  <th data-i18n="tableAlternative">Alternatíva</th>
-                </tr>
-              </thead>
-              <tbody id="comparisonTableBody"></tbody>
-            </table>
+        <!-- ZÁKLADNÉ SKÓRE & PRODUKT -->
+        <div class="verdict-row">
+          <div id="verdictRing" class="verdict-ring"><div class="verdict-ring-inner"><div id="verdictPercent" style="font-size:20px;font-weight:800;">0</div><div class="title-xs" style="font-size:9px;">Score</div></div></div>
+          <div class="stack" style="gap:6px;flex:1;min-width:0;">
+            <div id="verdictBadge" class="badge badge-demo" style="align-self:flex-start;"><span class="risk-dot risk-orange"></span><span>—</span></div>
+            <h2 id="productName" style="font-size:22px;font-weight:800;margin:0;">—</h2>
+            <p id="productMeta" class="muted" style="font-size:14px;margin:0;"></p>
           </div>
         </div>
-        <button id="newScanBtn" class="btn btn-primary"><i data-lucide="refresh-ccw" style="width:20px;height:20px;"></i><span data-i18n="newScanBtn">Skúsiť nový sken</span></button>
+
+        <!-- 🧍‍♂️ NOVÝ KROK 2.2: INTERAKTÍVNA SILUETA TELA -->
+        <div class="body-impact-card">
+          <div class="body-svg-container">
+            <svg viewBox="0 0 100 200" width="100%" height="100%">
+              <!-- Silueta tela -->
+              <path d="M50,15 C42,15 38,22 38,30 C38,38 42,42 50,42 C58,42 62,38 62,30 C62,22 58,15 50,15 Z M35,50 C25,55 20,70 18,90 C17,98 22,100 25,95 C28,85 30,70 32,60 L32,120 L42,120 L42,185 C42,192 48,192 48,185 L48,130 L52,130 L52,185 C52,192 58,192 58,185 L58,120 L68,120 L68,60 C70,70 72,85 75,95 C78,100 83,98 82,90 C80,70 75,55 65,50 Z" fill="currentColor" opacity="0.15"/>
+              
+              <!-- Orgán: MOZOG -->
+              <circle id="organ-brain" class="organ-glow organ-inactive" cx="50" cy="28" r="7"/>
+              <!-- Orgán: SRDCE / CIEVY -->
+              <circle id="organ-heart" class="organ-glow organ-inactive" cx="53" cy="62" r="6"/>
+              <!-- Orgán: ŽALÚDOK / TRÁVENIE -->
+              <ellipse id="organ-stomach" class="organ-glow organ-inactive" cx="48" cy="78" rx="8" ry="6"/>
+            </svg>
+          </div>
+          <div class="stack" style="gap:4px;flex:1;">
+            <p class="title-xs" style="color:#0f9f74;">Vizuálny dopad na telo</p>
+            <h3 id="bodyImpactTitle" style="font-size:16px;font-weight:700;margin:0;">Zasahuje 2 oblasti</h3>
+            <p id="bodyImpactText" class="muted" style="font-size:13px;margin:0;">Sodík a konzervanty predstavujú záťaž pre cievnu sústavu a trávenie.</p>
+          </div>
+        </div>
+
+        <p id="recommendationText" class="muted" style="font-size:14px;line-height:1.5;margin:0;"></p>
+        <div id="scoresGrid" class="grid-2"></div>
+
+        <button id="newScanBtn" class="btn btn-primary"><i data-lucide="refresh-ccw" style="width:20px;height:20px;"></i><span>Skúsiť nový sken</span></button>
       </div>
     </section>
   </main>
 </div>
 
 <script>
-const I18N = {
-  sk: { appBrand:"Food Scanner", appTitle:"AI čítanie etikiet", liveAiScanning:"Live AI skenovanie", checkServer:"Kontrola servera...", serverNotice:"Fotka etikety sa bezpečne odosiela na náš backend, ktorý volá OpenAI GPT-4o Vision. API kľúč sa nikdy nenachádza vo frontende.", badgeIntro:"Rýchla kontrola cukru, éčok a spracovania", heroTitlePre:"Odfoť etiketu a zisti,", heroTitleHighlight:"čo kupuješ", heroSubtitle:"Food Scanner analyzuje zloženie z fotky a okamžite ukáže cukor, soľ, aditíva, mieru spracovania aj zdravšiu alternatívu.", cameraBtn:"Odfotiť etiketu", uploadBtn:"Nahrať fotku", kpi1Title:"Jasný verdikt", kpi1Text:"Za pár sekúnd vieš, či produkt zaradiť, obmedziť alebo radšej vymeniť.", kpi2Title:"AI zvýraznenie rizík", kpi2Text:"Appka ukáže, kde na etikete našla pridaný cukor, sirupy alebo problematické aditíva.", kpi3Title:"Health Swap", kpi3Text:"Pri slabšom produkte odporučí vhodnejšiu alternatívu s lepším skóre.", backBtn:"Späť", scanTitle:"Skenovanie etikety", scanSubtitle:"Náhľad fotky, OCR vrstvy a AI analýza v reálnom čase.", placeholderTitle:"Pridaj fotku obalu alebo etikety", placeholderSubtitle:"Najlepšie funguje ostrá fotka so zoznamom zložiek a výživovými hodnotami.", ocrWaiting:"Čaká na fotku", ocrReady:"Fotka pripravená", ocrProcessing:"OCR spracováva...", ocrDone:"Hotovo", progressIdleTitle:"Pripravené na sken", progressIdleText:"Nahraj fotku alebo otvor kameru na spustenie analýzy.", retakeBtn:"Odfotiť / nahrať novú fotku", scanBtn:"Spustiť AI analýzu", ocrDetailTitle:"AI OCR detail", ocrDetailText:"Po spracovaní sa na fotke zvýraznia rizikové zložky a rovnaké dáta sa použijú aj pre výsledok a odporúčaný Health Swap.", scanBackBtn:"Sken", scoreLabel:"Score", verdictLabelDemo:"Radšej obmedziť", healthSwapLabel:"Health Swap", healthSwapTitle:"Zdravšia alternatíva", scannedProductLabel:"Skenovaný produkt", recommendedChoiceLabel:"Odporúčaná voľba", showComparisonBtn:"Zobraziť detailné porovnanie", hideComparisonBtn:"Skryť detailné porovnanie", tableMetric:"Metrika", tableProduct:"Produkt", tableAlternative:"Alternatíva", newScanBtn:"Skúsiť nový sken", liveMode:"Live OpenAI", demoMode:"Demo dáta", idleBadge:"Idle", processingBadge:"Processing", doneBadge:"Done", backendChecking:"Backend sa kontroluje...", backendReady:"Backend pripravený", backendOffline:"Backend nedostupný", alertNoPhoto:"Najprv prosím nahraj alebo odfoť etiketu.", alertScanFailed:"Analýza zlyhala", alertUnknownError:"Neznáma chyba. Skontroluj, či backend beží.", alertUnreadable:"Text na etikete nie je čitateľný, skúste odfotiť zblízka", compareCurrentScoreSuffix:"/100", compareSwapScoreSuffix:"/100", currentPhotoReady:"Fotka načítaná", currentPhotoSubtitle:"Môžeš spustiť AI analýzu alebo nahrať inú fotku.", readyShort:"Ready", aiReading:"AI číta etiketu", analysisDone:"Analýza hotová", serverSending:"Server odosiela fotku do OpenAI GPT-4o Vision a čaká na analýzu.", resultSynced:"Dáta sú pripravené a synchronizované s výsledkom.", backendProcessing:"Backend spracováva", backendAiMode:"Live OpenAI", liveOpenAi:"Live OpenAI", demoModeText:"Demo režim", scannedProduct:"Skenovaný produkt", recommendedChoice:"Odporúčaná voľba", metricHeader:"Metrika", productHeader:"Produkt", alternativeHeader:"Alternatíva" },
-  en: { appBrand:"Food Scanner", appTitle:"AI label reading", liveAiScanning:"Live AI scanning", checkServer:"Checking server...", serverNotice:"The label photo is securely sent to our backend, which calls OpenAI GPT-4o Vision. The API key is never exposed in the frontend.", badgeIntro:"Quick check for sugar, additives and processing", heroTitlePre:"Snap the label and find out,", heroTitleHighlight:"what you're buying", heroSubtitle:"Food Scanner analyzes ingredients from a photo and instantly shows sugar, salt, additives, processing level and a healthier swap.", cameraBtn:"Take a photo", uploadBtn:"Upload photo", kpi1Title:"Clear verdict", kpi1Text:"In seconds you'll know whether to keep, limit, or swap the product.", kpi2Title:"AI risk highlighting", kpi2Text:"The app shows exactly where it found added sugar, syrups or problematic additives.", kpi3Title:"Health Swap", kpi3Text:"For weaker products it suggests a better-scoring alternative.", backBtn:"Back", scanTitle:"Scanning the label", scanSubtitle:"Photo preview, OCR layers and real-time AI analysis.", placeholderTitle:"Add a photo of the package or label", placeholderSubtitle:"Works best with a sharp photo showing the ingredient list and nutrition facts.", ocrWaiting:"Waiting for photo", ocrReady:"Photo ready", ocrProcessing:"OCR processing...", ocrDone:"Done", progressIdleTitle:"Ready to scan", progressIdleText:"Upload a photo or open the camera to start the analysis.", retakeBtn:"Take / upload a new photo", scanBtn:"Run AI analysis", ocrDetailTitle:"AI OCR detail", ocrDetailText:"After processing, risky ingredients are highlighted on the photo and the same data powers the result and the Health Swap.", scanBackBtn:"Scan", scoreLabel:"Score", verdictLabelDemo:"Rather limit", healthSwapLabel:"Health Swap", healthSwapTitle:"Healthier alternative", scannedProductLabel:"Scanned product", recommendedChoiceLabel:"Recommended choice", showComparisonBtn:"Show detailed comparison", hideComparisonBtn:"Hide detailed comparison", tableMetric:"Metric", tableProduct:"Product", tableAlternative:"Alternative", newScanBtn:"Try new scan", liveMode:"Live OpenAI", demoMode:"Demo data", idleBadge:"Idle", processingBadge:"Processing", doneBadge:"Done", backendChecking:"Backend checking...", backendReady:"Backend ready", backendOffline:"Backend offline", alertNoPhoto:"Please upload or take a photo of the label first.", alertScanFailed:"Analysis failed", alertUnknownError:"Unknown error. Check whether the backend is running.", alertUnreadable:"The text on the label is not readable, please retake a closer photo.", compareCurrentScoreSuffix:"/100", compareSwapScoreSuffix:"/100", currentPhotoReady:"Photo loaded", currentPhotoSubtitle:"You can run the AI analysis or upload another photo.", readyShort:"Ready", aiReading:"AI reading the label", analysisDone:"Analysis done", serverSending:"The server is sending the photo to OpenAI GPT-4o Vision and waiting for analysis.", resultSynced:"Data is ready and synced with the result.", backendProcessing:"Backend processing", backendAiMode:"Live OpenAI", liveOpenAi:"Live OpenAI", demoModeText:"Demo mode", scannedProduct:"Scanned product", recommendedChoice:"Recommended choice", metricHeader:"Metric", productHeader:"Product", alternativeHeader:"Alternative" },
-  de: { appBrand:"Food Scanner", appTitle:"KI-Etikettenleser", liveAiScanning:"Live-KI-Scan", checkServer:"Server wird geprüft...", serverNotice:"Das Etikettenfoto wird sicher an unser Backend gesendet, das OpenAI GPT-4o Vision aufruft. Der API-Schlüssel ist im Frontend niemals sichtbar.", badgeIntro:"Schnelle Prüfung von Zucker, Zusatzstoffen und Verarbeitung", heroTitlePre:"Fotografiere das Etikett und finde heraus,", heroTitleHighlight:"was du kaufst", heroSubtitle:"Food Scanner analysiert die Zutaten aus einem Foto und zeigt sofort Zucker, Salz, Zusatzstoffe, Verarbeitungsgrad und eine gesündere Alternative.", cameraBtn:"Foto aufnehmen", uploadBtn:"Foto hochladen", kpi1Title:"Klares Urteil", kpi1Text:"In Sekunden weißt du, ob du das Produkt behalten, einschränken oder ersetzen solltest.", kpi2Title:"KI-Risikohervorhebung", kpi2Text:"Die App zeigt genau, wo sie zugesetzten Zucker, Sirupe oder problematische Zusatzstoffe gefunden hat.", kpi3Title:"Health Swap", kpi3Text:"Bei schwächeren Produkten wird eine besser bewertete Alternative vorgeschlagen.", backBtn:"Zurück", scanTitle:"Etikett wird gescannt", scanSubtitle:"Fotovorschau, OCR-Ebenen und KI-Analyse in Echtzeit.", placeholderTitle:"Foto der Verpackung oder des Etiketts hinzufügen", placeholderSubtitle:"Funktioniert am besten mit einem scharfen Foto der Zutatenliste und Nährwertangaben.", ocrWaiting:"Warte auf Foto", ocrReady:"Foto bereit", ocrProcessing:"OCR verarbeitet...", ocrDone:"Fertig", progressIdleTitle:"Bereit zum Scannen", progressIdleText:"Lade ein Foto hoch oder öffne die Kamera, um die Analyse zu starten.", retakeBtn:"Neues Foto aufnehmen / hochladen", scanBtn:"KI-Analyse starten", ocrDetailTitle:"KI OCR-Details", ocrDetailText:"Nach der Verarbeitung werden riskante Zutaten im Foto hervorgehoben und dieselben Daten fließen in das Ergebnis und den Health Swap ein.", scanBackBtn:"Scan", scoreLabel:"Score", verdictLabelDemo:"Eher einschränken", healthSwapLabel:"Health Swap", healthSwapTitle:"Gesündere Alternative", scannedProductLabel:"Gescanntes Produkt", recommendedChoiceLabel:"Empfohlene Wahl", showComparisonBtn:"Detaillierten Vergleich anzeigen", hideComparisonBtn:"Detaillierten Vergleich ausblenden", tableMetric:"Metrik", tableProduct:"Produkt", tableAlternative:"Alternative", newScanBtn:"Neuen Scan versuchen", liveMode:"Live OpenAI", demoMode:"Demo-Daten", idleBadge:"Leerlauf", processingBadge:"Verarbeitung", doneBadge:"Fertig", backendChecking:"Backend wird geprüft...", backendReady:"Backend bereit", backendOffline:"Backend offline", alertNoPhoto:"Bitte lade zuerst ein Foto des Etiketts hoch oder mache eines.", alertScanFailed:"Analyse fehlgeschlagen", alertUnknownError:"Unbekannter Fehler. Prüfe, ob das Backend läuft.", alertUnreadable:"Der Text auf dem Etikett ist nicht lesbar. Bitte näher fotografieren.", compareCurrentScoreSuffix:"/100", compareSwapScoreSuffix:"/100", currentPhotoReady:"Foto geladen", currentPhotoSubtitle:"Du kannst die KI-Analyse starten oder ein anderes Foto hochladen.", readyShort:"Bereit", aiReading:"KI liest das Etikett", analysisDone:"Analyse abgeschlossen", serverSending:"Der Server sendet das Foto an OpenAI GPT-4o Vision und wartet auf die Analyse.", resultSynced:"Die Daten sind bereit und mit dem Ergebnis synchronisiert.", backendProcessing:"Backend verarbeitet", backendAiMode:"Live OpenAI", liveOpenAi:"Live OpenAI", demoModeText:"Demo-Modus", scannedProduct:"Gescanntes Produkt", recommendedChoice:"Empfohlene Wahl", metricHeader:"Metrik", productHeader:"Produkt", alternativeHeader:"Alternative" }
-};
-
-function detectInitialLang(){ const stored = localStorage.getItem("foodScannerLang"); if(stored && I18N[stored]) return stored; const browserLang = (navigator.language || "sk").slice(0,2).toLowerCase(); return I18N[browserLang] ? browserLang : "sk"; }
-function t(key){ return (I18N[state.lang] && I18N[state.lang][key] !== undefined) ? I18N[state.lang][key] : (I18N.sk[key] ?? key); }
-
-function applyLanguage(lang){
-  if(!I18N[lang]) lang = "sk";
-  state.lang = lang;
-  localStorage.setItem("foodScannerLang", lang);
-  document.documentElement.lang = lang;
-  const dict = I18N[lang];
-  document.querySelectorAll("[data-i18n]").forEach(el => { const key = el.dataset.i18n; if(dict[key] !== undefined) el.textContent = dict[key]; });
-  const langSelect = document.getElementById("langSelect"); if(langSelect) langSelect.value = lang;
-  const apiStatus = document.getElementById("apiStatus"); if(apiStatus){ apiStatus.textContent = dict[apiStatus.dataset.serverState === "ready" ? "backendReady" : apiStatus.dataset.serverState === "offline" ? "backendOffline" : "checkServer"]; }
-  syncDynamicLanguage();
-}
-
-const BACKEND_URL = "/api/scan";
-const state = { currentData: null, selectedFile: null, previewDataUrl: null, lang: "sk", theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' };
+const state = { selectedFile: null, previewDataUrl: null, lang: "sk" };
 const screens = { hero: document.getElementById("screen-hero"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result") };
-const photoInput = document.getElementById("photoInput"); const scanPhotoInput = document.getElementById("scanPhotoInput"); const previewImage = document.getElementById("previewImage"); const cameraPlaceholder = document.getElementById("cameraPlaceholder"); const ocrOverlay = document.getElementById("ocrOverlay"); const scanLine = document.getElementById("scanLine"); const ocrStateChip = document.getElementById("ocrStateChip"); const scanProgressTitle = document.getElementById("scanProgressTitle"); const scanProgressText = document.getElementById("scanProgressText"); const scanProgressBadge = document.getElementById("scanProgressBadge"); const apiStatus = document.getElementById("apiStatus"); const resultModeBadge = document.getElementById("resultModeBadge"); const scanModeBadge = document.getElementById("scanModeBadge");
 
-function syncDynamicLanguage(){
-  const q = (sel)=>document.querySelector(sel);
-  const verdictBadge = q("#verdictBadge");
-  const compareCurrentScore = q("#compareCurrentScore");
-  const compareSwapScore = q("#compareSwapScore");
-  const swapDeltaBadge = q("#swapDeltaBadge");
-  const toggleBtn = q("#toggleComparisonBtn");
-  if(apiStatus) apiStatus.textContent = t(apiStatus.dataset.serverState === "ready" ? "backendReady" : apiStatus.dataset.serverState === "offline" ? "backendOffline" : "checkServer");
-  if(scanProgressBadge) scanProgressBadge.textContent = t(scanProgressBadge.dataset.state === "processing" ? "processingBadge" : scanProgressBadge.dataset.state === "done" ? "doneBadge" : "idleBadge");
-  if(ocrStateChip) ocrStateChip.textContent = t(ocrStateChip.dataset.state === "processing" ? "ocrProcessing" : ocrStateChip.dataset.state === "ready" ? "ocrReady" : ocrStateChip.dataset.state === "done" ? "ocrDone" : "ocrWaiting");
-  if(scanModeBadge) scanModeBadge.textContent = t("liveMode");
-  if(resultModeBadge) resultModeBadge.textContent = t("liveMode");
-  if(verdictBadge && verdictBadge.dataset.defaultLabel === "true") verdictBadge.querySelector("span:last-child").textContent = t("verdictLabelDemo");
-  if(compareCurrentScore && compareCurrentScore.dataset.value) compareCurrentScore.textContent = `${compareCurrentScore.dataset.value}${t("compareCurrentScoreSuffix")}`;
-  if(compareSwapScore && compareSwapScore.dataset.value) compareSwapScore.textContent = `${compareSwapScore.dataset.value}${t("compareSwapScoreSuffix")}`;
-  if(swapDeltaBadge && swapDeltaBadge.dataset.value) swapDeltaBadge.textContent = swapDeltaBadge.dataset.value;
-  if(toggleBtn && document.getElementById("comparisonTableWrap")) toggleBtn.textContent = document.getElementById("comparisonTableWrap").classList.contains("hidden") ? t("showComparisonBtn") : t("hideComparisonBtn");
+function init(){ bindEvents(); if(window.lucide) lucide.createIcons(); }
+function bindEvents(){
+  document.getElementById("heroCameraBtn").addEventListener("click", () => { showScreen("scan"); document.getElementById("photoInput").click(); });
+  document.getElementById("photoInput").addEventListener("change", handleFileSelected);
+  document.getElementById("tryLiveScanBtn").addEventListener("click", processCurrentFile);
+  document.getElementById("newScanBtn").addEventListener("click", () => showScreen("scan"));
+  document.getElementById("backToHeroBtn").addEventListener("click", () => showScreen("hero"));
+  document.getElementById("backToScanBtn").addEventListener("click", () => showScreen("scan"));
 }
 
-function init(){ document.documentElement.setAttribute("data-theme", state.theme); applyLanguage(detectInitialLang()); bindEvents(); checkBackendHealth(); if(window.lucide) lucide.createIcons(); }
-function bindEvents(){ document.getElementById("themeToggle").addEventListener("click", toggleTheme); document.getElementById("langSelect").addEventListener("change", e => applyLanguage(e.target.value)); document.getElementById("heroCameraBtn").addEventListener("click", () => { showScreen("scan"); photoInput.click(); }); document.getElementById("heroUploadBtn").addEventListener("click", () => { showScreen("scan"); photoInput.click(); }); photoInput.addEventListener("change", handleFileSelected); scanPhotoInput.addEventListener("change", handleFileSelected); document.getElementById("tryLiveScanBtn").addEventListener("click", processCurrentFile); document.getElementById("newScanBtn").addEventListener("click", () => showScreen("scan")); document.getElementById("backToHeroBtn").addEventListener("click", () => showScreen("hero")); document.getElementById("backToScanBtn").addEventListener("click", () => showScreen("scan")); document.getElementById("toggleComparisonBtn").addEventListener("click", toggleComparison); }
-
-function toggleTheme(){ state.theme = state.theme === "dark" ? "light" : "dark"; document.documentElement.setAttribute("data-theme", state.theme); document.getElementById("themeToggle").innerHTML = state.theme === "dark" ? '<i data-lucide="sun" style="width:18px;height:18px;"></i>' : '<i data-lucide="moon" style="width:18px;height:18px;"></i>'; if(window.lucide) lucide.createIcons(); }
 function showScreen(name){ Object.entries(screens).forEach(([key, el]) => el.classList.toggle("active", key === name)); }
-async function handleFileSelected(event){ const file = event.target.files?.[0]; if(!file) return; state.selectedFile = file; state.previewDataUrl = await fileToDataURL(file); previewImage.src = state.previewDataUrl; previewImage.classList.remove("hidden"); cameraPlaceholder.classList.add("hidden"); ocrOverlay.innerHTML = ""; showScreen("scan"); scanProgressTitle.textContent = t("currentPhotoReady"); scanProgressText.textContent = t("currentPhotoSubtitle"); scanProgressBadge.dataset.state = "ready"; scanProgressBadge.textContent = t("readyShort"); ocrStateChip.dataset.state = "ready"; ocrStateChip.textContent = t("ocrReady"); }
-async function checkBackendHealth(){ try { const res = await fetch("/api/health"); if(!res.ok) throw new Error("Backend health check failed."); const data = await res.json(); apiStatus.textContent = data.hasApiKey ? t("backendReady") : t("backendOffline"); apiStatus.dataset.serverState = data.hasApiKey ? "ready" : "offline"; apiStatus.className = data.hasApiKey ? "badge badge-ok" : "badge badge-demo"; } catch(err){ console.warn("Backend health check zlyhal:", err.message); apiStatus.textContent = t("backendOffline"); apiStatus.dataset.serverState = "offline"; apiStatus.className = "badge badge-red"; } }
+
+async function handleFileSelected(e){
+  const file = e.target.files?.[0]; if(!file) return;
+  state.selectedFile = file;
+  state.previewDataUrl = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file); });
+  document.getElementById("previewImage").src = state.previewDataUrl;
+  document.getElementById("previewImage").classList.remove("hidden");
+  showScreen("scan");
+}
 
 async function processCurrentFile(){
-  const tt = I18N[state.lang];
-  if(!state.selectedFile && !state.previewDataUrl){
-    alert(tt.alertNoPhoto);
-    return;
-  }
+  if(!state.selectedFile) return;
+  document.getElementById("scanLine").classList.remove("hidden");
+  
+  const formData = new FormData();
+  formData.append("image", state.selectedFile);
+  formData.append("lang", state.lang);
+
   try {
-    setLoadingState(true);
-    const file = state.selectedFile || await dataUrlToFile(state.previewDataUrl, `scan-${Date.now()}.jpg`);
-    const formData = new FormData();
-    formData.append("image", file, file.name || `scan-${Date.now()}.jpg`);
-    formData.append("lang", state.lang);
-
-    const response = await fetch(BACKEND_URL, { 
-      method: "POST", 
-      body: formData 
-    });
-
-    const body = await response.json().catch(() => ({}));
-    if(!response.ok) throw new Error(body.error || `Server vrátil chybu ${response.status}`);
-    if(body?.error) throw new Error(body.error);
-
-    state.currentData = body;
-    if(!state.currentData.scan) state.currentData.scan = {};
-    state.currentData.scan.imagePreview = state.previewDataUrl;
-
-    renderAll(state.currentData);
-    setLoadingState(false);
+    const res = await fetch("/api/scan", { method:"POST", body:formData });
+    const data = await res.json();
+    renderResult(data);
+    document.getElementById("scanLine").classList.add("hidden");
     showScreen("result");
-  } catch(error){
-    console.error(error);
-    setLoadingState(false);
-    alert((error?.message || tt.alertUnknownError));
+  } catch(e) {
+    alert("Chyba pri skenovaní.");
+    document.getElementById("scanLine").classList.add("hidden");
   }
 }
-
-function setLoadingState(isLoading){ scanLine.classList.toggle("hidden", !isLoading); ocrOverlay.innerHTML = ""; ocrStateChip.dataset.state = isLoading ? "processing" : "done"; ocrStateChip.textContent = isLoading ? t("ocrProcessing") : t("ocrDone"); scanProgressTitle.textContent = isLoading ? t("aiReading") : t("analysisDone"); scanProgressText.textContent = isLoading ? t("serverSending") : t("resultSynced"); scanProgressBadge.dataset.state = isLoading ? "processing" : "done"; scanProgressBadge.textContent = isLoading ? t("processingBadge") : t("doneBadge"); scanModeBadge.dataset.mode = "live"; scanModeBadge.textContent = isLoading ? t("backendProcessing") : t("liveOpenAi"); }
-function renderAll(data){ renderScan(data); renderResult(data); if(window.lucide) lucide.createIcons(); }
-function renderScan(data){ if(data?.scan?.imagePreview || state.previewDataUrl){ previewImage.src = data.scan?.imagePreview || state.previewDataUrl; previewImage.classList.remove("hidden"); cameraPlaceholder.classList.add("hidden"); } scanProgressTitle.textContent = data?.ui?.progressTitle || t("progressIdleTitle"); scanProgressText.textContent = data?.ui?.progressText || t("progressIdleText"); scanProgressBadge.dataset.state = "done"; scanProgressBadge.textContent = t("doneBadge"); ocrStateChip.dataset.state = "ready"; ocrStateChip.textContent = data?.ui?.ocrStatus || t("ocrWaiting"); scanModeBadge.dataset.mode = "live"; scanModeBadge.textContent = t("liveOpenAi"); renderOcrHighlights(data?.scan?.highlights || []); syncDynamicLanguage(); }
-function renderOcrHighlights(highlights){ ocrOverlay.innerHTML = ""; highlights.forEach(item => { const box = document.createElement("div"); box.className = `ocr-box ${item.severity === "danger" ? "ocr-danger" : "ocr-warn"}`; box.style.left = `${item.x}%`; box.style.top = `${item.y}%`; box.style.width = `${item.w}%`; box.style.height = `${item.h}%`; const chip = document.createElement("div"); chip.className = "ocr-chip"; chip.style.background = item.severity === "danger" ? "rgba(223,82,82,0.9)" : "rgba(242,154,46,0.9)"; chip.textContent = item.label; chip.style.left = `${item.x}%`; chip.style.top = `calc(${item.y}% - 26px)`; ocrOverlay.appendChild(box); ocrOverlay.appendChild(chip); }); }
-function safeScore(obj, fallback={value:"—", level:"—", severity:"orange"}){ return { value: obj?.value ?? fallback.value, level: obj?.level ?? fallback.level, severity: ["green","orange","red"].includes(obj?.severity) ? obj.severity : fallback.severity }; }
 
 function renderResult(data){
   if(!data) return;
-  const verdict = data?.analysis?.verdict || { severity:"orange", score:0, label:"—" };
-  document.getElementById("verdictRing").style.setProperty("--verdict-color", mapSeverityColor(verdict.severity));
-  document.getElementById("verdictPercent").textContent = verdict.score ?? 0;
-  document.getElementById("productName").textContent = data?.product?.name || "";
-  document.getElementById("productMeta").textContent = `${data?.product?.category || ""}${data?.product?.portion ? " • " + data.product.portion : ""}`;
-  document.getElementById("recommendationText").textContent = data?.analysis?.recommendation || "";
-  
-  const verdictBadge = document.getElementById("verdictBadge");
-  verdictBadge.className = "badge " + mapBadgeClass(verdict.severity);
-  verdictBadge.dataset.defaultLabel = "false";
-  verdictBadge.innerHTML = `<span class="risk-dot ${mapDotClass(verdict.severity)}"></span><span>${verdict.label || "—"}</span>`;
-  
-  const resultModeBadge = document.getElementById("resultModeBadge");
-  resultModeBadge.dataset.mode = "live";
-  resultModeBadge.className = "badge badge-ok";
-  resultModeBadge.textContent = t("liveOpenAi");
-  
-  renderScores(data?.analysis?.scores);
-  renderHealthSwap(data);
-  syncDynamicLanguage();
+  document.getElementById("verdictPercent").textContent = data.analysis?.verdict?.score || 0;
+  document.getElementById("productName").textContent = data.product?.name || "Produkt";
+  document.getElementById("productMeta").textContent = `${data.product?.category || ""} • ${data.product?.portion || ""}`;
+  document.getElementById("recommendationText").textContent = data.analysis?.recommendation || "";
+
+  // 🧍‍♂️ Aktualizácia organov siluety
+  updateBodyOrgans(data.analysis?.scores);
 }
 
-function renderScores(scores){ const grid = document.getElementById("scoresGrid"); const s = scores || {}; const items = [{ key:"sugar", title:state.lang==="de"?"Zucker":state.lang==="en"?"Sugar":"Cukor", icon:"candy" }, { key:"salt", title:state.lang==="de"?"Salz":state.lang==="en"?"Salt":"Soľ", icon:"beaker" }, { key:"additives", title:state.lang==="de"?"Zusatzstoffe":state.lang==="en"?"Additives":"Éčka / Aditíva", icon:"flask-conical" }, { key:"processing", title:state.lang==="de"?"Verarbeitung":state.lang==="en"?"Processing":"Miera spracovania", icon:"factory" }]; grid.innerHTML = items.map(item => { const value = safeScore(s[item.key]); return `<div class="score-card"><div class="row-between"><div class="row" style="font-size:14px;font-weight:600;"><i data-lucide="${item.icon}" style="width:16px;height:16px;color:${mapTextColor(value.severity)};"></i><span>${item.title}</span></div><span class="badge ${mapBadgeClass(value.severity)}">${value.level}</span></div><p style="font-size:14px;font-weight:600;margin:0;">${value.value}</p></div>`; }).join(""); }
-function renderHealthSwap(data){ const section = document.getElementById("healthSwapSection"); const swap = data?.analysis?.healthierSwap; if(!swap?.enabled){ section.classList.add("hidden"); return; } section.classList.remove("hidden"); document.getElementById("swapSummary").textContent = swap.summary || ""; const swapDeltaBadge = document.getElementById("swapDeltaBadge"); swapDeltaBadge.dataset.value = swap.improvement || ""; swapDeltaBadge.textContent = swap.improvement || ""; document.getElementById("compareCurrentName").textContent = data?.product?.name || ""; const compareCurrentScore = document.getElementById("compareCurrentScore"); compareCurrentScore.dataset.value = String(data?.analysis?.verdict?.score ?? 0); compareCurrentScore.textContent = `${data?.analysis?.verdict?.score ?? 0}${t("compareCurrentScoreSuffix")}`; document.getElementById("compareSwapName").textContent = swap?.product?.name || ""; const compareSwapScore = document.getElementById("compareSwapScore"); compareSwapScore.dataset.value = String(swap?.product?.score ?? 0); compareSwapScore.textContent = `${swap?.product?.score ?? 0}${t("compareSwapScoreSuffix")}`; const ds = data?.analysis?.scores || {}; document.getElementById("comparisonTableBody").innerHTML = `<tr><td>${t("metricHeader")}</td><td>${data?.analysis?.verdict?.score ?? 0}${t("compareCurrentScoreSuffix")}</td><td>${swap?.product?.score ?? 0}${t("compareSwapScoreSuffix")}</td></tr><tr><td>${state.lang==="de"?"Zucker":state.lang==="en"?"Sugar":"Cukor"}</td><td>${ds.sugar?.value || "—"}</td><td>${swap?.product?.sugar || "—"}</td></tr><tr><td>${state.lang==="de"?"Salz":state.lang==="en"?"Salt":"Soľ"}</td><td>${ds.salt?.value || "—"}</td><td>${swap?.product?.salt || "—"}</td></tr><tr><td>${state.lang==="de"?"Zusatzstoffe":state.lang==="en"?"Additives":"Aditíva"}</td><td>${ds.additives?.value || "—"}</td><td>${swap?.product?.additives || "—"}</td></tr><tr><td>${state.lang==="de"?"Verarbeitung":state.lang==="en"?"Processing":"Spracovanie"}</td><td>${ds.processing?.value || "—"}</td><td>${swap?.product?.processing || "—"}</td></tr>`; syncDynamicLanguage(); }
-function toggleComparison(){ const wrap = document.getElementById("comparisonTableWrap"); const btn = document.getElementById("toggleComparisonBtn"); const hidden = wrap.classList.toggle("hidden"); btn.textContent = hidden ? t("showComparisonBtn") : t("hideComparisonBtn"); }
-function fileToDataURL(file){ return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); }); }
-function dataUrlToFile(dataUrl, filename){ return fetch(dataUrl).then(r => r.blob()).then(blob => new File([blob], filename, { type: blob.type || "image/jpeg" })); }
-function mapSeverityColor(sev){ if(sev === "green") return "#3aa76d"; if(sev === "red") return "#df5252"; return "#f29a2e"; }
-function mapDotClass(sev){ if(sev === "green") return "risk-green"; if(sev === "red") return "risk-red"; return "risk-orange"; }
-function mapBadgeClass(sev){ if(sev === "green") return "badge-ok"; if(sev === "red") return "badge-red"; return "badge-demo"; }
-function mapTextColor(sev){ if(sev === "green") return "#0f9f74"; if(sev === "red") return "#df5252"; return "#da7101"; }
+function updateBodyOrgans(scores){
+  const brain = document.getElementById("organ-brain");
+  const heart = document.getElementById("organ-heart");
+  const stomach = document.getElementById("organ-stomach");
+
+  // Reset
+  brain.className = "organ-glow organ-inactive";
+  heart.className = "organ-glow organ-inactive";
+  stomach.className = "organ-glow organ-inactive";
+
+  let impacts = [];
+
+  // Vyhodnotenie Srdca / Ciev (podľa soli)
+  if(scores?.salt?.severity === "orange" || scores?.salt?.severity === "red"){
+    heart.className = `organ-glow organ-${scores.salt.severity}`;
+    impacts.push("cievy (soľ)");
+  }
+  
+  // Vyhodnotenie Žalúdka (podľa aditív)
+  if(scores?.additives?.severity === "orange" || scores?.additives?.severity === "red"){
+    stomach.className = `organ-glow organ-${scores.additives.severity}`;
+    impacts.push("trávenie (E-čka)");
+  }
+
+  // Vyhodnotenie Mozgu (podľa cukru)
+  if(scores?.sugar?.severity === "orange" || scores?.sugar?.severity === "red"){
+    brain.className = `organ-glow organ-${scores.sugar.severity}`;
+    impacts.push("mozog (cukrový výkyv)");
+  }
+
+  const titleEl = document.getElementById("bodyImpactTitle");
+  const textEl = document.getElementById("bodyImpactText");
+
+  if(impacts.length > 0){
+    titleEl.textContent = `Zasahuje ${impacts.length} ${impacts.length === 1 ? 'oblasť' : 'oblasti'}`;
+    textEl.textContent = `Zistená záťaž na: ${impacts.join(", ")}.`;
+  } else {
+    brain.className = "organ-glow organ-green";
+    heart.className = "organ-glow organ-green";
+    stomach.className = "organ-glow organ-green";
+    titleEl.textContent = "Výborný dopad na telo";
+    textEl.textContent = "Potravina nepredstavuje záťaž pre kľúčové orgány.";
+  }
+}
+
 init();
 </script>
 </body>
