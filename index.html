@@ -158,11 +158,12 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
+        <!-- ⚡ ENERGETICKÁ KRIVKA -->
         <div class="energy-card">
           <div class="row-between">
             <div class="row" style="gap:8px;">
-              <i data-lucide="zap" style="width:18px;height:18px;color:#f29a2e;"></i>
-              <span class="title-xs" style="color:#f29a2e;">Dopad na energiu a sústredenie</span>
+              <i data-lucide="zap" id="energyIcon" style="width:18px;height:18px;color:#f29a2e;"></i>
+              <span class="title-xs" id="energyLabelTitle" style="color:#f29a2e;">Dopad na energiu a sústredenie</span>
             </div>
             <span id="energyDurationBadge" class="badge" style="background:rgba(255,255,255,0.08);color:#a6a39b;">~45 min</span>
           </div>
@@ -179,6 +180,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <p id="energyDesc" style="font-size:13px;line-height:1.4;margin:0;" class="muted">Tento produkt rýchlo dvihne hladinu cukru, no po krátkom čase nasleduje pád pod normál.</p>
         </div>
 
+        <!-- 🧍‍♀️ SILUETA TELA -->
         <div class="body-impact-card">
           <div class="body-svg-container">
             <svg viewBox="0 0 100 200" width="100%" height="100%">
@@ -439,7 +441,7 @@ function renderResult(data){
 async function fetchReviews(key){
   if(!key) return;
   try {
-    const res = await fetch(`/api/reviews/${encodeURIComponent(key)}`);
+    const res = await fetch(`/api/reviews?key=${encodeURIComponent(key)}`);
     if(!res.ok) return renderReviewsList([]);
     const reviews = await res.json();
     renderReviewsList(reviews);
@@ -505,31 +507,39 @@ async function submitReview(){
   }
 }
 
+// DYNAMICKÉ GENEROVANIE 3 RÔZNYCH TYPOV KRIVIEK ENERGIE
 function renderEnergyImpact(energy){
   const titleEl = document.getElementById("energyTitle");
   const descEl = document.getElementById("energyDesc");
   const badgeEl = document.getElementById("energyDurationBadge");
   const pathEl = document.getElementById("energyGraphPath");
+  const labelTitleEl = document.getElementById("energyLabelTitle");
+  const iconEl = document.getElementById("energyIcon");
 
-  if(!energy){
-    titleEl.textContent = "Stabilná energia";
-    descEl.textContent = "Produkt nemá negatívny dopad na hladinu cukru v krvi.";
-    badgeEl.textContent = "~3 hodiny";
-    pathEl.setAttribute("d", "M10,40 Q150,20 290,40");
-    pathEl.setAttribute("stroke", "#0f9f74");
-    return;
-  }
+  const type = energy?.type || "moderate";
 
-  titleEl.textContent = energy.title || "Energetický dopad";
-  descEl.textContent = energy.description || "";
-  badgeEl.textContent = energy.duration || "Neznáme";
+  titleEl.textContent = energy?.title || "Dopad na energiu";
+  descEl.textContent = energy?.description || "Stabilná hladina glukózy.";
+  badgeEl.textContent = energy?.duration || "~2 hodiny";
 
-  if(energy.type === "spike"){
-    pathEl.setAttribute("d", "M10,40 Q60,5 110,40 T290,55");
+  if(type === "spike"){
+    // 🔴 1. SPIKE: Červený hrot s prudkým pádom pod čiaru
+    pathEl.setAttribute("d", "M10,40 Q50,0 100,38 T200,55 L290,42");
     pathEl.setAttribute("stroke", "#df5252");
+    labelTitleEl.style.color = "#df5252";
+    if(iconEl) iconEl.style.color = "#df5252";
+  } else if(type === "moderate") {
+    // 🟠 2. MODERATE: Oranžový mierny oblúčik bez pádového šoku
+    pathEl.setAttribute("d", "M10,40 Q90,15 170,35 T290,40");
+    pathEl.setAttribute("stroke", "#f29a2e");
+    labelTitleEl.style.color = "#f29a2e";
+    if(iconEl) iconEl.style.color = "#f29a2e";
   } else {
-    pathEl.setAttribute("d", "M10,40 Q150,15 290,38");
+    // 🟢 3. STABLE: Zelená plynulá dlhá línia trvalej energie
+    pathEl.setAttribute("d", "M10,40 Q150,22 290,38");
     pathEl.setAttribute("stroke", "#0f9f74");
+    labelTitleEl.style.color = "#0f9f74";
+    if(iconEl) iconEl.style.color = "#0f9f74";
   }
 }
 
