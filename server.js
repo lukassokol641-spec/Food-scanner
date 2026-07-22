@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 const OpenAI = require("openai");
 
 let openai;
@@ -14,6 +15,21 @@ if (process.env.OPENAI_API_KEY) {
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+// Súbor pre trvalé ukladanie vyrovnávacej pamäte na disk
+const CACHE_FILE = path.join(__dirname, "scan_cache.json");
+
+// Načítanie cache z disku pri štarte servera
+let scanCache = {};
+if (fs.existsSync(CACHE_FILE)) {
+  try {
+    scanCache = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8"));
+    console.log(`[CACHE] Načítaných ${Object.keys(scanCache).length} produktov z pamäte.`);
+  } catch (e) {
+    console.error("[CACHE] Chyba pri čítaní scan_cache.json:", e);
+    scanCache = {};
+  }
+}
+
 app.use(express.json({ limit: "2mb" }));
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, "../frontend")));
@@ -22,7 +38,7 @@ const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 8 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (!file.mimetype.startsWith("image/")) return cb(new Error("Iba obrazkove formaty su povolene."));
+    if (!file.mimetype.startsWith("image/")) return cb(new Error("Iba obrázkové formáty sú povolené."));
     cb(null, true);
   }
 });
@@ -34,7 +50,7 @@ function buildPrompt(lang) {
 The printed text may be in Swedish, German, Polish, Slovak, English, or any European language.
 Perform precise OCR and translate all output texts into ${languageName}.
 
-Return a JSON object with this EXACT structure (do not change key names):
+Return a JSON object with this EXACT structure:
 {
   "scan": {
     "status": "success",
@@ -44,29 +60,29 @@ Return a JSON object with this EXACT structure (do not change key names):
     ]
   },
   "product": {
-    "name": "Názov produktu preložený do ${languageName}",
-    "category": "Kategória (napr. Pečivo, Mliečne výrobky, Šalát)",
-    "portion": "Veľkosť porcie alebo balenia (napr. 200g)"
+    "name": "Exact product name as found on package",
+    "category": "Product category",
+    "portion": "Package size"
   },
   "analysis": {
     "verdict": {
       "score": 65,
       "severity": "orange",
-      "label": "Vhodné s mierou / Radšej obmedziť / Výborná voľba"
+      "label": "Radšej obmedziť / Výborná voľba"
     },
-    "recommendation": "Detailné 2-3 vetové zhodnotenie produktu v reči ${languageName}. Vysvetli zloženie a E-čka.",
+    "recommendation": "Detailed evaluation of ingredients and additives in ${languageName}.",
     "scores": {
       "sugar": { "value": "12g / 100g", "level": "Stredný", "severity": "orange" },
       "salt": { "value": "0.8g / 100g", "level": "Nízky", "severity": "green" },
-      "additives": { "value": "2 prídavné látky (E211, E202)", "level": "Pozor", "severity": "orange" },
+      "additives": { "value": "2 prídavné látky", "level": "Pozor", "severity": "orange" },
       "processing": { "value": "Spracovaná potravina", "level": "Mierne vyššie", "severity": "orange" }
     },
     "healthierSwap": {
       "enabled": true,
-      "summary": "Stručný tip na zdravšiu alternatívu z obchodu",
+      "summary": "Healthier choice summary",
       "improvement": "+20 bodov",
       "product": {
-        "name": "Názov zdravšej alternatívy",
+        "name": "Healthier alternative name",
         "score": 85,
         "sugar": "2g / 100g",
         "salt": "0.4g / 100g",
@@ -84,7 +100,7 @@ Return a JSON object with this EXACT structure (do not change key names):
 }
 
 Severity can only be: "green", "orange", or "red".
-Write all string values strictly in ${languageName}. No markdown wrappers. Return STRICT JSON.`;
+Write all string values strictly in ${languageName}. No markdown. Return STRICT JSON.`;
 }
 
 function extractText(content) {
@@ -94,8 +110,20 @@ function extractText(content) {
   return "";
 }
 
+// Pomocná funkcia na vytvorenie kľúča z nazvu/bufferu
+function getCacheKey(buffer) {
+  // Zjednodušený hash obrázka podľa dĺžky a vzorky dát
+  const head = buffer.slice(0, 100).toString("hex");
+  const tail = buffer.slice(-100).toString("hex");
+  return `${buffer.length}_${head}_${tail}`;
+}
+
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true, hasApiKey: Boolean(process.env.OPENAI_API_KEY) });
+  res.json({ 
+    ok: true, 
+    hasApiKey: Boolean(process.env.OPENAI_API_KEY),
+    cachedItems: Object.keys(scanCache).length 
+  });
 });
 
 app.get("/", (req, res) => {
@@ -105,14 +133,25 @@ app.get("/", (req, res) => {
 app.post("/api/scan", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: "Chyba príloha 'image' vo FormData." });
+      return res.status(400).json({ error: "Chýba príloha 'image' vo FormData." });
+    }
+
+    const lang = ["sk", "en", "de"].includes(req.body?.lang) ? req.body.lang : "sk";
+    const cacheKey = `${getCacheKey(req.file.buffer)}_${lang}`;
+
+    // ⚡ SKONTROLUJ CACHE: Ak produkt pozname, vratime zapamätany vysledok!
+    if (scanCache[cacheKey]) {
+      console.log(`[CACHE HIT] Produkt nájdený v pamäti! Ušetrené volanie OpenAI.`);
+      const cachedResult = scanCache[cacheKey];
+      cachedResult.ui.progressText = "Naskenované z rýchlej pamäte (Cache).";
+      return res.json(cachedResult);
     }
 
     if (!openai) {
       return res.status(500).json({ error: "OPENAI_API_KEY chyba na serveri." });
     }
 
-    const lang = ["sk", "en", "de"].includes(req.body?.lang) ? req.body.lang : "sk";
+    console.log(`[OPENAI CALL] Produkt nie je v pamäti, odosielam na GPT-4o Vision...`);
     const mimeType = req.file.mimetype || "image/jpeg";
     const base64Image = req.file.buffer.toString("base64");
 
@@ -123,7 +162,7 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
       messages: [
         {
           role: "system",
-          content: `You are an expert food label analysis engine. Extract text from the image, translate all findings to ${lang === "sk" ? "Slovak" : lang === "en" ? "English" : "German"}, and return ONLY valid JSON matching the exact requested schema.`
+          content: `You are an expert food label analysis engine. Extract text, translate all findings to ${lang === "sk" ? "Slovak" : lang === "en" ? "English" : "German"}, and return ONLY valid JSON matching schema.`
         },
         {
           role: "user",
@@ -151,6 +190,14 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
       return res.status(422).json({ error: parsed.error });
     }
 
+    // 💾 ULOŽENIE DO CACHE pre budúce použitie
+    scanCache[cacheKey] = parsed;
+    try {
+      fs.writeFileSync(CACHE_FILE, JSON.stringify(scanCache, null, 2));
+    } catch (e) {
+      console.error("[CACHE SAVE ERROR]", e);
+    }
+
     return res.json(parsed);
   } catch (err) {
     console.error("[/api/scan] OpenAI API chyba:", err);
@@ -169,5 +216,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Food Scanner backend beží na portu ${PORT}`);
+  console.log(`Food Scanner backend beží na porte ${PORT}`);
 });
