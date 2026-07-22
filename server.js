@@ -17,11 +17,7 @@ const CACHE_FILE = path.join(__dirname, "scan_cache.json");
 let scanCache = {};
 
 if (fs.existsSync(CACHE_FILE)) {
-  try {
-    scanCache = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8"));
-  } catch (e) {
-    scanCache = {};
-  }
+  try { scanCache = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8")); } catch (e) { scanCache = {}; }
 }
 
 app.use(express.json({ limit: "2mb" }));
@@ -54,35 +50,50 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
     const mimeType = req.file.mimetype || "image/jpeg";
     const base64Image = req.file.buffer.toString("base64");
 
-    // Rýchly a optimalizovaný prompt
     const systemPrompt = `Analyze food package label. Translate response strictly to ${lang === "sk" ? "Slovak" : lang === "en" ? "English" : "German"}.
 Return JSON strictly:
 {
-  "scan": { "status": "success", "language": "${lang}", "highlights": [] },
-  "product": { "name": "Product Name", "category": "Category", "portion": "Size" },
+  "scan": { "status": "success", "language": "${lang}" },
+  "product": { "name": "Exact product name", "category": "Category", "portion": "Size" },
+  "ingredients_raw": "Vyber a prelož sem celý text zloženia z obalu (napr. Bravčové mäso 80%, voda, zemiakový škrob, soľ, korenie...)",
+  "additives_detail": [
+    {
+      "code": "E250",
+      "name": "Dusitan sodný",
+      "origin": "Syntetická soľ",
+      "process": "Vyrába sa chemickou syntézou. Používa sa ako konzervant proti baktériám a udržiava ružovú farbu mäsa.",
+      "risk": "Vyššie riziko pri pripečení (môže tvoriť nitrosamíny)."
+    },
+    {
+      "code": "E450",
+      "name": "Diferosforečnany",
+      "origin": "Syntetická látka z kyseliny fosforečnej",
+      "process": "Soli viažuce vodu v mäsových výrobkoch.",
+      "risk": "Vo veľkom množstve môžu obmedzovať vstrebávanie vápnika."
+    }
+  ],
   "analysis": {
-    "verdict": { "score": 70, "severity": "orange", "label": "Radšej obmedziť / Výborná voľba" },
-    "recommendation": "Short evaluation 2 sentences.",
+    "verdict": { "score": 65, "severity": "orange", "label": "Radšej obmedziť" },
+    "recommendation": "Stručné 2-vetové zhodnotenie produktu.",
     "scores": {
       "sugar": { "value": "0g / 100g", "level": "Nízky", "severity": "green" },
-      "salt": { "value": "1.5g / 100g", "level": "Vyšší", "severity": "orange" },
-      "additives": { "value": "E-numbers info", "level": "Pozor", "severity": "orange" },
+      "salt": { "value": "2g / 100g", "level": "Vyšší", "severity": "orange" },
+      "additives": { "value": "2 E-čka", "level": "Pozor", "severity": "orange" },
       "processing": { "value": "Spracovaná potravina", "level": "Mierne vyššie", "severity": "orange" }
     },
     "healthierSwap": {
       "enabled": true,
-      "summary": "Healthier alternative tip",
-      "improvement": "+15 bodov",
-      "product": { "name": "Better alternative", "score": 85, "sugar": "0g", "salt": "0.5g", "additives": "Bez E-čiek", "processing": "Minimálne" }
+      "summary": "Čerstvé mäso bez pridaných solí a konzervantov.",
+      "improvement": "+20 bodov",
+      "product": { "name": "Čerstvé bravčové mäso", "score": 85, "sugar": "0g", "salt": "0.1g", "additives": "Bez E-čiek", "processing": "Minimálne" }
     }
-  },
-  "ui": { "mode": "live", "progressTitle": "Hotovo", "progressText": "Analýza dokončená.", "ocrStatus": "Hotovo" }
+  }
 }`;
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       temperature: 0.1,
-      max_tokens: 600, // Znížené pre oveľa rýchlejšiu odozvu
+      max_tokens: 800,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: systemPrompt },
@@ -93,14 +104,10 @@ Return JSON strictly:
     const parsed = JSON.parse(completion.choices[0].message.content);
     const prodKey = normalizeName(parsed?.product?.name) + "_" + lang;
 
-    // Ak už tento názov produktu máme v databáze, vrátime uloženú verziu
     if (scanCache[prodKey]) {
-      const cached = scanCache[prodKey];
-      cached.ui.progressText = "⚡ Bleskovo načítané z pamäte (Cache)";
-      return res.json(cached);
+      return res.json(scanCache[prodKey]);
     }
 
-    // Uloženie nového produktu
     if (prodKey.length > 3) {
       scanCache[prodKey] = parsed;
       try { fs.writeFileSync(CACHE_FILE, JSON.stringify(scanCache, null, 2)); } catch (e) {}
@@ -113,4 +120,4 @@ Return JSON strictly:
   }
 });
 
-app.listen(PORT, () => console.log(`Server beží na portu ${PORT}`));
+app.listen(PORT, () => console.log(`Server beží na porte ${PORT}`));
