@@ -2,23 +2,25 @@ require("dotenv").config();
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
-const fs = require("fs");
 const OpenAI = require("openai");
+const { createClient } = require("@supabase/supabase-js");
 
 let openai;
 if (process.env.OPENAI_API_KEY) {
   openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
+// Prepojenie na Supabase Cloud Databázu
+let supabase = null;
+if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
+  supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+  console.log("[SUPABASE] Cloudová databáza úspešne pripojená.");
+} else {
+  console.warn("[WARN] SUPABASE_URL alebo SUPABASE_KEY chýba v prostredí.");
+}
+
 const app = express();
 const PORT = process.env.PORT || 4000;
-
-const CACHE_FILE = path.join(__dirname, "scan_cache.json");
-let scanCache = {};
-
-if (fs.existsSync(CACHE_FILE)) {
-  try { scanCache = JSON.parse(fs.readFileSync(CACHE_FILE, "utf8")); } catch (e) { scanCache = {}; }
-}
 
 app.use(express.json({ limit: "2mb" }));
 app.use(express.static(__dirname));
@@ -34,17 +36,60 @@ function normalizeName(name) {
 }
 
 app.get("/api/health", (req, res) => {
-  res.json({ ok: true, hasApiKey: Boolean(process.env.OPENAI_API_KEY) });
+  res.json({
+    ok: true,
+    hasApiKey: Boolean(process.env.OPENAI_API_KEY),
+    hasSupabase: Boolean(supabase)
+  });
 });
 
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
+// API pre získanie recenzií k produktu
+app.get("/api/reviews/:productKey", async (req, res) => {
+  if (!supabase) return res.json([]);
+  try {
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .eq("product_key", req.params.productKey)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    res.json(data || []);
+  } catch (err) {
+    console.error("[REVIEWS GET ERROR]", err);
+    res.status(500).json({ error: "Chyba pri načítaní recenzií." });
+  }
+});
+
+// API pre pridanie novej recenzie
+app.post("/api/reviews", async (req, res) => {
+  if (!supabase) return res.status(500).json({ error: "Cloud databáza nie je pripojená." });
+  try {
+    const { productKey, rating, comment } = req.body;
+    if (!productKey || !rating) return res.status(400).json({ error: "Chýba hodnotenie." });
+
+    const { data, error } = await supabase
+      .from("reviews")
+      .insert([{ product_key: productKey, rating: Number(rating), comment: comment || "" }])
+      .select();
+
+    if (error) throw error;
+    res.json({ ok: true, review: data[0] });
+  } catch (err) {
+    console.error("[REVIEWS POST ERROR]", err);
+    res.status(500).json({ error: "Chyba pri ukladaní recenzie." });
+  }
+});
+
+// Hlavné API skenovania s okamžitou Cloud Cache
 app.post("/api/scan", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "Chýba fotka." });
-    if (!openai) return res.status(500).json({ error: "Chýba API kľúč." });
+    if (!openai) return res.status(500).json({ error: "Chýba API kľúč pre OpenAI." });
 
     const lang = ["sk", "en", "de"].includes(req.body?.lang) ? req.body.lang : "sk";
     const mimeType = req.file.mimetype || "image/jpeg";
@@ -66,9 +111,9 @@ Return JSON strictly with energy impact data:
     }
   ],
   "energy_impact": {
-    "type": "spike", // Možnosti: "spike" (prudký výkyv/únava) alebo "stable" (stabilná energia)
+    "type": "spike",
     "title": "Prudký výkyv cukru a skorá únava",
-    "description": "Tento produkt spôsobuje rýchly nárast glukózy, po ktorom do 45 minút nasleduje pád. Možný Brain Fog a chuť na ďalšie jedlo.",
+    "description": "Tento produkt spôsobuje rýchly nárast glukózy a pád. Možný Brain Fog.",
     "duration": "Podpora energie: ~30-45 min"
   },
   "analysis": {
@@ -102,14 +147,28 @@ Return JSON strictly with energy impact data:
 
     const parsed = JSON.parse(completion.choices[0].message.content);
     const prodKey = normalizeName(parsed?.product?.name) + "_" + lang;
+    parsed.product_key = prodKey;
 
-    if (scanCache[prodKey]) {
-      return res.json(scanCache[prodKey]);
+    // 1. SKONTROLUJ CLOUD DATABÁZU SUPABASE
+    if (supabase && prodKey.length > 3) {
+      const { data: dbProduct } = await supabase
+        .from("products")
+        .select("data")
+        .eq("product_key", prodKey)
+        .single();
+
+      if (dbProduct && dbProduct.data) {
+        console.log(`[SUPABASE CACHE HIT] Produkt načítaný z cloudu pre klienta!`);
+        return res.json(dbProduct.data);
+      }
     }
 
-    if (prodKey.length > 3) {
-      scanCache[prodKey] = parsed;
-      try { fs.writeFileSync(CACHE_FILE, JSON.stringify(scanCache, null, 2)); } catch (e) {}
+    // 2. ULOŽ NOVÝ PRODUKT DO CLOUDU
+    if (supabase && prodKey.length > 3) {
+      await supabase.from("products").insert([
+        { product_key: prodKey, name: parsed.product?.name, data: parsed }
+      ]);
+      console.log(`[SUPABASE SAVE] Nový produkt uložený do globálnej databázy.`);
     }
 
     return res.json(parsed);
