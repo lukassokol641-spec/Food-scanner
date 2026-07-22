@@ -289,6 +289,17 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 const state = { selectedFile: null, previewDataUrl: null, lang: "sk", currentProductKey: null };
 const screens = { hero: document.getElementById("screen-hero"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
 
+function makeSafeKey(text) {
+  if (!text) return "produkt_" + Date.now();
+  return String(text)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "_")
+    .replace(/_+/g, "_")
+    .trim();
+}
+
 function init(){ bindEvents(); renderHistoryList(); if(window.lucide) lucide.createIcons(); }
 function bindEvents(){
   document.getElementById("heroCameraBtn").addEventListener("click", () => { showScreen("scan"); document.getElementById("photoInput").click(); });
@@ -403,10 +414,8 @@ function renderResult(data){
   const analysis = data.analysis || {};
   const verdict = analysis.verdict || {};
 
-  // Garancia bezpečného kľúča pre recenzie
   const rawName = data.product_key || data.product?.name || "produkt";
-  state.currentProductKey = String(rawName).toLowerCase().replace(/[^a-z0-9]/g, "");
-  if(!state.currentProductKey) state.currentProductKey = "produkt_" + Date.now();
+  state.currentProductKey = makeSafeKey(rawName);
 
   document.getElementById("verdictPercent").textContent = verdict.score || 0;
   document.getElementById("verdictLabel").textContent = verdict.label || "—";
