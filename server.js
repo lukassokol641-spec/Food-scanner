@@ -49,14 +49,15 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// API pre načítanie recenzií
+// API pre načítanie recenzií (s odchytením neplatných znakov)
 app.get("/api/reviews/:productKey", async (req, res) => {
   if (!supabase) return res.json([]);
   try {
+    const cleanKey = normalizeName(req.params.productKey);
     const { data, error } = await supabase
       .from("reviews")
       .select("*")
-      .eq("product_key", req.params.productKey)
+      .eq("product_key", cleanKey)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -70,18 +71,20 @@ app.get("/api/reviews/:productKey", async (req, res) => {
   }
 });
 
-// API pre pridať recenziu
+// API pre pridanie recenzie
 app.post("/api/reviews", async (req, res) => {
   if (!supabase) {
     return res.status(500).json({ error: "Supabase nie je nakonfigurované na serveri." });
   }
   try {
     const { productKey, rating, comment } = req.body;
-    if (!productKey) return res.status(400).json({ error: "Chýba identifikátor produktu." });
+    const cleanKey = normalizeName(productKey);
+
+    if (!cleanKey) return res.status(400).json({ error: "Chýba platný identifikátor produktu." });
 
     const { data, error } = await supabase
       .from("reviews")
-      .insert([{ product_key: productKey, rating: Number(rating) || 5, comment: comment || "" }])
+      .insert([{ product_key: cleanKey, rating: Number(rating) || 5, comment: comment || "" }])
       .select();
 
     if (error) {
