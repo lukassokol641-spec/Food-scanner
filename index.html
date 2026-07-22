@@ -65,6 +65,10 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 .muted{color:#a6a39b;}
 .title-xs{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#a6a39b;}
 .file-hidden{display:none;}
+
+/* KARTICKA V HISTÓRII */
+.history-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s;}
+.history-item:hover{background:rgba(255,255,255,0.06);border-color:rgba(79,190,153,0.4);}
 </style>
 </head>
 <body>
@@ -80,11 +84,14 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <h1 style="font-size:16px;font-weight:600;margin:0;">AI čítanie etikiet</h1>
         </div>
       </div>
-      <select id="langSelect" class="toggle-pill">
-        <option value="sk">🇸🇰 SK</option>
-        <option value="en">🇬🇧 EN</option>
-        <option value="de">🇩🇪 DE</option>
-      </select>
+      <div class="row" style="gap:8px;">
+        <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="history" style="width:16px;height:16px;"></i><span>História</span></button>
+        <select id="langSelect" class="toggle-pill">
+          <option value="sk">🇸🇰 SK</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="de">🇩🇪 DE</option>
+        </select>
+      </div>
     </div>
   </header>
 
@@ -115,6 +122,23 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <div id="scanLine" class="scan-line hidden"></div>
         </div>
         <button id="tryLiveScanBtn" class="btn btn-primary"><i data-lucide="sparkles"></i><span>Spustiť AI analýzu</span></button>
+      </div>
+    </section>
+
+    <!-- SCREEN HISTÓRIA -->
+    <section id="screen-history" class="screen">
+      <div class="row-between">
+        <button id="backFromHistoryBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
+        <button id="clearHistoryBtn" class="badge badge-red" style="cursor:pointer;">Vymazať históriu</button>
+      </div>
+      <div class="card">
+        <div class="stack" style="gap:4px;">
+          <h2 style="font-size:20px;font-weight:700;margin:0;">Moje naskenované produkty</h2>
+          <p class="muted" style="font-size:13px;margin:0;">Uložené lokálne v tomto zariadení.</p>
+        </div>
+        <div id="historyListWrap" class="stack" style="gap:10px;margin-top:8px;">
+          <!-- Napĺňa JS -->
+        </div>
       </div>
     </section>
 
@@ -160,26 +184,22 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <!-- 🥩 1. PRELOŽENÉ RAW ZLOŽENIE -->
+        <!-- 🥩 PRELOŽENÉ SUROVINY -->
         <div class="details-box">
           <p class="title-xs" style="color:#4fbe99;">Surovinové Zloženie</p>
           <p id="ingredientsRawText" style="font-size:14px;line-height:1.5;margin:0;font-weight:500;">Načítavam suroviny...</p>
         </div>
 
-        <!-- 🧪 2. DETAILNÝ ROZBOR E-ČIEK A ICH VÝROBY -->
+        <!-- 🧪 DETAILNÝ ROZBOR E-ČIEK -->
         <div class="details-box">
           <p class="title-xs" style="color:#f29a2e;">Detailný rozbor Aditív (E-čiek)</p>
-          <div id="additivesListWrap" class="stack" style="gap:8px;margin-top:4px;">
-            <!-- Dynamicky naplní JS -->
-          </div>
+          <div id="additivesListWrap" class="stack" style="gap:8px;margin-top:4px;"></div>
         </div>
 
         <p id="recommendationText" style="font-size:14px;line-height:1.5;margin:0;" class="muted"></p>
-
-        <!-- KARTICE METRÍK -->
         <div id="scoresGrid" class="grid-2"></div>
 
-        <!-- HEALTH SWAP SEKCIA + TABUĽKA -->
+        <!-- HEALTH SWAP SEKCIA -->
         <div id="healthSwapSection" class="swap-card">
           <div class="row-between">
             <div class="stack" style="gap:2px;">
@@ -189,7 +209,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
             <span id="swapImprovement" class="badge badge-ok">+20 bodov</span>
           </div>
           <p id="swapSummary" style="font-size:13px;color:#4fbe99;margin:0;"></p>
-          
+
           <div class="compare-grid">
             <div class="compare-box">
               <span class="title-xs">Skenované</span>
@@ -225,9 +245,9 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
 <script>
 const state = { selectedFile: null, previewDataUrl: null, lang: "sk" };
-const screens = { hero: document.getElementById("screen-hero"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result") };
+const screens = { hero: document.getElementById("screen-hero"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
 
-function init(){ bindEvents(); if(window.lucide) lucide.createIcons(); }
+function init(){ bindEvents(); renderHistoryList(); if(window.lucide) lucide.createIcons(); }
 function bindEvents(){
   document.getElementById("heroCameraBtn").addEventListener("click", () => { showScreen("scan"); document.getElementById("photoInput").click(); });
   document.getElementById("photoInput").addEventListener("change", handleFileSelected);
@@ -235,6 +255,9 @@ function bindEvents(){
   document.getElementById("newScanBtn").addEventListener("click", () => showScreen("scan"));
   document.getElementById("backToHeroBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("backToScanBtn").addEventListener("click", () => showScreen("scan"));
+  document.getElementById("historyNavBtn").addEventListener("click", () => { renderHistoryList(); showScreen("history"); });
+  document.getElementById("backFromHistoryBtn").addEventListener("click", () => showScreen("hero"));
+  document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("toggleTableBtn").addEventListener("click", () => {
     document.getElementById("compareTableWrap").classList.toggle("hidden");
   });
@@ -263,12 +286,76 @@ async function processCurrentFile(){
   try {
     const res = await fetch("/api/scan", { method:"POST", body:formData });
     const data = await res.json();
+    saveToLocalHistory(data);
     renderResult(data);
     document.getElementById("scanLine").classList.add("hidden");
     showScreen("result");
   } catch(e) {
     alert("Chyba pri skenovaní.");
     document.getElementById("scanLine").classList.add("hidden");
+  }
+}
+
+// 💾 HISTÓRIA V LOKÁLNOM ÚLOŽISKU
+function getLocalHistory(){
+  try { return JSON.parse(localStorage.getItem("scanHistory") || "[]"); } catch(e){ return []; }
+}
+
+function saveToLocalHistory(data){
+  if(!data || !data.product?.name) return;
+  let history = getLocalHistory();
+  // Odstráň duplicitu ak existuje
+  history = history.filter(item => item.product?.name !== data.product?.name);
+  // Pridaj na začiatok
+  history.unshift(data);
+  // Udržiavaj max 20 položiek
+  if(history.length > 20) history.pop();
+  localStorage.setItem("scanHistory", JSON.stringify(history));
+}
+
+function clearHistory(){
+  if(confirm("Naozaj chceš vymazať celú históriu skenov?")){
+    localStorage.removeItem("scanHistory");
+    renderHistoryList();
+  }
+}
+
+function renderHistoryList(){
+  const wrap = document.getElementById("historyListWrap");
+  const history = getLocalHistory();
+
+  if(history.length === 0){
+    wrap.innerHTML = `<p class="muted" style="font-size:14px;text-align:center;padding:20px 0;">Zatiaľ tu nemáš žiadne naskenované produkty.</p>`;
+    return;
+  }
+
+  wrap.innerHTML = history.map((item, idx) => {
+    const score = item.analysis?.verdict?.score || 0;
+    const sev = item.analysis?.verdict?.severity || "orange";
+    const color = sev === "green" ? "#0f9f74" : sev === "red" ? "#df5252" : "#f29a2e";
+
+    return `
+      <div class="history-item" onclick="openHistoryItem(${idx})">
+        <div class="stack" style="gap:2px;">
+          <h4 style="font-size:15px;font-weight:700;margin:0;color:#fff;">${item.product?.name || "Produkt"}</h4>
+          <p class="muted" style="font-size:12px;margin:0;">${item.product?.category || "Potravina"}</p>
+        </div>
+        <div class="row" style="gap:8px;">
+          <span style="font-size:16px;font-weight:800;color:${color}">${score}/100</span>
+          <i data-lucide="chevron-right" style="width:16px;height:16px;color:#a6a39b;"></i>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  if(window.lucide) lucide.createIcons();
+}
+
+function openHistoryItem(idx){
+  const history = getLocalHistory();
+  if(history[idx]){
+    renderResult(history[idx]);
+    showScreen("result");
   }
 }
 
@@ -283,12 +370,9 @@ function renderResult(data){
   document.getElementById("productMeta").textContent = `${data.product?.category || ""} • ${data.product?.portion || ""}`;
   document.getElementById("recommendationText").textContent = analysis.recommendation || "";
 
-  // 1. Preložené zloženie surovín
   document.getElementById("ingredientsRawText").textContent = data.ingredients_raw || "Zloženie nebolo možné prečítať.";
 
-  // 2. Rozbor E-čiek a ich pôvodu
   renderAdditivesDetail(data.additives_detail || []);
-
   renderScores(analysis.scores);
   renderHealthSwap(data);
   updateBodyOrgans(analysis.scores);
