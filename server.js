@@ -9,7 +9,6 @@ if (process.env.OPENAI_API_KEY) {
   openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
-// Pripojenie Supabase s automatickým vyčistením URL
 let supabase = null;
 try {
   let rawUrl = process.env.SUPABASE_URL || "";
@@ -18,7 +17,7 @@ try {
   if (cleanUrl && process.env.SUPABASE_KEY) {
     const { createClient } = require("@supabase/supabase-js");
     supabase = createClient(cleanUrl, process.env.SUPABASE_KEY.trim());
-    console.log("[SUPABASE] Cloudová databáza úspešne pripojená na:", cleanUrl);
+    console.log("[SUPABASE] Cloudová databáza pripojená na:", cleanUrl);
   }
 } catch (e) {
   console.warn("[WARN] Supabase zlyhalo:", e.message);
@@ -47,6 +46,18 @@ function makeSafeKey(text) {
     .trim();
 }
 
+const LANG_MAP = {
+  sk: "Slovak",
+  cz: "Czech",
+  pl: "Polish",
+  hu: "Hungarian",
+  en: "English",
+  de: "German",
+  it: "Italian",
+  fr: "French",
+  es: "Spanish"
+};
+
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
@@ -59,11 +70,12 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// GET recenzie cez Query Parameter
+// GET recenzie + AI preklad do zvoleného jazyka
 app.get("/api/reviews", async (req, res) => {
   if (!supabase) return res.json([]);
   try {
     const rawKey = req.query.key || "";
+    const targetLang = LANG_MAP[req.query.lang] || "Slovak";
     const cleanKey = makeSafeKey(rawKey);
 
     const { data, error } = await supabase
@@ -72,11 +84,38 @@ app.get("/api/reviews", async (req, res) => {
       .eq("product_key", cleanKey)
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("[REVIEWS GET ERROR]", error);
+    if (error || !data || data.length === 0) {
       return res.json([]);
     }
-    res.json(data || []);
+
+    // Ak nemáme OpenAI alebo používateľ chce slovenčinu, vrátime pôvodné
+    if (!openai || req.query.lang === "sk") {
+      return res.json(data);
+    }
+
+    // AI preklad recenzií do nového jazyka
+    const prompt = `Translate the following list of food user reviews into ${targetLang}. Preserve rating and structure. Return JSON array: [{ "id": 1, "comment": "translated text" }].
+Reviews: ${JSON.stringify(data.map(r => ({ id: r.id, comment: r.comment })))}`;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      temperature: 0.1,
+      response_format: { type: "json_object" },
+      messages: [{ role: "system", content: prompt }]
+    });
+
+    const parsed = JSON.parse(completion.choices[0].message.content);
+    const translatedList = parsed.reviews || parsed.items || Object.values(parsed)[0] || [];
+
+    const finalReviews = data.map(orig => {
+      const trans = Array.isArray(translatedList) ? translatedList.find(t => t.id === orig.id) : null;
+      return {
+        ...orig,
+        comment: trans?.comment || orig.comment
+      };
+    });
+
+    res.json(finalReviews);
   } catch (err) {
     console.error("[REVIEWS GET EXCEPTION]", err);
     res.json([]);
@@ -86,7 +125,7 @@ app.get("/api/reviews", async (req, res) => {
 // POST recenzia
 app.post("/api/reviews", async (req, res) => {
   if (!supabase) {
-    return res.status(500).json({ error: "Supabase nie je pripojená na serveri." });
+    return res.status(500).json({ error: "Supabase nie je pripojená." });
   }
   try {
     const { productKey, rating, comment } = req.body;
@@ -98,64 +137,63 @@ app.post("/api/reviews", async (req, res) => {
       .select();
 
     if (error) {
-      console.error("[REVIEWS INSERT ERROR]", error);
       return res.status(400).json({ error: error.message });
     }
     res.json({ ok: true, review: data?.[0] });
   } catch (err) {
-    console.error("[REVIEWS POST EXCEPTION]", err);
     res.status(500).json({ error: String(err?.message || err) });
   }
 });
 
-// Hlavný AI sken s podporou osobných zdravotných profilov
+// Hlavný AI sken s podporou 9 jazykov a zdravotných profilov
 app.post("/api/scan", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "Chýba fotka." });
     if (!openai) return res.status(500).json({ error: "Chýba API kľúč pre OpenAI." });
 
-    const lang = ["sk", "en", "de"].includes(req.body?.lang) ? req.body.lang : "sk";
-    const profile = req.body?.profile || "general"; // "general", "heart", "diabetes", "clean"
+    const langKey = req.body?.lang || "sk";
+    const targetLang = LANG_MAP[langKey] || "Slovak";
+    const profile = req.body?.profile || "general";
     const mimeType = req.file.mimetype || "image/jpeg";
     const base64Image = req.file.buffer.toString("base64");
 
     let profileContext = "General health evaluation.";
     if (profile === "heart") {
-      profileContext = "USER PROFILE: Heart & Pressure Focus. Be extra strict on high SALT and sodium content. Highlight heart/vascular risks if salt is high.";
+      profileContext = "USER PROFILE: Heart & Blood Pressure Focus. Be extremely strict on high SALT and SODIUM. If salt is high, reduce verdict score severely and warn about blood pressure.";
     } else if (profile === "diabetes") {
-      profileContext = "USER PROFILE: Diabetes / Blood Sugar Focus. Be extra strict on ADDED SUGAR and carb spikes. Lower verdict score if sugar is high.";
+      profileContext = "USER PROFILE: Diabetes / Blood Sugar Focus. Be extremely strict on ADDED SUGARS and carb spikes. Lower verdict score if sugar is high.";
     } else if (profile === "clean") {
-      profileContext = "USER PROFILE: Clean Eating / Minimal Processing. Be extra strict on ADDITIVES, E-numbers, and ultra-processed ingredients.";
+      profileContext = "USER PROFILE: Clean Eating / No Additives. Be extremely strict on ADDITIVES, E-numbers, and ultra-processing.";
     }
 
-    const systemPrompt = `Analyze food package label. Translate response strictly to ${lang === "sk" ? "Slovak" : lang === "en" ? "English" : "German"}.
+    const systemPrompt = `Analyze food package label. Translate response strictly to ${targetLang}.
 ${profileContext}
 
 Determine exact energy curve impact based on nutrients.
 
 Return JSON strictly:
 {
-  "scan": { "status": "success", "language": "${lang}" },
+  "scan": { "status": "success", "language": "${langKey}" },
   "product": { "name": "Exact product name", "category": "Category", "portion": "Size" },
-  "ingredients_raw": "Vyber a prelož celý text zloženia z obalu",
+  "ingredients_raw": "Vyber a prelož celý text zloženia z obalu do ${targetLang}",
   "additives_detail": [
     {
       "code": "E250",
       "name": "Názov látky",
       "origin": "Pôvod",
       "process": "Ako sa vyrába",
-      "risk": "Riziko"
+      "risk": "Riziko pre zdravie"
     }
   ],
   "energy_impact": {
     "type": "spike", // strictly: "spike", "moderate", or "stable"
     "title": "Názov dopadu na energiu",
-    "description": "Detailný popis správania glukózy a sústredenia po zjedení.",
-    "duration": "Podpora energie: napr. ~45 min alebo ~3 hodiny"
+    "description": "Detailný popis správania glukózy a sústredenia v reči ${targetLang}.",
+    "duration": "Podpora energie: napr. ~45 min"
   },
   "analysis": {
-    "verdict": { "score": 65, "severity": "orange", "label": "Radšej obmedziť" },
-    "recommendation": "Stručné zhodnotenie zohľadňujúce zvolený profil používateľa.",
+    "verdict": { "score": 65, "severity": "orange", "label": "Text verdiktu" },
+    "recommendation": "Stručné zhodnotenie s ohľadom na profil používateľa v reči ${targetLang}.",
     "scores": {
       "sugar": { "value": "0g / 100g", "level": "Nízky", "severity": "green" },
       "salt": { "value": "2g / 100g", "level": "Vyšší", "severity": "orange" },
@@ -164,7 +202,7 @@ Return JSON strictly:
     },
     "healthierSwap": {
       "enabled": true,
-      "summary": "Zdravšia alternatíva.",
+      "summary": "Zdravšia alternatíva",
       "improvement": "+20 bodov",
       "product": { "name": "Názov alternatívy", "score": 85, "sugar": "0g", "salt": "0.1g", "additives": "Bez E-čiek", "processing": "Minimálne" }
     }
@@ -183,7 +221,7 @@ Return JSON strictly:
     });
 
     const parsed = JSON.parse(completion.choices[0].message.content);
-    const prodKey = makeSafeKey(parsed?.product?.name) + "_" + lang + "_" + profile;
+    const prodKey = makeSafeKey(parsed?.product?.name) + "_" + langKey + "_" + profile;
     parsed.product_key = prodKey;
 
     if (supabase && prodKey.length > 3) {
