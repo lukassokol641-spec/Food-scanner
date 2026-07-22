@@ -9,7 +9,6 @@ if (process.env.OPENAI_API_KEY) {
   openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
-// Pripojenie Supabase
 let supabase = null;
 try {
   if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
@@ -33,9 +32,16 @@ const upload = multer({
   limits: { fileSize: 8 * 1024 * 1024 }
 });
 
-function normalizeName(name) {
-  const clean = String(name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-  return clean.length > 0 ? clean : "produkt_" + Date.now();
+// Pomocná funkcia na vytvorenie 100% bezpečného kľúča bez medzier a diakritiky
+function makeSafeKey(text) {
+  if (!text) return "produkt_" + Date.now();
+  return String(text)
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // odstráni mäkčene a dĺžne
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "_")    // nahradí medzery a špeciálne znaky podtržníkom
+    .replace(/_+/g, "_")           // odstráni zdvojené podtržníky
+    .trim();
 }
 
 app.get("/api/health", (req, res) => {
@@ -50,11 +56,13 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// API pre načítanie recenzií (Ošetrené proti padnutiu JSON)
-app.get("/api/reviews/:productKey", async (req, res) => {
+// API pre načítanie recenzií
+app.get("/api/reviews/*", async (req, res) => {
   if (!supabase) return res.json([]);
   try {
-    const cleanKey = normalizeName(req.params.productKey);
+    const rawKey = req.params[0] || "";
+    const cleanKey = makeSafeKey(rawKey);
+
     const { data, error } = await supabase
       .from("reviews")
       .select("*")
@@ -72,14 +80,14 @@ app.get("/api/reviews/:productKey", async (req, res) => {
   }
 });
 
-// API pre pridanie recenzie (Garancia správneho kľúča)
+// API pre pridanie recenzie
 app.post("/api/reviews", async (req, res) => {
   if (!supabase) {
     return res.status(500).json({ error: "Supabase nie je pripojená." });
   }
   try {
     const { productKey, rating, comment } = req.body;
-    const cleanKey = normalizeName(productKey);
+    const cleanKey = makeSafeKey(productKey);
 
     const { data, error } = await supabase
       .from("reviews")
@@ -158,7 +166,7 @@ Return JSON strictly with energy impact data:
     });
 
     const parsed = JSON.parse(completion.choices[0].message.content);
-    const prodKey = normalizeName(parsed?.product?.name) + "_" + lang;
+    const prodKey = makeSafeKey(parsed?.product?.name) + "_" + lang;
     parsed.product_key = prodKey;
 
     if (supabase && prodKey.length > 3) {
