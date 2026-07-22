@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="sk" data-theme="light">
+<html lang="sk" data-theme="dark">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -12,25 +12,19 @@
 <style>
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;min-height:100%;}
-body{background:#f7f6f2;color:#171614;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
-[data-theme="dark"] body{background:#171614;color:#f1efe9;}
+body{background:#121316;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
 .page{display:flex;flex-direction:column;width:100%;max-width:480px;margin:0 auto;padding:16px 16px 32px 16px;gap:16px;}
 .stack{display:flex;flex-direction:column;gap:12px;}
 .stack-lg{display:flex;flex-direction:column;gap:20px;}
 .row{display:flex;align-items:center;gap:10px;}
 .row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.header{position:relative;z-index:20;background:rgba(251,251,249,0.9);border:1px solid rgba(23,22,20,0.10);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:14px;}
-[data-theme="dark"] .header{background:rgba(29,28,26,0.9);border-color:rgba(255,255,255,0.10);}
-.settings-panel{border:1px solid rgba(23,22,20,0.10);background:rgba(0,0,0,0.03);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:12px;}
-[data-theme="dark"] .settings-panel{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.10);}
+.header{position:relative;z-index:20;background:rgba(29,28,26,0.9);border:1px solid rgba(255,255,255,0.10);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:14px;}
 .screen{display:none;flex-direction:column;gap:16px;}
 .screen.active{display:flex;}
-.card{background:#fbfbf9;border:1px solid rgba(23,22,20,0.10);border-radius:28px;padding:20px;display:flex;flex-direction:column;gap:20px;}
-[data-theme="dark"] .card{background:#1d1c1a;border-color:rgba(255,255,255,0.10);}
+.card{background:#1d1c1a;border:1px solid rgba(255,255,255,0.10);border-radius:28px;padding:20px;display:flex;flex-direction:column;gap:20px;}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:24px;padding:16px 20px;font-weight:600;font-size:16px;border:none;cursor:pointer;text-align:center;}
 .btn-primary{background:linear-gradient(180deg,#0f9f74,#0a7f5b);color:#fff;box-shadow:0 12px 24px rgba(15,159,116,0.22);}
-.btn-secondary{background:#fbfbf9;color:#171614;border:1px solid rgba(23,22,20,0.10);}
-[data-theme="dark"] .btn-secondary{background:#1d1c1a;color:#f1efe9;border-color:rgba(255,255,255,0.10);}
+.btn-secondary{background:#1d1c1a;color:#f1efe9;border:1px solid rgba(255,255,255,0.10);}
 .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600;white-space:nowrap;}
 .badge-demo{background:rgba(218,113,1,0.12);color:#da7101;}
 .badge-ok{background:rgba(15,159,116,0.12);color:#0f9f74;}
@@ -39,43 +33,35 @@ body{background:#f7f6f2;color:#171614;font-family:Inter,ui-sans-serif,system-ui,
 .risk-green{background:#3aa76d;}
 .risk-orange{background:#f29a2e;}
 .risk-red{background:#df5252;}
-.camera-frame{position:relative;width:100%;min-height:360px;border-radius:28px;overflow:hidden;border:1px solid rgba(23,22,20,0.10);background:linear-gradient(180deg,rgba(0,0,0,0.14),rgba(0,0,0,0.28)),linear-gradient(135deg,#d8d5ce,#efede7);display:flex;align-items:center;justify-content:center;}
-[data-theme="dark"] .camera-frame{background:linear-gradient(180deg,rgba(0,0,0,0.18),rgba(0,0,0,0.34)),linear-gradient(135deg,#37342f,#201f1d);}
-.camera-frame img.product-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.camera-placeholder{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:10px;color:#fff;}
-.overlay-top{position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:center;justify-content:space-between;z-index:5;}
-.chip-dark{background:rgba(0,0,0,0.35);color:#fff;font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;backdrop-filter:blur(4px);}
-.scan-line{position:absolute;left:8%;right:8%;top:18%;height:2px;background:linear-gradient(90deg,transparent,rgba(79,190,153,0.25),rgba(79,190,153,1),rgba(79,190,153,0.25),transparent);box-shadow:0 0 18px rgba(79,190,153,0.65);animation:scanMove 2.2s ease-in-out infinite;z-index:4;}
-@keyframes scanMove{0%{top:18%;opacity:.8;}50%{top:74%;opacity:1;}100%{top:18%;opacity:.8;}}
-.hidden{display:none !important;}
-.progress-panel{position:absolute;left:16px;right:16px;bottom:16px;z-index:7;background:rgba(23,22,20,0.55);border:1px solid rgba(255,255,255,0.15);backdrop-filter:blur(10px);border-radius:16px;padding:12px;color:#fff;display:flex;flex-direction:column;gap:4px;}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.score-card{border:1px solid rgba(23,22,20,0.10);background:rgba(0,0,0,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
-[data-theme="dark"] .score-card{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.10);}
 
-/* --- VIZUÁLNA SILUETA TELA --- */
-.body-impact-card{background:rgba(0,0,0,0.03);border:1px solid rgba(23,22,20,0.10);border-radius:24px;padding:16px;display:flex;align-items:center;gap:16px;}
-[data-theme="dark"] .body-impact-card{background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.10);}
-.body-svg-container{width:90px;height:140px;flex-shrink:0;position:relative;}
-.organ-glow{transition:all 0.4s ease-in-out;filter:drop-shadow(0 0 6px currentColor);}
-.organ-inactive{fill:#6f6d68;opacity:0.3;}
-.organ-red{fill:#df5252;color:#df5252;opacity:1;}
-.organ-orange{fill:#f29a2e;color:#f29a2e;opacity:1;}
-.organ-green{fill:#0f9f74;color:#0f9f74;opacity:1;}
+.camera-frame{position:relative;width:100%;min-height:300px;border-radius:28px;overflow:hidden;border:1px solid rgba(255,255,255,0.10);background:#201f1d;display:flex;align-items:center;justify-content:center;}
+.camera-frame img.product-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.scan-line{position:absolute;left:8%;right:8%;top:18%;height:2px;background:linear-gradient(90deg,transparent,#0f9f74,transparent);box-shadow:0 0 18px #0f9f74;animation:scanMove 2.2s ease-in-out infinite;z-index:4;}
+@keyframes scanMove{0%{top:18%;}50%{top:74%;}100%{top:18%;}}
+.hidden{display:none !important;}
+
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.score-card{border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+
+/* 🧍‍♂️ MODERNÁ VELKÁ SILUETA TELA */
+.body-impact-card{background:linear-gradient(145deg, rgba(30,32,38,0.9), rgba(20,21,25,0.9));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:20px;box-shadow:0 10px 30px rgba(0,0,0,0.3);}
+.body-svg-container{width:110px;height:170px;flex-shrink:0;position:relative;}
+.organ-dot{transition:all 0.5s ease;filter:drop-shadow(0 0 8px currentColor);}
+.organ-pulse{animation:pulse 2s infinite;}
+@keyframes pulse{0%{r:6px;opacity:0.8;}50%{r:9px;opacity:1;}100%{r:6px;opacity:0.8;}}
+
+.swap-card{border:1px solid rgba(79,190,153,0.3);background:rgba(79,190,153,0.08);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:16px;}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.compare-box{background:rgba(255,255,255,0.06);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;}
 
 .verdict-row{display:flex;align-items:flex-start;gap:16px;}
 .verdict-ring{position:relative;width:96px;height:96px;flex-shrink:0;border-radius:999px;background:conic-gradient(var(--verdict-color,#f29a2e) 0 68%, rgba(127,127,127,0.14) 68% 100%);display:flex;align-items:center;justify-content:center;}
-.verdict-ring-inner{position:absolute;inset:12px;border-radius:999px;background:#fbfbf9;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-[data-theme="dark"] .verdict-ring-inner{background:#1d1c1a;}
-.toggle-pill{border-radius:16px;border:1px solid rgba(23,22,20,0.10);padding:12px;font-weight:600;font-size:14px;background:#fbfbf9;color:#171614;cursor:pointer;text-align:center;}
-[data-theme="dark"] .toggle-pill{background:#1d1c1a;color:#f1efe9;border-color:rgba(255,255,255,0.10);}
-.icon-btn{width:44px;height:44px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:#fbfbf9;border:1px solid rgba(23,22,20,0.10);cursor:pointer;flex-shrink:0;}
-[data-theme="dark"] .icon-btn{background:#1d1c1a;border-color:rgba(255,255,255,0.10);}
-.logo-badge{width:44px;height:44px;border-radius:16px;flex-shrink:0;background:rgba(15,159,116,0.12);color:#0a7f5b;display:flex;align-items:center;justify-content:center;}
-.muted{color:#6f6d68;}
-[data-theme="dark"] .muted{color:#a6a39b;}
-.title-xs{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#6f6d68;}
-.upload-label{cursor:pointer;}
+.verdict-ring-inner{position:absolute;inset:12px;border-radius:999px;background:#1d1c1a;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.toggle-pill{border-radius:16px;border:1px solid rgba(255,255,255,0.10);padding:8px 12px;font-weight:600;font-size:13px;background:#1d1c1a;color:#f1efe9;}
+.icon-btn{width:44px;height:44px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:#1d1c1a;border:1px solid rgba(255,255,255,0.10);color:#fff;}
+.logo-badge{width:44px;height:44px;border-radius:16px;flex-shrink:0;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;}
+.muted{color:#a6a39b;}
+.title-xs{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#a6a39b;}
 .file-hidden{display:none;}
 </style>
 </head>
@@ -85,97 +71,121 @@ body{background:#f7f6f2;color:#171614;font-family:Inter,ui-sans-serif,system-ui,
     <div class="row-between">
       <div class="row">
         <div class="logo-badge">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12C5 7.029 9.029 3 14 3c2.685 0 5.095 1.176 6.744 3.042" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M19 12c0 4.971-4.029 9-9 9-2.685 0-5.095-1.176-6.744-3.042" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="10" cy="12" r="2.5" fill="currentColor"/><path d="M15 9.5h4M17 7.5v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12C5 7.029 9.029 3 14 3c2.685 0 5.095 1.176 6.744 3.042" stroke="currentColor" stroke-width="1.8"/><path d="M19 12c0 4.971-4.029 9-9 9-2.685 0-5.095-1.176-6.744-3.042" stroke="currentColor" stroke-width="1.8"/><circle cx="10" cy="12" r="2.5" fill="currentColor"/></svg>
         </div>
         <div>
           <p class="title-xs">Food Scanner</p>
           <h1 style="font-size:16px;font-weight:600;margin:0;">AI čítanie etikiet</h1>
         </div>
       </div>
-      <div class="row" style="gap:8px;flex-shrink:0;">
-        <select id="langSelect" class="toggle-pill" style="padding:8px 10px;font-size:13px;width:auto;">
-          <option value="sk">🇸🇰 SK</option>
-          <option value="en">🇬🇧 EN</option>
-          <option value="de">🇩🇪 DE</option>
-        </select>
-        <button id="themeToggle" class="icon-btn"><i data-lucide="moon" style="width:18px;height:18px;"></i></button>
-      </div>
+      <select id="langSelect" class="toggle-pill">
+        <option value="sk">🇸🇰 SK</option>
+        <option value="en">🇬🇧 EN</option>
+        <option value="de">🇩🇪 DE</option>
+      </select>
     </div>
   </header>
 
   <main class="stack-lg">
+    <!-- SCREEN HERO -->
     <section id="screen-hero" class="screen active">
       <div class="card">
-        <div class="badge badge-ok"><span style="width:8px;height:8px;border-radius:999px;background:#0f9f74;display:inline-block;"></span><span>Rýchla kontrola potravín</span></div>
+        <div class="badge badge-ok"><span>Rýchla kontrola potravín</span></div>
         <div class="stack" style="gap:10px;">
           <h2 style="font-size:28px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu a zisti, <span style="color:#0f9f74;">čo kupuješ</span>.</h2>
-          <p class="muted" style="font-size:14px;line-height:1.5;margin:0;">Analýza zloženia, E-čiek, dopadu na ľudské telo a návrh zdravších alternatív.</p>
+          <p class="muted" style="font-size:14px;line-height:1.5;margin:0;">Okamžitá AI analýza zloženia, aditív a vizuálny dopad na ľudské telo.</p>
         </div>
-        <div class="stack">
-          <button id="heroCameraBtn" class="btn btn-primary"><i data-lucide="camera" style="width:20px;height:20px;"></i><span>Odfotiť etiketu</span></button>
-          <input id="photoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
-        </div>
+        <button id="heroCameraBtn" class="btn btn-primary"><i data-lucide="camera"></i><span>Odfotiť etiketu</span></button>
+        <input id="photoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
       </div>
     </section>
 
+    <!-- SCREEN SCAN -->
     <section id="screen-scan" class="screen">
       <div class="row-between">
-        <button id="backToHeroBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i><span>Späť</span></button>
+        <button id="backToHeroBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
         <div class="badge badge-ok">Live OpenAI</div>
       </div>
       <div class="card">
         <div class="camera-frame">
           <img id="previewImage" class="product-image hidden" alt="Preview" />
-          <div id="cameraPlaceholder" class="camera-placeholder"><p>Pridaj fotku obalu</p></div>
+          <p id="placeholderText" class="muted">Obrázok sa načítava...</p>
           <div id="scanLine" class="scan-line hidden"></div>
         </div>
-        <button id="tryLiveScanBtn" class="btn btn-primary"><i data-lucide="sparkles" style="width:20px;height:20px;"></i><span>Spustiť AI analýzu</span></button>
+        <button id="tryLiveScanBtn" class="btn btn-primary"><i data-lucide="sparkles"></i><span>Spustiť AI analýzu</span></button>
       </div>
     </section>
 
+    <!-- SCREEN RESULT -->
     <section id="screen-result" class="screen">
       <div class="row-between">
-        <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left" style="width:16px;height:16px;"></i><span>Sken</span></button>
+        <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Sken</span></button>
         <div class="badge badge-ok">Live OpenAI</div>
       </div>
 
       <div class="card">
-        <!-- ZÁKLADNÉ SKÓRE & PRODUKT -->
+        <!-- ZÁKLADNÝ VERDIKT -->
         <div class="verdict-row">
           <div id="verdictRing" class="verdict-ring"><div class="verdict-ring-inner"><div id="verdictPercent" style="font-size:20px;font-weight:800;">0</div><div class="title-xs" style="font-size:9px;">Score</div></div></div>
-          <div class="stack" style="gap:6px;flex:1;min-width:0;">
-            <div id="verdictBadge" class="badge badge-demo" style="align-self:flex-start;"><span class="risk-dot risk-orange"></span><span>—</span></div>
+          <div class="stack" style="gap:6px;flex:1;">
+            <div id="verdictBadge" class="badge badge-demo" style="align-self:flex-start;"><span class="risk-dot risk-orange"></span><span id="verdictLabel">Radšej obmedziť</span></div>
             <h2 id="productName" style="font-size:22px;font-weight:800;margin:0;">—</h2>
             <p id="productMeta" class="muted" style="font-size:14px;margin:0;"></p>
           </div>
         </div>
 
-        <!-- 🧍‍♂️ NOVÝ KROK 2.2: INTERAKTÍVNA SILUETA TELA -->
+        <!-- 🧍‍♂️ VELKÁ VIZUÁLNA SILUETA TELA -->
         <div class="body-impact-card">
           <div class="body-svg-container">
             <svg viewBox="0 0 100 200" width="100%" height="100%">
-              <!-- Silueta tela -->
-              <path d="M50,15 C42,15 38,22 38,30 C38,38 42,42 50,42 C58,42 62,38 62,30 C62,22 58,15 50,15 Z M35,50 C25,55 20,70 18,90 C17,98 22,100 25,95 C28,85 30,70 32,60 L32,120 L42,120 L42,185 C42,192 48,192 48,185 L48,130 L52,130 L52,185 C52,192 58,192 58,185 L58,120 L68,120 L68,60 C70,70 72,85 75,95 C78,100 83,98 82,90 C80,70 75,55 65,50 Z" fill="currentColor" opacity="0.15"/>
+              <!-- Štýlová futuristická silueta -->
+              <path d="M50,12 C41,12 37,20 37,28 C37,36 41,40 50,40 C59,40 63,36 63,28 C63,20 59,12 50,12 Z M34,48 C24,53 19,68 17,88 C16,96 21,98 24,93 C27,83 29,68 31,58 L31,118 L41,118 L41,185 C41,192 47,192 47,185 L47,128 L53,128 L53,185 C53,192 59,192 59,185 L59,118 L69,118 L69,58 C71,68 73,83 76,93 C79,98 84,96 83,88 C81,68 76,53 66,48 Z" fill="#ffffff" opacity="0.12" stroke="#ffffff" stroke-width="1"/>
               
-              <!-- Orgán: MOZOG -->
-              <circle id="organ-brain" class="organ-glow organ-inactive" cx="50" cy="28" r="7"/>
-              <!-- Orgán: SRDCE / CIEVY -->
-              <circle id="organ-heart" class="organ-glow organ-inactive" cx="53" cy="62" r="6"/>
-              <!-- Orgán: ŽALÚDOK / TRÁVENIE -->
-              <ellipse id="organ-stomach" class="organ-glow organ-inactive" cx="48" cy="78" rx="8" ry="6"/>
+              <!-- Siet/Kostra linky pre WOW efekt -->
+              <line x1="50" y1="40" x2="50" y2="128" stroke="#ffffff" opacity="0.15" stroke-dasharray="2,2"/>
+              
+              <!-- ORGÁNY: Mozog, Srdce, Žalúdok -->
+              <circle id="organ-brain" class="organ-dot organ-pulse" cx="50" cy="26" r="7" fill="#6f6d68" style="color:#6f6d68"/>
+              <circle id="organ-heart" class="organ-dot organ-pulse" cx="53" cy="62" r="7" fill="#6f6d68" style="color:#6f6d68"/>
+              <circle id="organ-stomach" class="organ-dot organ-pulse" cx="47" cy="82" r="8" fill="#6f6d68" style="color:#6f6d68"/>
             </svg>
           </div>
-          <div class="stack" style="gap:4px;flex:1;">
-            <p class="title-xs" style="color:#0f9f74;">Vizuálny dopad na telo</p>
-            <h3 id="bodyImpactTitle" style="font-size:16px;font-weight:700;margin:0;">Zasahuje 2 oblasti</h3>
-            <p id="bodyImpactText" class="muted" style="font-size:13px;margin:0;">Sodík a konzervanty predstavujú záťaž pre cievnu sústavu a trávenie.</p>
+          <div class="stack" style="gap:6px;flex:1;">
+            <p class="title-xs" style="color:#4fbe99;">Vizuálny dopad na telo</p>
+            <h3 id="bodyImpactTitle" style="font-size:16px;font-weight:700;margin:0;">Analýza orgánov...</h3>
+            <p id="bodyImpactText" class="muted" style="font-size:13px;line-height:1.4;margin:0;"></p>
           </div>
         </div>
 
-        <p id="recommendationText" class="muted" style="font-size:14px;line-height:1.5;margin:0;"></p>
+        <!-- REKOMAENDÁCIA -->
+        <p id="recommendationText" style="font-size:14px;line-height:1.5;margin:0;" class="muted"></p>
+
+        <!-- KARTICE METRÍK (Cukor, Soľ, Aditíva, Spracovanie) -->
         <div id="scoresGrid" class="grid-2"></div>
 
-        <button id="newScanBtn" class="btn btn-primary"><i data-lucide="refresh-ccw" style="width:20px;height:20px;"></i><span>Skúsiť nový sken</span></button>
+        <!-- HEALTH SWAP SEKCIA -->
+        <div id="healthSwapSection" class="swap-card">
+          <div class="row-between">
+            <div class="stack" style="gap:2px;">
+              <p class="title-xs" style="color:#4fbe99;">Health Swap</p>
+              <h3 style="font-size:17px;font-weight:700;margin:0;">Zdravšia alternatíva</h3>
+            </div>
+            <span id="swapImprovement" class="badge badge-ok">+20 bodov</span>
+          </div>
+          <p id="swapSummary" style="font-size:13px;color:#4fbe99;margin:0;"></p>
+          <div class="compare-grid">
+            <div class="compare-box">
+              <span class="title-xs">Skenované</span>
+              <p id="compareCurrentName" style="font-size:13px;font-weight:600;margin:0;">—</p>
+            </div>
+            <div class="compare-box">
+              <span class="title-xs" style="color:#4fbe99;">Odporúčanie</span>
+              <p id="compareSwapName" style="font-size:13px;font-weight:600;color:#4fbe99;margin:0;">—</p>
+            </div>
+          </div>
+        </div>
+
+        <button id="newScanBtn" class="btn btn-primary"><i data-lucide="refresh-ccw"></i><span>Skúsiť nový sken</span></button>
       </div>
     </section>
   </main>
@@ -203,6 +213,7 @@ async function handleFileSelected(e){
   state.previewDataUrl = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file); });
   document.getElementById("previewImage").src = state.previewDataUrl;
   document.getElementById("previewImage").classList.remove("hidden");
+  document.getElementById("placeholderText").classList.add("hidden");
   showScreen("scan");
 }
 
@@ -228,13 +239,65 @@ async function processCurrentFile(){
 
 function renderResult(data){
   if(!data) return;
-  document.getElementById("verdictPercent").textContent = data.analysis?.verdict?.score || 0;
+  const analysis = data.analysis || {};
+  const verdict = analysis.verdict || {};
+
+  document.getElementById("verdictPercent").textContent = verdict.score || 0;
+  document.getElementById("verdictLabel").textContent = verdict.label || "—";
   document.getElementById("productName").textContent = data.product?.name || "Produkt";
   document.getElementById("productMeta").textContent = `${data.product?.category || ""} • ${data.product?.portion || ""}`;
-  document.getElementById("recommendationText").textContent = data.analysis?.recommendation || "";
+  document.getElementById("recommendationText").textContent = analysis.recommendation || "";
 
-  // 🧍‍♂️ Aktualizácia organov siluety
-  updateBodyOrgans(data.analysis?.scores);
+  // Vykreslenie mriežky 4 metrík
+  renderScores(analysis.scores);
+
+  // Vykreslenie Health Swap
+  renderHealthSwap(data);
+
+  // Aktualizácia veľkej siluety
+  updateBodyOrgans(analysis.scores);
+  if(window.lucide) lucide.createIcons();
+}
+
+function renderScores(scores){
+  const grid = document.getElementById("scoresGrid");
+  const s = scores || {};
+  const items = [
+    { key:"sugar", title:"Cukor", icon:"candy", data: s.sugar },
+    { key:"salt", title:"Soľ", icon:"beaker", data: s.salt },
+    { key:"additives", title:"Éčka / Aditíva", icon:"flask-conical", data: s.additives },
+    { key:"processing", title:"Spracovanie", icon:"factory", data: s.processing }
+  ];
+
+  grid.innerHTML = items.map(item => {
+    const val = item.data?.value || "—";
+    const level = item.data?.level || "—";
+    const sev = item.data?.severity || "orange";
+    const color = sev === "green" ? "#0f9f74" : sev === "red" ? "#df5252" : "#f29a2e";
+
+    return `<div class="score-card">
+      <div class="row-between">
+        <div class="row" style="font-size:13px;font-weight:600;">
+          <i data-lucide="${item.icon}" style="width:16px;height:16px;color:${color};"></i>
+          <span>${item.title}</span>
+        </div>
+        <span class="badge" style="background:rgba(255,255,255,0.06);color:${color}">${level}</span>
+      </div>
+      <p style="font-size:14px;font-weight:700;margin:0;">${val}</p>
+    </div>`;
+  }).join("");
+}
+
+function renderHealthSwap(data){
+  const swap = data.analysis?.healthierSwap;
+  const section = document.getElementById("healthSwapSection");
+  if(!swap || !swap.enabled){ section.classList.add("hidden"); return; }
+
+  section.classList.remove("hidden");
+  document.getElementById("swapImprovement").textContent = swap.improvement || "+20 bodov";
+  document.getElementById("swapSummary").textContent = swap.summary || "";
+  document.getElementById("compareCurrentName").textContent = data.product?.name || "Skenovaný";
+  document.getElementById("compareSwapName").textContent = swap.product?.name || "Alternatíva";
 }
 
 function updateBodyOrgans(scores){
@@ -242,29 +305,36 @@ function updateBodyOrgans(scores){
   const heart = document.getElementById("organ-heart");
   const stomach = document.getElementById("organ-stomach");
 
-  // Reset
-  brain.className = "organ-glow organ-inactive";
-  heart.className = "organ-glow organ-inactive";
-  stomach.className = "organ-glow organ-inactive";
-
   let impacts = [];
 
-  // Vyhodnotenie Srdca / Ciev (podľa soli)
-  if(scores?.salt?.severity === "orange" || scores?.salt?.severity === "red"){
-    heart.className = `organ-glow organ-${scores.salt.severity}`;
-    impacts.push("cievy (soľ)");
-  }
-  
-  // Vyhodnotenie Žalúdka (podľa aditív)
-  if(scores?.additives?.severity === "orange" || scores?.additives?.severity === "red"){
-    stomach.className = `organ-glow organ-${scores.additives.severity}`;
-    impacts.push("trávenie (E-čka)");
+  // SOĽ -> CIKULÁCIA & SRDCE
+  if(scores?.salt?.severity === "red" || scores?.salt?.severity === "orange"){
+    heart.setAttribute("fill", "#df5252");
+    heart.style.color = "#df5252";
+    impacts.push("cievy a tlak (soľ)");
+  } else {
+    heart.setAttribute("fill", "#0f9f74");
+    heart.style.color = "#0f9f74";
   }
 
-  // Vyhodnotenie Mozgu (podľa cukru)
-  if(scores?.sugar?.severity === "orange" || scores?.sugar?.severity === "red"){
-    brain.className = `organ-glow organ-${scores.sugar.severity}`;
-    impacts.push("mozog (cukrový výkyv)");
+  // E-ČKA -> TRÁVENIE A ŽALÚDOK
+  if(scores?.additives?.severity === "red" || scores?.additives?.severity === "orange"){
+    stomach.setAttribute("fill", "#f29a2e");
+    stomach.style.color = "#f29a2e";
+    impacts.push("trávenie (aditíva)");
+  } else {
+    stomach.setAttribute("fill", "#0f9f74");
+    stomach.style.color = "#0f9f74";
+  }
+
+  // CUKOR -> MOZOG / NÁLADA
+  if(scores?.sugar?.severity === "red" || scores?.sugar?.severity === "orange"){
+    brain.setAttribute("fill", "#df5252");
+    brain.style.color = "#df5252";
+    impacts.push("mozog (cukrový šok)");
+  } else {
+    brain.setAttribute("fill", "#0f9f74");
+    brain.style.color = "#0f9f74";
   }
 
   const titleEl = document.getElementById("bodyImpactTitle");
@@ -272,13 +342,10 @@ function updateBodyOrgans(scores){
 
   if(impacts.length > 0){
     titleEl.textContent = `Zasahuje ${impacts.length} ${impacts.length === 1 ? 'oblasť' : 'oblasti'}`;
-    textEl.textContent = `Zistená záťaž na: ${impacts.join(", ")}.`;
+    textEl.textContent = `Zistená zvýšená záťaž na: ${impacts.join(", ")}.`;
   } else {
-    brain.className = "organ-glow organ-green";
-    heart.className = "organ-glow organ-green";
-    stomach.className = "organ-glow organ-green";
     titleEl.textContent = "Výborný dopad na telo";
-    textEl.textContent = "Potravina nepredstavuje záťaž pre kľúčové orgány.";
+    textEl.textContent = "Produkt je šetrný k orgánom a nezaťažuje trávenie ani cievny systém.";
   }
 }
 
