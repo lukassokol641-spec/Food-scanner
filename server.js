@@ -9,7 +9,7 @@ if (process.env.OPENAI_API_KEY) {
   openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
-// Bezpečné pripojenie Supabase
+// Pripojenie Supabase
 let supabase = null;
 try {
   if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
@@ -18,7 +18,7 @@ try {
     console.log("[SUPABASE] Cloudová databáza úspešne pripojená.");
   }
 } catch (e) {
-  console.warn("[WARN] Supabase knižnica nie je dostupná alebo z zlyhalo pripojenie:", e.message);
+  console.warn("[WARN] Supabase zlyhalo:", e.message);
 }
 
 const app = express();
@@ -49,7 +49,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// API pre získanie recenzií k produktu
+// API pre načítanie recenzií
 app.get("/api/reviews/:productKey", async (req, res) => {
   if (!supabase) return res.json([]);
   try {
@@ -59,35 +59,43 @@ app.get("/api/reviews/:productKey", async (req, res) => {
       .eq("product_key", req.params.productKey)
       .order("created_at", { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error("[REVIEWS GET ERROR]", error);
+      return res.json([]);
+    }
     res.json(data || []);
   } catch (err) {
-    console.error("[REVIEWS GET ERROR]", err);
-    res.status(500).json({ error: "Chyba pri načítaní recenzií." });
+    console.error("[REVIEWS GET EXCEPTION]", err);
+    res.json([]);
   }
 });
 
-// API pre pridanie novej recenzie
+// API pre pridať recenziu
 app.post("/api/reviews", async (req, res) => {
-  if (!supabase) return res.status(500).json({ error: "Cloud databáza nie je pripojená." });
+  if (!supabase) {
+    return res.status(500).json({ error: "Supabase nie je nakonfigurované na serveri." });
+  }
   try {
     const { productKey, rating, comment } = req.body;
-    if (!productKey || !rating) return res.status(400).json({ error: "Chýba hodnotenie." });
+    if (!productKey) return res.status(400).json({ error: "Chýba identifikátor produktu." });
 
     const { data, error } = await supabase
       .from("reviews")
-      .insert([{ product_key: productKey, rating: Number(rating), comment: comment || "" }])
+      .insert([{ product_key: productKey, rating: Number(rating) || 5, comment: comment || "" }])
       .select();
 
-    if (error) throw error;
-    res.json({ ok: true, review: data[0] });
+    if (error) {
+      console.error("[REVIEWS INSERT ERROR]", error);
+      return res.status(400).json({ error: error.message });
+    }
+    res.json({ ok: true, review: data?.[0] });
   } catch (err) {
-    console.error("[REVIEWS POST ERROR]", err);
-    res.status(500).json({ error: "Chyba pri ukladaní recenzie." });
+    console.error("[REVIEWS POST EXCEPTION]", err);
+    res.status(500).json({ error: String(err?.message || err) });
   }
 });
 
-// Hlavné API skenovania
+// Main scan API
 app.post("/api/scan", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "Chýba fotka." });
@@ -151,7 +159,6 @@ Return JSON strictly with energy impact data:
     const prodKey = normalizeName(parsed?.product?.name) + "_" + lang;
     parsed.product_key = prodKey;
 
-    // 1. Kontrola v Supabase
     if (supabase && prodKey.length > 3) {
       try {
         const { data: dbProduct } = await supabase
@@ -161,19 +168,16 @@ Return JSON strictly with energy impact data:
           .single();
 
         if (dbProduct && dbProduct.data) {
-          console.log(`[SUPABASE CACHE HIT] Produkt načítaný z cloudu!`);
           return res.json(dbProduct.data);
         }
       } catch (e) {}
     }
 
-    // 2. Uloženie do Supabase
     if (supabase && prodKey.length > 3) {
       try {
         await supabase.from("products").insert([
           { product_key: prodKey, name: parsed.product?.name, data: parsed }
         ]);
-        console.log(`[SUPABASE SAVE] Nový produkt uložený.`);
       } catch (e) {}
     }
 
