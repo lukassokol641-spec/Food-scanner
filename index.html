@@ -41,7 +41,7 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .score-card{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 
-/* 🧍‍♀️ PREMIOVÁ VIZUÁLNA SILUETA TELA */
+/* SILUETA */
 .body-impact-card{background:linear-gradient(145deg, rgba(25,28,36,0.95), rgba(15,17,22,0.95));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 32px rgba(0,0,0,0.4);}
 .body-svg-container{width:110px;height:180px;flex-shrink:0;position:relative;}
 .organ-glow{transition:all 0.5s ease;filter:drop-shadow(0 0 10px currentColor);}
@@ -159,7 +159,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <!-- ⚡ ENERGETICKÁ KRIVKA & BRAIN FOG -->
+        <!-- ⚡ ENERGETICKÁ KRIVKA -->
         <div class="energy-card">
           <div class="row-between">
             <div class="row" style="gap:8px;">
@@ -258,14 +258,13 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <!-- 💬 4. NOVÁ SEKCIA: KOMUNITNÉ RECENZIE -->
+        <!-- 💬 KOMUNITNÉ RECENZIE -->
         <div class="details-box">
           <div class="row-between">
             <p class="title-xs" style="color:#4fbe99;">Komunitné recenzie</p>
             <span id="reviewsCountBadge" class="badge" style="background:rgba(255,255,255,0.06);color:#a6a39b;">0 recenzií</span>
           </div>
 
-          <!-- Formulár pre pridanie recenzie -->
           <div class="stack" style="gap:8px;background:rgba(0,0,0,0.2);padding:12px;border-radius:14px;">
             <div class="row-between">
               <span style="font-size:13px;font-weight:600;">Pridať hodnotenie:</span>
@@ -281,7 +280,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
             <button id="submitReviewBtn" class="btn btn-primary" style="padding:8px 12px;font-size:13px;border-radius:12px;">Odoslať recenziu</button>
           </div>
 
-          <!-- Zoznam pridaných recenzií -->
           <div id="reviewsListWrap" class="stack" style="gap:8px;margin-top:4px;">
             <p class="muted" style="font-size:12px;">Zatiaľ tu nie sú žiadne recenzie. Buď prvý!</p>
           </div>
@@ -411,7 +409,9 @@ function renderResult(data){
   const analysis = data.analysis || {};
   const verdict = analysis.verdict || {};
 
-  state.currentProductKey = data.product_key || (data.product?.name ? data.product.name.toLowerCase().replace(/[^a-z0-9]/g, "") + "_sk" : null);
+  // Vytvorenie stabilného kľúča
+  const nameKey = String(data.product?.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  state.currentProductKey = data.product_key || (nameKey ? nameKey + "_sk" : "unknown_product");
 
   document.getElementById("verdictPercent").textContent = verdict.score || 0;
   document.getElementById("verdictLabel").textContent = verdict.label || "—";
@@ -427,7 +427,7 @@ function renderResult(data){
   renderHealthSwap(data);
   updateBodyOrgans(analysis.scores);
 
-  // NAČÍTAJ KOMUNITNÉ RECENZIE ZO SUPABASE
+  // Načítaj recenzie zo servera
   fetchReviews(state.currentProductKey);
 
   if(window.lucide) lucide.createIcons();
@@ -446,18 +446,19 @@ function renderReviewsList(reviews){
   const wrap = document.getElementById("reviewsListWrap");
   const badge = document.getElementById("reviewsCountBadge");
 
-  badge.textContent = `${reviews.length} ${reviews.length === 1 ? 'recenzia' : 'recenzií'}`;
+  const list = Array.isArray(reviews) ? reviews : [];
+  badge.textContent = `${list.length} ${list.length === 1 ? 'recenzia' : 'recenzií'}`;
 
-  if(!reviews || reviews.length === 0){
+  if(list.length === 0){
     wrap.innerHTML = `<p class="muted" style="font-size:12px;">Zatiaľ tu nie sú žiadne recenzie. Buď prvý!</p>`;
     return;
   }
 
-  wrap.innerHTML = reviews.map(r => `
+  wrap.innerHTML = list.map(r => `
     <div class="review-card">
       <div class="row-between">
-        <span style="font-size:12px;color:#f29a2e;">${'⭐'.repeat(r.rating)}</span>
-        <span class="muted" style="font-size:10px;">${new Date(r.created_at).toLocaleDateString("sk-SK")}</span>
+        <span style="font-size:12px;color:#f29a2e;">${'⭐'.repeat(r.rating || 5)}</span>
+        <span class="muted" style="font-size:10px;">${r.created_at ? new Date(r.created_at).toLocaleDateString("sk-SK") : ""}</span>
       </div>
       <p style="font-size:13px;margin:2px 0 0 0;color:#f1efe9;">${r.comment || "Bez komentára"}</p>
     </div>
@@ -465,11 +466,15 @@ function renderReviewsList(reviews){
 }
 
 async function submitReview(){
-  if(!state.currentProductKey) return alert("Skenovaný produkt nemá kľúč.");
+  if(!state.currentProductKey){
+    return alert("Chyba: Kľúč produktu sa nenašiel.");
+  }
   const rating = document.getElementById("reviewRatingSelect").value;
   const comment = document.getElementById("reviewInputText").value;
 
-  if(!comment.trim()) return alert("Napíš krátky komentár.");
+  if(!comment.trim()){
+    return alert("Napíš krátky komentár predtým, ako ho odošleš.");
+  }
 
   try {
     const res = await fetch("/api/reviews", {
@@ -477,12 +482,17 @@ async function submitReview(){
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ productKey: state.currentProductKey, rating, comment })
     });
+    
     const data = await res.json();
-    if(data.ok){
+    if(res.ok && data.ok){
       document.getElementById("reviewInputText").value = "";
       fetchReviews(state.currentProductKey);
+    } else {
+      alert("Chyba pri ukladaní recenzie: " + (data.error || "Neznáma chyba servera"));
     }
-  } catch(e){ alert("Chyba pri odosielaní recenzie."); }
+  } catch(e){
+    alert("Chyba pripojenia: " + e.message);
+  }
 }
 
 function renderEnergyImpact(energy){
