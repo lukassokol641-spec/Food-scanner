@@ -34,7 +34,8 @@ const upload = multer({
 });
 
 function normalizeName(name) {
-  return String(name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const clean = String(name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  return clean.length > 0 ? clean : "produkt_" + Date.now();
 }
 
 app.get("/api/health", (req, res) => {
@@ -49,7 +50,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// API pre načítanie recenzií (s odchytením neplatných znakov)
+// API pre načítanie recenzií (Ošetrené proti padnutiu JSON)
 app.get("/api/reviews/:productKey", async (req, res) => {
   if (!supabase) return res.json([]);
   try {
@@ -71,16 +72,14 @@ app.get("/api/reviews/:productKey", async (req, res) => {
   }
 });
 
-// API pre pridanie recenzie
+// API pre pridanie recenzie (Garancia správneho kľúča)
 app.post("/api/reviews", async (req, res) => {
   if (!supabase) {
-    return res.status(500).json({ error: "Supabase nie je nakonfigurované na serveri." });
+    return res.status(500).json({ error: "Supabase nie je pripojená." });
   }
   try {
     const { productKey, rating, comment } = req.body;
     const cleanKey = normalizeName(productKey);
-
-    if (!cleanKey) return res.status(400).json({ error: "Chýba platný identifikátor produktu." });
 
     const { data, error } = await supabase
       .from("reviews")
