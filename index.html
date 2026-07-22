@@ -94,6 +94,17 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </select>
       </div>
     </div>
+    
+    <!-- BAR PRE VYBER ZDRAVOTNÉHO PROFILU -->
+    <div class="row-between" style="background:rgba(0,0,0,0.2);padding:8px 12px;border-radius:14px;">
+      <span class="title-xs" style="color:#4fbe99;">Môj Profil:</span>
+      <select id="healthProfileSelect" class="toggle-pill" style="padding:4px 8px;font-size:12px;border-color:rgba(79,190,153,0.3);">
+        <option value="general">👤 Všeobecný</option>
+        <option value="heart">🩺 Srdce & Tlak (Pozor na soľ)</option>
+        <option value="diabetes">🩸 Cukor & Glukóza (Pozor na cukor)</option>
+        <option value="clean">🌿 Bez E-čiek (Čistá strava)</option>
+      </select>
+    </div>
   </header>
 
   <main class="stack-lg">
@@ -288,7 +299,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 </div>
 
 <script>
-const state = { selectedFile: null, previewDataUrl: null, lang: "sk", currentProductKey: null };
+const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", currentProductKey: null };
 const screens = { hero: document.getElementById("screen-hero"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
 
 function makeSafeKey(text) {
@@ -314,6 +325,11 @@ function bindEvents(){
   document.getElementById("backFromHistoryBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
+  
+  document.getElementById("healthProfileSelect").addEventListener("change", (e) => {
+    state.profile = e.target.value;
+  });
+
   document.getElementById("toggleTableBtn").addEventListener("click", () => {
     document.getElementById("compareTableWrap").classList.toggle("hidden");
   });
@@ -338,6 +354,7 @@ async function processCurrentFile(){
   const formData = new FormData();
   formData.append("image", state.selectedFile);
   formData.append("lang", state.lang);
+  formData.append("profile", state.profile);
 
   try {
     const res = await fetch("/api/scan", { method:"POST", body:formData });
@@ -507,7 +524,6 @@ async function submitReview(){
   }
 }
 
-// DYNAMICKÉ GENEROVANIE 3 RÔZNYCH TYPOV KRIVIEK ENERGIE
 function renderEnergyImpact(energy){
   const titleEl = document.getElementById("energyTitle");
   const descEl = document.getElementById("energyDesc");
@@ -523,19 +539,16 @@ function renderEnergyImpact(energy){
   badgeEl.textContent = energy?.duration || "~2 hodiny";
 
   if(type === "spike"){
-    // 🔴 1. SPIKE: Červený hrot s prudkým pádom pod čiaru
     pathEl.setAttribute("d", "M10,40 Q50,0 100,38 T200,55 L290,42");
     pathEl.setAttribute("stroke", "#df5252");
     labelTitleEl.style.color = "#df5252";
     if(iconEl) iconEl.style.color = "#df5252";
   } else if(type === "moderate") {
-    // 🟠 2. MODERATE: Oranžový mierny oblúčik bez pádového šoku
     pathEl.setAttribute("d", "M10,40 Q90,15 170,35 T290,40");
     pathEl.setAttribute("stroke", "#f29a2e");
     labelTitleEl.style.color = "#f29a2e";
     if(iconEl) iconEl.style.color = "#f29a2e";
   } else {
-    // 🟢 3. STABLE: Zelená plynulá dlhá línia trvalej energie
     pathEl.setAttribute("d", "M10,40 Q150,22 290,38");
     pathEl.setAttribute("stroke", "#0f9f74");
     labelTitleEl.style.color = "#0f9f74";
