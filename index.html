@@ -18,7 +18,7 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 .stack-lg{display:flex;flex-direction:column;gap:20px;}
 .row{display:flex;align-items:center;gap:10px;}
 .row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.header{position:relative;z-index:20;background:rgba(22,25,31,0.9);border:1px solid rgba(255,255,255,0.10);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:14px;}
+.header{position:relative;z-index:20;background:rgba(22,25,31,0.9);border:1px solid rgba(255,255,255,0.10);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
 .screen{display:none;flex-direction:column;gap:16px;}
 .screen.active{display:flex;}
 .card{background:#16191f;border:1px solid rgba(255,255,255,0.10);border-radius:28px;padding:20px;display:flex;flex-direction:column;gap:20px;}
@@ -87,10 +87,17 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
       <div class="row" style="gap:8px;">
         <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="history" style="width:16px;height:16px;"></i><span>História</span></button>
+        <!-- 🌐 9 JAZYKOV -->
         <select id="langSelect" class="toggle-pill">
-          <option value="sk">🇸🇰 SK</option>
+          <option value="sk">🇸KB SK</option>
+          <option value="cz">🇨🇿 CZ</option>
+          <option value="pl">🇵🇱 PL</option>
+          <option value="hu">🇭🇺 HU</option>
           <option value="en">🇬🇧 EN</option>
           <option value="de">🇩🇪 DE</option>
+          <option value="it">🇮🇹 IT</option>
+          <option value="fr">🇫🇷 FR</option>
+          <option value="es">🇪🇸 ES</option>
         </select>
       </div>
     </div>
@@ -100,8 +107,8 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       <span class="title-xs" style="color:#4fbe99;">Môj Profil:</span>
       <select id="healthProfileSelect" class="toggle-pill" style="padding:4px 8px;font-size:12px;border-color:rgba(79,190,153,0.3);">
         <option value="general">👤 Všeobecný</option>
-        <option value="heart">🩺 Srdce & Tlak (Pozor na soľ)</option>
-        <option value="diabetes">🩸 Cukor & Glukóza (Pozor na cukor)</option>
+        <option value="heart">🩺 Srdce & Tlak (Prísna soľ)</option>
+        <option value="diabetes">🩸 Cukor & Glukóza (Prísny cukor)</option>
         <option value="clean">🌿 Bez E-čiek (Čistá strava)</option>
       </select>
     </div>
@@ -265,7 +272,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <!-- 💬 KOMUNITNÉ RECENZIE -->
+        <!-- 💬 KOMUNITNÉ RECENZIE S AI PREKLADOM -->
         <div class="details-box">
           <div class="row-between">
             <p class="title-xs" style="color:#4fbe99;">Komunitné recenzie</p>
@@ -326,6 +333,13 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
   
+  // ZMENA JAZYKA
+  document.getElementById("langSelect").addEventListener("change", (e) => {
+    state.lang = e.target.value;
+    if(state.currentProductKey) fetchReviews(state.currentProductKey);
+  });
+
+  // ZMENA ZDRAVOTNÉHO PROFILU
   document.getElementById("healthProfileSelect").addEventListener("change", (e) => {
     state.profile = e.target.value;
   });
@@ -458,7 +472,7 @@ function renderResult(data){
 async function fetchReviews(key){
   if(!key) return;
   try {
-    const res = await fetch(`/api/reviews?key=${encodeURIComponent(key)}`);
+    const res = await fetch(`/api/reviews?key=${encodeURIComponent(key)}&lang=${state.lang}`);
     if(!res.ok) return renderReviewsList([]);
     const reviews = await res.json();
     renderReviewsList(reviews);
@@ -517,7 +531,7 @@ async function submitReview(){
       document.getElementById("reviewInputText").value = "";
       fetchReviews(state.currentProductKey);
     } else {
-      alert("Chyba: " + (data.error || "Neznáma chyba pri ukladaní recenzie."));
+      alert("Chyba: " + (data.error || "Neznáma chyby pri ukladaní recenzie."));
     }
   } catch(e){
     alert("Chyba pripojenia: " + e.message);
