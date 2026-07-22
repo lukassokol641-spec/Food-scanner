@@ -12,53 +12,51 @@
 <style>
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;min-height:100%;}
-body{background:#121316;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
 .page{display:flex;flex-direction:column;width:100%;max-width:480px;margin:0 auto;padding:16px 16px 32px 16px;gap:16px;}
 .stack{display:flex;flex-direction:column;gap:12px;}
 .stack-lg{display:flex;flex-direction:column;gap:20px;}
 .row{display:flex;align-items:center;gap:10px;}
 .row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.header{position:relative;z-index:20;background:rgba(29,28,26,0.9);border:1px solid rgba(255,255,255,0.10);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:14px;}
+.header{position:relative;z-index:20;background:rgba(22,25,31,0.9);border:1px solid rgba(255,255,255,0.10);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:14px;}
 .screen{display:none;flex-direction:column;gap:16px;}
 .screen.active{display:flex;}
-.card{background:#1d1c1a;border:1px solid rgba(255,255,255,0.10);border-radius:28px;padding:20px;display:flex;flex-direction:column;gap:20px;}
+.card{background:#16191f;border:1px solid rgba(255,255,255,0.10);border-radius:28px;padding:20px;display:flex;flex-direction:column;gap:20px;}
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:24px;padding:16px 20px;font-weight:600;font-size:16px;border:none;cursor:pointer;text-align:center;}
 .btn-primary{background:linear-gradient(180deg,#0f9f74,#0a7f5b);color:#fff;box-shadow:0 12px 24px rgba(15,159,116,0.22);}
-.btn-secondary{background:#1d1c1a;color:#f1efe9;border:1px solid rgba(255,255,255,0.10);}
+.btn-secondary{background:#16191f;color:#f1efe9;border:1px solid rgba(255,255,255,0.10);}
 .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600;white-space:nowrap;}
 .badge-demo{background:rgba(218,113,1,0.12);color:#da7101;}
 .badge-ok{background:rgba(15,159,116,0.12);color:#0f9f74;}
 .badge-red{background:rgba(200,59,59,0.12);color:#c83b3b;}
 .risk-dot{width:12px;height:12px;border-radius:999px;display:inline-block;flex-shrink:0;}
-.risk-green{background:#3aa76d;}
 .risk-orange{background:#f29a2e;}
-.risk-red{background:#df5252;}
 
-.camera-frame{position:relative;width:100%;min-height:300px;border-radius:28px;overflow:hidden;border:1px solid rgba(255,255,255,0.10);background:#201f1d;display:flex;align-items:center;justify-content:center;}
+.camera-frame{position:relative;width:100%;min-height:300px;border-radius:28px;overflow:hidden;border:1px solid rgba(255,255,255,0.10);background:#121418;display:flex;align-items:center;justify-content:center;}
 .camera-frame img.product-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .scan-line{position:absolute;left:8%;right:8%;top:18%;height:2px;background:linear-gradient(90deg,transparent,#0f9f74,transparent);box-shadow:0 0 18px #0f9f74;animation:scanMove 2.2s ease-in-out infinite;z-index:4;}
 @keyframes scanMove{0%{top:18%;}50%{top:74%;}100%{top:18%;}}
 .hidden{display:none !important;}
 
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.score-card{border:1px solid rgba(255,255,255,0.10);background:rgba(255,255,255,0.03);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+.score-card{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 
-/* 🧍‍♂️ MODERNÁ VELKÁ SILUETA TELA */
-.body-impact-card{background:linear-gradient(145deg, rgba(30,32,38,0.9), rgba(20,21,25,0.9));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:20px;box-shadow:0 10px 30px rgba(0,0,0,0.3);}
-.body-svg-container{width:110px;height:170px;flex-shrink:0;position:relative;}
-.organ-dot{transition:all 0.5s ease;filter:drop-shadow(0 0 8px currentColor);}
+/* 🧍‍♀️ PREMIOVÁ ELEGANTHÁ SILUETA ŽENY */
+.body-impact-card{background:linear-gradient(145deg, rgba(25,28,36,0.95), rgba(15,17,22,0.95));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 32px rgba(0,0,0,0.4);}
+.body-svg-container{width:100px;height:180px;flex-shrink:0;position:relative;}
+.organ-glow{transition:all 0.5s ease;filter:drop-shadow(0 0 10px currentColor);}
 .organ-pulse{animation:pulse 2s infinite;}
 @keyframes pulse{0%{r:6px;opacity:0.8;}50%{r:9px;opacity:1;}100%{r:6px;opacity:0.8;}}
 
+.details-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;}
 .swap-card{border:1px solid rgba(79,190,153,0.3);background:rgba(79,190,153,0.08);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:16px;}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .compare-box{background:rgba(255,255,255,0.06);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;}
 
 .verdict-row{display:flex;align-items:flex-start;gap:16px;}
 .verdict-ring{position:relative;width:96px;height:96px;flex-shrink:0;border-radius:999px;background:conic-gradient(var(--verdict-color,#f29a2e) 0 68%, rgba(127,127,127,0.14) 68% 100%);display:flex;align-items:center;justify-content:center;}
-.verdict-ring-inner{position:absolute;inset:12px;border-radius:999px;background:#1d1c1a;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.toggle-pill{border-radius:16px;border:1px solid rgba(255,255,255,0.10);padding:8px 12px;font-weight:600;font-size:13px;background:#1d1c1a;color:#f1efe9;}
-.icon-btn{width:44px;height:44px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:#1d1c1a;border:1px solid rgba(255,255,255,0.10);color:#fff;}
+.verdict-ring-inner{position:absolute;inset:12px;border-radius:999px;background:#16191f;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.toggle-pill{border-radius:16px;border:1px solid rgba(255,255,255,0.10);padding:8px 12px;font-weight:600;font-size:13px;background:#16191f;color:#f1efe9;}
 .logo-badge{width:44px;height:44px;border-radius:16px;flex-shrink:0;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;}
 .muted{color:#a6a39b;}
 .title-xs{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#a6a39b;}
@@ -134,20 +132,26 @@ body{background:#121316;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
           </div>
         </div>
 
-        <!-- 🧍‍♂️ VELKÁ VIZUÁLNA SILUETA TELA -->
+        <!-- 🧍‍♀️ ELEGANTHÁ 3D SILUETA ŽENY -->
         <div class="body-impact-card">
           <div class="body-svg-container">
             <svg viewBox="0 0 100 200" width="100%" height="100%">
-              <!-- Štýlová futuristická silueta -->
-              <path d="M50,12 C41,12 37,20 37,28 C37,36 41,40 50,40 C59,40 63,36 63,28 C63,20 59,12 50,12 Z M34,48 C24,53 19,68 17,88 C16,96 21,98 24,93 C27,83 29,68 31,58 L31,118 L41,118 L41,185 C41,192 47,192 47,185 L47,128 L53,128 L53,185 C53,192 59,192 59,185 L59,118 L69,118 L69,58 C71,68 73,83 76,93 C79,98 84,96 83,88 C81,68 76,53 66,48 Z" fill="#ffffff" opacity="0.12" stroke="#ffffff" stroke-width="1"/>
+              <defs>
+                <linearGradient id="womanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
+                  <stop offset="100%" stop-color="#0f9f74" stop-opacity="0.05"/>
+                </linearGradient>
+              </defs>
+              <!-- Elegantné ženské krivky -->
+              <path d="M50,14 C43,14 39,21 39,28 C39,35 43,39 50,39 C57,39 61,35 61,28 C61,21 57,14 50,14 Z M38,46 C32,50 26,62 25,82 C28,80 30,70 32,60 C33,72 36,85 36,105 C33,125 35,185 39,185 C42,185 45,145 48,125 L52,125 C55,145 58,185 61,185 C65,185 67,125 64,105 C64,85 67,72 68,60 C70,70 72,80 75,82 C74,62 68,50 62,46 C56,54 44,54 38,46 Z" fill="url(#womanGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
               
-              <!-- Siet/Kostra linky pre WOW efekt -->
-              <line x1="50" y1="40" x2="50" y2="128" stroke="#ffffff" opacity="0.15" stroke-dasharray="2,2"/>
+              <!-- Anatomická línia -->
+              <line x1="50" y1="39" x2="50" y2="125" stroke="rgba(255,255,255,0.15)" stroke-dasharray="2,2"/>
               
-              <!-- ORGÁNY: Mozog, Srdce, Žalúdok -->
-              <circle id="organ-brain" class="organ-dot organ-pulse" cx="50" cy="26" r="7" fill="#6f6d68" style="color:#6f6d68"/>
-              <circle id="organ-heart" class="organ-dot organ-pulse" cx="53" cy="62" r="7" fill="#6f6d68" style="color:#6f6d68"/>
-              <circle id="organ-stomach" class="organ-dot organ-pulse" cx="47" cy="82" r="8" fill="#6f6d68" style="color:#6f6d68"/>
+              <!-- SVETELNÉ NEÓNOVÉ UZLY ORGÁNOV -->
+              <circle id="organ-brain" class="organ-glow organ-pulse" cx="50" cy="26" r="7" fill="#6f6d68" style="color:#6f6d68"/>
+              <circle id="organ-heart" class="organ-glow organ-pulse" cx="52" cy="62" r="7" fill="#6f6d68" style="color:#6f6d68"/>
+              <circle id="organ-stomach" class="organ-glow organ-pulse" cx="49" cy="84" r="8" fill="#6f6d68" style="color:#6f6d68"/>
             </svg>
           </div>
           <div class="stack" style="gap:6px;flex:1;">
@@ -157,7 +161,13 @@ body{background:#121316;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
           </div>
         </div>
 
-        <!-- REKOMAENDÁCIA -->
+        <!-- 📋 PODROBNÉ ZLOŽENIE A E-ČKA -->
+        <div class="details-box">
+          <p class="title-xs" style="color:#4fbe99;">Zloženie a E-čka</p>
+          <p id="ingredientsListText" style="font-size:13px;line-height:1.5;margin:0;">Bravčové mäso, voda, zemiakový škrob, soľ, koreniny, stabilizátor (E450), konzervant (E250).</p>
+        </div>
+
+        <!-- REKOMENDÁCIA -->
         <p id="recommendationText" style="font-size:14px;line-height:1.5;margin:0;" class="muted"></p>
 
         <!-- KARTICE METRÍK (Cukor, Soľ, Aditíva, Spracovanie) -->
@@ -248,13 +258,18 @@ function renderResult(data){
   document.getElementById("productMeta").textContent = `${data.product?.category || ""} • ${data.product?.portion || ""}`;
   document.getElementById("recommendationText").textContent = analysis.recommendation || "";
 
+  // Podrobné zloženie
+  if(analysis.ingredients_summary){
+    document.getElementById("ingredientsListText").textContent = analysis.ingredients_summary;
+  }
+
   // Vykreslenie mriežky 4 metrík
   renderScores(analysis.scores);
 
   // Vykreslenie Health Swap
   renderHealthSwap(data);
 
-  // Aktualizácia veľkej siluety
+  // Aktualizácia ženskej 3D siluety
   updateBodyOrgans(analysis.scores);
   if(window.lucide) lucide.createIcons();
 }
@@ -307,7 +322,7 @@ function updateBodyOrgans(scores){
 
   let impacts = [];
 
-  // SOĽ -> CIKULÁCIA & SRDCE
+  // SOĽ -> SRDCE A CIEVY
   if(scores?.salt?.severity === "red" || scores?.salt?.severity === "orange"){
     heart.setAttribute("fill", "#df5252");
     heart.style.color = "#df5252";
@@ -327,7 +342,7 @@ function updateBodyOrgans(scores){
     stomach.style.color = "#0f9f74";
   }
 
-  // CUKOR -> MOZOG / NÁLADA
+  // CUKOR -> MOZOG
   if(scores?.sugar?.severity === "red" || scores?.sugar?.severity === "orange"){
     brain.setAttribute("fill", "#df5252");
     brain.style.color = "#df5252";
