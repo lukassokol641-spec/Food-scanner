@@ -51,30 +51,29 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
     const base64Image = req.file.buffer.toString("base64");
 
     const systemPrompt = `Analyze food package label. Translate response strictly to ${lang === "sk" ? "Slovak" : lang === "en" ? "English" : "German"}.
-Return JSON strictly:
+Return JSON strictly with energy impact data:
 {
   "scan": { "status": "success", "language": "${lang}" },
   "product": { "name": "Exact product name", "category": "Category", "portion": "Size" },
-  "ingredients_raw": "Vyber a prelož sem celý text zloženia z obalu (napr. Bravčové mäso 80%, voda, zemiakový škrob, soľ, korenie...)",
+  "ingredients_raw": "Vyber a prelož celý text zloženia z obalu",
   "additives_detail": [
     {
       "code": "E250",
       "name": "Dusitan sodný",
       "origin": "Syntetická soľ",
-      "process": "Vyrába sa chemickou syntézou. Používa sa ako konzervant proti baktériám a udržiava ružovú farbu mäsa.",
-      "risk": "Vyššie riziko pri pripečení (môže tvoriť nitrosamíny)."
-    },
-    {
-      "code": "E450",
-      "name": "Diferosforečnany",
-      "origin": "Syntetická látka z kyseliny fosforečnej",
-      "process": "Soli viažuce vodu v mäsových výrobkoch.",
-      "risk": "Vo veľkom množstve môžu obmedzovať vstrebávanie vápnika."
+      "process": "Konzervant proti baktériám.",
+      "risk": "Záťaž pri vysokých teplotách."
     }
   ],
+  "energy_impact": {
+    "type": "spike", // Možnosti: "spike" (prudký výkyv/únava) alebo "stable" (stabilná energia)
+    "title": "Prudký výkyv cukru a skorá únava",
+    "description": "Tento produkt spôsobuje rýchly nárast glukózy, po ktorom do 45 minút nasleduje pád. Možný Brain Fog a chuť na ďalšie jedlo.",
+    "duration": "Podpora energie: ~30-45 min"
+  },
   "analysis": {
     "verdict": { "score": 65, "severity": "orange", "label": "Radšej obmedziť" },
-    "recommendation": "Stručné 2-vetové zhodnotenie produktu.",
+    "recommendation": "Stručné 2-vetové zhodnotenie.",
     "scores": {
       "sugar": { "value": "0g / 100g", "level": "Nízky", "severity": "green" },
       "salt": { "value": "2g / 100g", "level": "Vyšší", "severity": "orange" },
@@ -83,9 +82,9 @@ Return JSON strictly:
     },
     "healthierSwap": {
       "enabled": true,
-      "summary": "Čerstvé mäso bez pridaných solí a konzervantov.",
+      "summary": "Stabilnejšia alternatíva bez výkyvov energie.",
       "improvement": "+20 bodov",
-      "product": { "name": "Čerstvé bravčové mäso", "score": 85, "sugar": "0g", "salt": "0.1g", "additives": "Bez E-čiek", "processing": "Minimálne" }
+      "product": { "name": "Čerstvé mäso / orechy", "score": 85, "sugar": "0g", "salt": "0.1g", "additives": "Bez E-čiek", "processing": "Minimálne" }
     }
   }
 }`;
@@ -93,7 +92,7 @@ Return JSON strictly:
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       temperature: 0.1,
-      max_tokens: 800,
+      max_tokens: 900,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: systemPrompt },
