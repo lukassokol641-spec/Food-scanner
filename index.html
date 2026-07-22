@@ -409,9 +409,9 @@ function renderResult(data){
   const analysis = data.analysis || {};
   const verdict = analysis.verdict || {};
 
-  // Vytvorenie stabilného kľúča
-  const nameKey = String(data.product?.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-  state.currentProductKey = data.product_key || (nameKey ? nameKey + "_sk" : "unknown_product");
+  // Vytvorenie čistého kľúča
+  const rawKey = data.product_key || data.product?.name || "produkt";
+  state.currentProductKey = String(rawKey).toLowerCase().replace(/[^a-z0-9]/g, "");
 
   document.getElementById("verdictPercent").textContent = verdict.score || 0;
   document.getElementById("verdictLabel").textContent = verdict.label || "—";
@@ -427,7 +427,7 @@ function renderResult(data){
   renderHealthSwap(data);
   updateBodyOrgans(analysis.scores);
 
-  // Načítaj recenzie zo servera
+  // Bezpečné načítanie recenzií
   fetchReviews(state.currentProductKey);
 
   if(window.lucide) lucide.createIcons();
@@ -436,7 +436,7 @@ function renderResult(data){
 async function fetchReviews(key){
   if(!key) return;
   try {
-    const res = await fetch(`/api/reviews/${key}`);
+    const res = await fetch(`/api/reviews/${encodeURIComponent(key)}`);
     const reviews = await res.json();
     renderReviewsList(reviews);
   } catch(e){}
