@@ -48,8 +48,8 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 @keyframes pulse{0%{r:6px;opacity:0.8;}50%{r:9px;opacity:1;}100%{r:6px;opacity:0.8;}}
 
 .details-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.additive-item{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;}
 
-/* HEALTH SWAP & COMPARISON TABUĽKA */
 .swap-card{border:1px solid rgba(79,190,153,0.3);background:rgba(79,190,153,0.08);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:16px;}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .compare-box{background:rgba(255,255,255,0.06);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;}
@@ -146,14 +146,11 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
                   <stop offset="100%" stop-color="#ffffff" stop-opacity="0.05"/>
                 </linearGradient>
               </defs>
-              <!-- Plynulé elegantné kontúry postavy -->
               <path d="M50,12 C42,12 38,19 38,27 C38,35 42,39 50,39 C58,39 62,35 62,27 C62,19 58,12 50,12 Z M37,46 C30,50 24,62 23,82 C26,80 28,70 30,60 C31,72 34,85 34,105 C31,125 33,185 38,185 C41,185 44,145 48,125 L52,125 C56,145 59,185 62,185 C67,185 69,125 66,105 C66,85 69,72 70,60 C72,70 74,80 77,82 C76,62 70,50 63,46 C56,54 44,54 37,46 Z" fill="url(#bodyGlowGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
               <line x1="50" y1="39" x2="50" y2="125" stroke="rgba(255,255,255,0.15)" stroke-dasharray="2,2"/>
-              
-              <!-- SVETELNÉ NEÓNOVÉ UZLY ORGÁNOV -->
-              <circle id="organ-brain" class="organ-glow organ-pulse" cx="50" cy="25" r="7" fill="#6f6d68" style="color:#6f6d68"/>
-              <circle id="organ-heart" class="organ-glow organ-pulse" cx="52" cy="62" r="7" fill="#6f6d68" style="color:#6f6d68"/>
-              <circle id="organ-stomach" class="organ-glow organ-pulse" cx="49" cy="84" r="8" fill="#6f6d68" style="color:#6f6d68"/>
+              <circle id="organ-brain" class="organ-glow organ-pulse" cx="50" cy="25" r="7" fill="#6f6d68"/>
+              <circle id="organ-heart" class="organ-glow organ-pulse" cx="52" cy="62" r="7" fill="#6f6d68"/>
+              <circle id="organ-stomach" class="organ-glow organ-pulse" cx="49" cy="84" r="8" fill="#6f6d68"/>
             </svg>
           </div>
           <div class="stack" style="gap:6px;flex:1;">
@@ -163,19 +160,26 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <!-- 📋 PODROBNÉ ZLOŽENIE A E-ČKA -->
+        <!-- 🥩 1. PRELOŽENÉ RAW ZLOŽENIE -->
         <div class="details-box">
-          <p class="title-xs" style="color:#4fbe99;">Zloženie a E-čka</p>
-          <p id="ingredientsListText" style="font-size:13px;line-height:1.5;margin:0;">Načítavam zloženie...</p>
+          <p class="title-xs" style="color:#4fbe99;">Surovinové Zloženie</p>
+          <p id="ingredientsRawText" style="font-size:14px;line-height:1.5;margin:0;font-weight:500;">Načítavam suroviny...</p>
         </div>
 
-        <!-- REKOMENDÁCIA -->
+        <!-- 🧪 2. DETAILNÝ ROZBOR E-ČIEK A ICH VÝROBY -->
+        <div class="details-box">
+          <p class="title-xs" style="color:#f29a2e;">Detailný rozbor Aditív (E-čiek)</p>
+          <div id="additivesListWrap" class="stack" style="gap:8px;margin-top:4px;">
+            <!-- Dynamicky naplní JS -->
+          </div>
+        </div>
+
         <p id="recommendationText" style="font-size:14px;line-height:1.5;margin:0;" class="muted"></p>
 
-        <!-- KARTICE METRÍK (Cukor, Soľ, Aditíva, Spracovanie) -->
+        <!-- KARTICE METRÍK -->
         <div id="scoresGrid" class="grid-2"></div>
 
-        <!-- HEALTH SWAP SEKCIA + PLNO HODNOTNÁ POROVNÁVACIA TABUĽKA -->
+        <!-- HEALTH SWAP SEKCIA + TABUĽKA -->
         <div id="healthSwapSection" class="swap-card">
           <div class="row-between">
             <div class="stack" style="gap:2px;">
@@ -197,10 +201,8 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
             </div>
           </div>
 
-          <!-- TLAČIDLO PRE ZOBRAZENIE TABUĽKY -->
           <button id="toggleTableBtn" class="btn btn-secondary" style="font-size:13px;padding:10px 14px;background:rgba(255,255,255,0.08);color:#fff;">Skryť / Zobraziť detailné porovnanie</button>
 
-          <!-- TABUĽKA POROVNANIA (ZOBRAZENÁ PODĽA DRUHO OBRÁZKA) -->
           <div id="compareTableWrap" style="overflow-x:auto;border-radius:16px;border:1px solid rgba(255,255,255,0.1);margin-top:4px;">
             <table class="compare-table">
               <thead>
@@ -210,9 +212,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
                   <th style="color:#4fbe99;">Alternatíva</th>
                 </tr>
               </thead>
-              <tbody id="compareTableBody">
-                <!-- Vypĺňa JavaScript -->
-              </tbody>
+              <tbody id="compareTableBody"></tbody>
             </table>
           </div>
         </div>
@@ -283,19 +283,35 @@ function renderResult(data){
   document.getElementById("productMeta").textContent = `${data.product?.category || ""} • ${data.product?.portion || ""}`;
   document.getElementById("recommendationText").textContent = analysis.recommendation || "";
 
-  // Podrobné zloženie
-  const ingText = analysis.recommendation ? analysis.recommendation : "Bravčové mäso, voda, zemiakový škrob, soľ, koreniny, E450, E250.";
-  document.getElementById("ingredientsListText").textContent = ingText;
+  // 1. Preložené zloženie surovín
+  document.getElementById("ingredientsRawText").textContent = data.ingredients_raw || "Zloženie nebolo možné prečítať.";
 
-  // Vykreslenie mriežky metrík
+  // 2. Rozbor E-čiek a ich pôvodu
+  renderAdditivesDetail(data.additives_detail || []);
+
   renderScores(analysis.scores);
-
-  // Vykreslenie Health Swap aj s tabuľkou!
   renderHealthSwap(data);
-
-  // Aktualizácia siluety
   updateBodyOrgans(analysis.scores);
   if(window.lucide) lucide.createIcons();
+}
+
+function renderAdditivesDetail(list){
+  const wrap = document.getElementById("additivesListWrap");
+  if(!list || list.length === 0){
+    wrap.innerHTML = `<p style="font-size:13px;" class="muted">Žiadne pridané rizikové E-čka neboli nájdené.</p>`;
+    return;
+  }
+
+  wrap.innerHTML = list.map(item => `
+    <div class="additive-item">
+      <div class="row-between">
+        <span style="font-weight:700;color:#f29a2e;font-size:14px;">${item.code} - ${item.name}</span>
+        <span class="badge" style="background:rgba(242,154,46,0.15);color:#f29a2e;font-size:10px;">${item.origin}</span>
+      </div>
+      <p style="font-size:12px;margin:2px 0 0 0;color:#f1efe9;"><b>Výroba/Účel:</b> ${item.process}</p>
+      <p style="font-size:12px;margin:2px 0 0 0;color:#a6a39b;"><b>Vplyv:</b> ${item.risk}</p>
+    </div>
+  `).join("");
 }
 
 function renderScores(scores){
@@ -338,16 +354,15 @@ function renderHealthSwap(data){
   document.getElementById("compareCurrentName").textContent = data.product?.name || "Skenovaný";
   document.getElementById("compareSwapName").textContent = swap.product?.name || "Alternatíva";
 
-  // PLNO HODNOTNÉ VYPLNENIE POROVNÁVACEJ TABUĽKY
   const currentScore = data.analysis?.verdict?.score || 65;
   const swapScore = swap.product?.score || 85;
   const s = data.analysis?.scores || {};
 
   document.getElementById("compareTableBody").innerHTML = `
     <tr><td>Metrika</td><td>${currentScore}/100</td><td style="color:#4fbe99;">${swapScore}/100</td></tr>
-    <tr><td>Cukor</td><td>${s.sugar?.value || "0g / 100g"}</td><td style="color:#4fbe99;">${swap.product?.sugar || "0g / 100g"}</td></tr>
-    <tr><td>Soľ</td><td>${s.salt?.value || "2g / 100g"}</td><td style="color:#4fbe99;">${swap.product?.salt || "0.1g / 100g"}</td></tr>
-    <tr><td>Aditíva</td><td>${s.additives?.value || "2 prídavné látky"}</td><td style="color:#4fbe99;">${swap.product?.additives || "Bez E-čiek"}</td></tr>
+    <tr><td>Cukor</td><td>${s.sugar?.value || "0g"}</td><td style="color:#4fbe99;">${swap.product?.sugar || "0g"}</td></tr>
+    <tr><td>Soľ</td><td>${s.salt?.value || "2g"}</td><td style="color:#4fbe99;">${swap.product?.salt || "0.1g"}</td></tr>
+    <tr><td>Aditíva</td><td>${s.additives?.value || "2 aditíva"}</td><td style="color:#4fbe99;">${swap.product?.additives || "Bez E-čiek"}</td></tr>
     <tr><td>Spracovanie</td><td>${s.processing?.value || "Spracovaná"}</td><td style="color:#4fbe99;">${swap.product?.processing || "Minimálne"}</td></tr>
   `;
 }
@@ -359,34 +374,25 @@ function updateBodyOrgans(scores){
 
   let impacts = [];
 
-  // SOĽ -> SRDCE A CIEVY
   if(scores?.salt?.severity === "red" || scores?.salt?.severity === "orange"){
     heart.setAttribute("fill", "#df5252");
-    heart.style.color = "#df5252";
     impacts.push("cievy a tlak (soľ)");
   } else {
     heart.setAttribute("fill", "#0f9f74");
-    heart.style.color = "#0f9f74";
   }
 
-  // E-ČKA -> TRÁVENIE A ŽALÚDOK
   if(scores?.additives?.severity === "red" || scores?.additives?.severity === "orange"){
     stomach.setAttribute("fill", "#f29a2e");
-    stomach.style.color = "#f29a2e";
     impacts.push("trávenie (aditíva)");
   } else {
     stomach.setAttribute("fill", "#0f9f74");
-    stomach.style.color = "#0f9f74";
   }
 
-  // CUKOR -> MOZOG
   if(scores?.sugar?.severity === "red" || scores?.sugar?.severity === "orange"){
     brain.setAttribute("fill", "#df5252");
-    brain.style.color = "#df5252";
     impacts.push("mozog (cukrový šok)");
   } else {
     brain.setAttribute("fill", "#0f9f74");
-    brain.style.color = "#0f9f74";
   }
 
   const titleEl = document.getElementById("bodyImpactTitle");
