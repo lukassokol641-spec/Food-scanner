@@ -14,7 +14,7 @@ try {
   if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
     const { createClient } = require("@supabase/supabase-js");
     supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-    console.log("[SUPABASE] Cloudová databáza úspešne pripojená.");
+    console.log("[SUPABASE] Cloudová databáza pripojená.");
   }
 } catch (e) {
   console.warn("[WARN] Supabase zlyhalo:", e.message);
@@ -32,15 +32,14 @@ const upload = multer({
   limits: { fileSize: 8 * 1024 * 1024 }
 });
 
-// Pomocná funkcia na vytvorenie 100% bezpečného kľúča bez medzier a diakritiky
 function makeSafeKey(text) {
   if (!text) return "produkt_" + Date.now();
   return String(text)
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "") // odstráni mäkčene a dĺžne
+    .replace(/[\u0300-\u036f]/g, "")
     .toLowerCase()
-    .replace(/[^a-z0-9]/g, "_")    // nahradí medzery a špeciálne znaky podtržníkom
-    .replace(/_+/g, "_")           // odstráni zdvojené podtržníky
+    .replace(/[^a-z0-9]/g, "_")
+    .replace(/_+/g, "_")
     .trim();
 }
 
@@ -56,11 +55,11 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// API pre načítanie recenzií
-app.get("/api/reviews/*", async (req, res) => {
+// GET recenzie cez Query Parameter (?key=...) namiesto nebezpečnej URL cesty
+app.get("/api/reviews", async (req, res) => {
   if (!supabase) return res.json([]);
   try {
-    const rawKey = req.params[0] || "";
+    const rawKey = req.query.key || "";
     const cleanKey = makeSafeKey(rawKey);
 
     const { data, error } = await supabase
@@ -80,10 +79,10 @@ app.get("/api/reviews/*", async (req, res) => {
   }
 });
 
-// API pre pridanie recenzie
+// POST recenzia - kľúč ide v JSON tele
 app.post("/api/reviews", async (req, res) => {
   if (!supabase) {
-    return res.status(500).json({ error: "Supabase nie je pripojená." });
+    return res.status(500).json({ error: "Supabase nie je pripojená na serveri." });
   }
   try {
     const { productKey, rating, comment } = req.body;
@@ -105,7 +104,7 @@ app.post("/api/reviews", async (req, res) => {
   }
 });
 
-// Main scan API
+// Hlavný AI sken
 app.post("/api/scan", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "Chýba fotka." });
@@ -116,7 +115,9 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
     const base64Image = req.file.buffer.toString("base64");
 
     const systemPrompt = `Analyze food package label. Translate response strictly to ${lang === "sk" ? "Slovak" : lang === "en" ? "English" : "German"}.
-Return JSON strictly with energy impact data:
+Determine exact energy curve impact based on nutrients (sugar, carbs, protein, fat).
+
+Return JSON strictly:
 {
   "scan": { "status": "success", "language": "${lang}" },
   "product": { "name": "Exact product name", "category": "Category", "portion": "Size" },
@@ -124,21 +125,21 @@ Return JSON strictly with energy impact data:
   "additives_detail": [
     {
       "code": "E250",
-      "name": "Dusitan sodný",
-      "origin": "Syntetická soľ",
-      "process": "Konzervant proti baktériám.",
-      "risk": "Záťaž pri vysokých teplotách."
+      "name": "Názov látky",
+      "origin": "Pôvod",
+      "process": "Ako sa vyrába",
+      "risk": "Riziko"
     }
   ],
   "energy_impact": {
-    "type": "spike",
-    "title": "Prudký výkyv cukru a skorá únava",
-    "description": "Tento produkt spôsobuje rýchly nárast glukózy a pád. Možný Brain Fog.",
-    "duration": "Podpora energie: ~30-45 min"
+    "type": "spike", // DÔLEŽITÉ: Použi presne jednu z hodnôt: "spike" (pre sladkosti/fastfood), "moderate" (pre stredný výkyv), alebo "stable" (pre čisté/proteínové jedlá)
+    "title": "Názov dopadu na energiu",
+    "description": "Detailný popis správania glukózy a sústredenia po zjedení.",
+    "duration": "Podpora energie: napr. ~45 min alebo ~3 hodiny"
   },
   "analysis": {
     "verdict": { "score": 65, "severity": "orange", "label": "Radšej obmedziť" },
-    "recommendation": "Stručné 2-vetové zhodnotenie.",
+    "recommendation": "Stručné zhodnotenie.",
     "scores": {
       "sugar": { "value": "0g / 100g", "level": "Nízky", "severity": "green" },
       "salt": { "value": "2g / 100g", "level": "Vyšší", "severity": "orange" },
@@ -147,9 +148,9 @@ Return JSON strictly with energy impact data:
     },
     "healthierSwap": {
       "enabled": true,
-      "summary": "Stabilnejšia alternatíva bez výkyvov energie.",
+      "summary": "Zdravšia alternatíva.",
       "improvement": "+20 bodov",
-      "product": { "name": "Čerstvé mäso / orechy", "score": 85, "sugar": "0g", "salt": "0.1g", "additives": "Bez E-čiek", "processing": "Minimálne" }
+      "product": { "name": "Názov alternatívy", "score": 85, "sugar": "0g", "salt": "0.1g", "additives": "Bez E-čiek", "processing": "Minimálne" }
     }
   }
 }`;
@@ -157,7 +158,7 @@ Return JSON strictly with energy impact data:
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       temperature: 0.1,
-      max_tokens: 900,
+      max_tokens: 950,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: systemPrompt },
