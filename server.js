@@ -3,20 +3,22 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const OpenAI = require("openai");
-const { createClient } = require("@supabase/supabase-js");
 
 let openai;
 if (process.env.OPENAI_API_KEY) {
   openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
-// Prepojenie na Supabase Cloud Databázu
+// Bezpečné pripojenie Supabase
 let supabase = null;
-if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
-  supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-  console.log("[SUPABASE] Cloudová databáza úspešne pripojená.");
-} else {
-  console.warn("[WARN] SUPABASE_URL alebo SUPABASE_KEY chýba v prostredí.");
+try {
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
+    const { createClient } = require("@supabase/supabase-js");
+    supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+    console.log("[SUPABASE] Cloudová databáza úspešne pripojená.");
+  }
+} catch (e) {
+  console.warn("[WARN] Supabase knižnica nie je dostupná alebo z zlyhalo pripojenie:", e.message);
 }
 
 const app = express();
@@ -85,7 +87,7 @@ app.post("/api/reviews", async (req, res) => {
   }
 });
 
-// Hlavné API skenovania s okamžitou Cloud Cache
+// Hlavné API skenovania
 app.post("/api/scan", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "Chýba fotka." });
@@ -149,26 +151,30 @@ Return JSON strictly with energy impact data:
     const prodKey = normalizeName(parsed?.product?.name) + "_" + lang;
     parsed.product_key = prodKey;
 
-    // 1. SKONTROLUJ CLOUD DATABÁZU SUPABASE
+    // 1. Kontrola v Supabase
     if (supabase && prodKey.length > 3) {
-      const { data: dbProduct } = await supabase
-        .from("products")
-        .select("data")
-        .eq("product_key", prodKey)
-        .single();
+      try {
+        const { data: dbProduct } = await supabase
+          .from("products")
+          .select("data")
+          .eq("product_key", prodKey)
+          .single();
 
-      if (dbProduct && dbProduct.data) {
-        console.log(`[SUPABASE CACHE HIT] Produkt načítaný z cloudu pre klienta!`);
-        return res.json(dbProduct.data);
-      }
+        if (dbProduct && dbProduct.data) {
+          console.log(`[SUPABASE CACHE HIT] Produkt načítaný z cloudu!`);
+          return res.json(dbProduct.data);
+        }
+      } catch (e) {}
     }
 
-    // 2. ULOŽ NOVÝ PRODUKT DO CLOUDU
+    // 2. Uloženie do Supabase
     if (supabase && prodKey.length > 3) {
-      await supabase.from("products").insert([
-        { product_key: prodKey, name: parsed.product?.name, data: parsed }
-      ]);
-      console.log(`[SUPABASE SAVE] Nový produkt uložený do globálnej databázy.`);
+      try {
+        await supabase.from("products").insert([
+          { product_key: prodKey, name: parsed.product?.name, data: parsed }
+        ]);
+        console.log(`[SUPABASE SAVE] Nový produkt uložený.`);
+      } catch (e) {}
     }
 
     return res.json(parsed);
