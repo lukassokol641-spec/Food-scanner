@@ -41,7 +41,6 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .score-card{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 
-/* SILUETA */
 .body-impact-card{background:linear-gradient(145deg, rgba(25,28,36,0.95), rgba(15,17,22,0.95));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 32px rgba(0,0,0,0.4);}
 .body-svg-container{width:110px;height:180px;flex-shrink:0;position:relative;}
 .organ-glow{transition:all 0.5s ease;filter:drop-shadow(0 0 10px currentColor);}
@@ -101,7 +100,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </div>
     
-    <!-- BAR PRE VYBER ZDRAVOTNÉHO PROFILU -->
     <div class="row-between" style="background:rgba(0,0,0,0.2);padding:8px 12px;border-radius:14px;">
       <span class="title-xs" style="color:#4fbe99;" id="ui-myProfileLabel">Môj Profil:</span>
       <select id="healthProfileSelect" class="toggle-pill" style="padding:4px 8px;font-size:12px;border-color:rgba(79,190,153,0.3);">
@@ -180,7 +178,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <div class="row-between">
             <div class="row" style="gap:8px;">
               <i data-lucide="zap" id="energyIcon" style="width:18px;height:18px;color:#f29a2e;"></i>
-              <span class="title-xs" id="energyLabelTitle" style="color:#f29a2e;">Dopad na energiu a sústredenie</span>
+              <span class="title-xs" id="ui-energyLabelTitle" style="color:#f29a2e;">Dopad na energiu a sústredenie</span>
             </div>
             <span id="energyDurationBadge" class="badge" style="background:rgba(255,255,255,0.08);color:#a6a39b;">~45 min</span>
           </div>
@@ -313,7 +311,8 @@ const UI_TRANSLATIONS = {
     btnBack1: "Späť", btnBack2: "Späť", btnStartScan: "Spustiť AI analýzu", btnClearHistory: "Vymazať históriu", historyTitle: "Moje naskenované produkty", historySub: "Uložené lokálne v tomto zariadení.",
     btnScanAgain: "Sken", energyLabelTitle: "Dopad na energiu a sústredenie", bodyTitle: "Vizuálny dopad na telo", ingredientsTitle: "Surovinové Zloženie", additivesTitle: "Detailný rozbor Aditív (E-čiek)",
     swapHeader: "Zdravšia alternatíva", scannedLabel: "Skenované", recommendLabel: "Odporúčanie", btnToggleTable: "Skryť / Zobraziť detailné porovnanie", thMetric: "Metrika", thProduct: "Produkt", thAlt: "Alternatíva",
-    reviewsTitle: "Komunitné recenzie", addRatingLabel: "Pridať hodnotenie:", reviewPlaceholder: "Tvoj názor na chuť, cenu alebo zloženie...", btnSendReview: "Odoslať recenziu", btnNewScan: "Skúsiť nový sken"
+    reviewsTitle: "Komunitné recenzie", addRatingLabel: "Pridať hodnotenie:", reviewPlaceholder: "Tvoj názor na chuť, cenu alebo zloženie...", btnSendReview: "Odoslať recenziu", btnNewScan: "Skúsiť nový sken",
+    scoreSugar: "Cukor", scoreSalt: "Soľ", scoreAdditives: "Éčka / Aditíva", scoreProcessing: "Spracovanie"
   },
   cz: {
     subHeader: "AI čtení etiket", btnHistory: "Historie", myProfileLabel: "Můj Profil:",
@@ -322,7 +321,8 @@ const UI_TRANSLATIONS = {
     btnBack1: "Zpět", btnBack2: "Zpět", btnStartScan: "Spustit AI analýzu", btnClearHistory: "Smazat historii", historyTitle: "Moje naskenované produkty", historySub: "Uloženo lokálně v tomto zařízení.",
     btnScanAgain: "Sken", energyLabelTitle: "Dopad na energii a soustředění", bodyTitle: "Vizuální dopad na tělo", ingredientsTitle: "Surovinové Složení", additivesTitle: "Detailní rozbor Aditiv (E-ček)",
     swapHeader: "Zdravější alternativa", scannedLabel: "Naskenováno", recommendLabel: "Doporučení", btnToggleTable: "Skrýt / Zobrazit detailní srovnání", thMetric: "Metrika", thProduct: "Produkt", thAlt: "Alternativa",
-    reviewsTitle: "Komunitní recenze", addRatingLabel: "Přidat hodnocení:", reviewPlaceholder: "Tvůj názor na chuť, cenu nebo složení...", btnSendReview: "Odeslat recenzi", btnNewScan: "Zkusit nový sken"
+    reviewsTitle: "Komunitní recenze", addRatingLabel: "Přidat hodnocení:", reviewPlaceholder: "Tvůj názor na chuť, cenu nebo složení...", btnSendReview: "Odeslat recenzi", btnNewScan: "Zkusit nový sken",
+    scoreSugar: "Cukr", scoreSalt: "Sůl", scoreAdditives: "E-čka / Aditiva", scoreProcessing: "Zpracování"
   },
   pl: {
     subHeader: "AI skanowanie etykiet", btnHistory: "Historia", myProfileLabel: "Mój Profil:",
@@ -331,7 +331,8 @@ const UI_TRANSLATIONS = {
     btnBack1: "Wstecz", btnBack2: "Wstecz", btnStartScan: "Uruchom analizę AI", btnClearHistory: "Wyczyść historię", historyTitle: "Moje zeskanowane produkty", historySub: "Zapisano lokalnie na tym urządzeniu.",
     btnScanAgain: "Skanuj", energyLabelTitle: "Wpływ na energię i skupienie", bodyTitle: "Wizualny wpływ na ciało", ingredientsTitle: "Składniki", additivesTitle: "Szczegóły Dodatków (E-numery)",
     swapHeader: "Zdrowsza alternatywa", scannedLabel: "Zeskanowane", recommendLabel: "Rekomendacja", btnToggleTable: "Pokaż / Ukryj porównanie", thMetric: "Metryka", thProduct: "Produkt", thAlt: "Alternatywa",
-    reviewsTitle: "Recenzje społeczności", addRatingLabel: "Dodaj ocenę:", reviewPlaceholder: "Twoja opinia o smaku, cenie lub składzie...", btnSendReview: "Wyślij recenzję", btnNewScan: "Zeskanuj nowy produkt"
+    reviewsTitle: "Recenzje społeczności", addRatingLabel: "Dodaj ocenę:", reviewPlaceholder: "Twoja opinia o smaku, cenie lub składzie...", btnSendReview: "Wyślij recenzję", btnNewScan: "Zeskanuj nowy produkt",
+    scoreSugar: "Cukier", scoreSalt: "Sól", scoreAdditives: "Dodatki E", scoreProcessing: "Przetwarzanie"
   },
   en: {
     subHeader: "AI Label Reader", btnHistory: "History", myProfileLabel: "My Profile:",
@@ -340,7 +341,8 @@ const UI_TRANSLATIONS = {
     btnBack1: "Back", btnBack2: "Back", btnStartScan: "Start AI Analysis", btnClearHistory: "Clear History", historyTitle: "My Scanned Products", historySub: "Saved locally on this device.",
     btnScanAgain: "Scan", energyLabelTitle: "Energy & Focus Impact", bodyTitle: "Visual Body Impact", ingredientsTitle: "Raw Ingredients", additivesTitle: "Additive Details (E-Numbers)",
     swapHeader: "Healthier Swap", scannedLabel: "Scanned", recommendLabel: "Recommendation", btnToggleTable: "Toggle Comparison Table", thMetric: "Metric", thProduct: "Product", thAlt: "Alternative",
-    reviewsTitle: "Community Reviews", addRatingLabel: "Add Rating:", reviewPlaceholder: "Your opinion on taste, price or ingredients...", btnSendReview: "Submit Review", btnNewScan: "Try New Scan"
+    reviewsTitle: "Community Reviews", addRatingLabel: "Add Rating:", reviewPlaceholder: "Your opinion on taste, price or ingredients...", btnSendReview: "Submit Review", btnNewScan: "Try New Scan",
+    scoreSugar: "Sugar", scoreSalt: "Salt", scoreAdditives: "E-Numbers", scoreProcessing: "Processing"
   },
   de: {
     subHeader: "AI Etiketten-Scanner", btnHistory: "Verlauf", myProfileLabel: "Mein Profil:",
@@ -349,7 +351,8 @@ const UI_TRANSLATIONS = {
     btnBack1: "Zurück", btnBack2: "Zurück", btnStartScan: "KI-Analyse Starten", btnClearHistory: "Verlauf Löschen", historyTitle: "Meine Gescannte Produkte", historySub: "Lokal auf diesem Gerät gespeichert.",
     btnScanAgain: "Scan", energyLabelTitle: "Auswirkung auf Energie & Fokus", bodyTitle: "Visuelle Körperauswirkung", ingredientsTitle: "Zutatenliste", additivesTitle: "Zusatzstoffe (E-Nummern)",
     swapHeader: "Gesündere Alternative", scannedLabel: "Gescannt", recommendLabel: "Empfehlung", btnToggleTable: "Vergleichstabelle Umschalten", thMetric: "Metrik", thProduct: "Produkt", thAlt: "Alternative",
-    reviewsTitle: "Community-Bewertungen", addRatingLabel: "Bewertung abgeben:", reviewPlaceholder: "Deine Meinung zu Geschmack, Preis oder Zutaten...", btnSendReview: "Bewertung Absenden", btnNewScan: "Neuen Scan Starten"
+    reviewsTitle: "Community-Bewertungen", addRatingLabel: "Bewertung abgeben:", reviewPlaceholder: "Deine Meinung zu Geschmack, Preis oder Zutaten...", btnSendReview: "Bewertung Absenden", btnNewScan: "Neuen Scan Starten",
+    scoreSugar: "Zucker", scoreSalt: "Salz", scoreAdditives: "E-Nummern", scoreProcessing: "Verarbeitung"
   },
   hu: {
     subHeader: "AI Címkeolvasó", btnHistory: "Előzmények", myProfileLabel: "Profilom:",
@@ -358,7 +361,8 @@ const UI_TRANSLATIONS = {
     btnBack1: "Vissza", btnBack2: "Vissza", btnStartScan: "AI Elemzés Indítása", btnClearHistory: "Előzmények Törlése", historyTitle: "Beszkenelt Termékek", historySub: "Helyileg mentve ezen az eszközön.",
     btnScanAgain: "Szkennelés", energyLabelTitle: "Energia és Fókusz Hatás", bodyTitle: "Testi Hatások Vizualizációja", ingredientsTitle: "Összetevők", additivesTitle: "Adalékanyagok (E-számok)",
     swapHeader: "Egészségesebb Alternatíva", scannedLabel: "Beszkenelt", recommendLabel: "Ajánlás", btnToggleTable: "Összehasonlító Táblázat", thMetric: "Jellemző", thProduct: "Termék", thAlt: "Alternatíva",
-    reviewsTitle: "Közösségi Értékelések", addRatingLabel: "Értékelés hozzáadása:", reviewPlaceholder: "Véleményed az ízről, árról vagy összetevőkről...", btnSendReview: "Értékelés Beküldése", btnNewScan: "Új Szkennelés"
+    reviewsTitle: "Közösségi Értékelések", addRatingLabel: "Értékelés hozzáadása:", reviewPlaceholder: "Véleményed az ízről, árról vagy összetevőkről...", btnSendReview: "Értékelés Beküldése", btnNewScan: "Új Szkennelés",
+    scoreSugar: "Cukor", scoreSalt: "Só", scoreAdditives: "E-számok", scoreProcessing: "Feldolgozás"
   },
   it: {
     subHeader: "Lettore Etichette AI", btnHistory: "Cronologia", myProfileLabel: "Il mio Profilo:",
@@ -367,7 +371,8 @@ const UI_TRANSLATIONS = {
     btnBack1: "Indietro", btnBack2: "Indietro", btnStartScan: "Avvia Analisi AI", btnClearHistory: "Cancella Cronologia", historyTitle: "I Miei Prodotti Scansionati", historySub: "Salvato localmente su questo dispositivo.",
     btnScanAgain: "Scansiona", energyLabelTitle: "Impatto su Energia e Focus", bodyTitle: "Impatto Corporeo Visivo", ingredientsTitle: "Ingredienti", additivesTitle: "Dettaglio Additivi (Numeri E)",
     swapHeader: "Alternativa Più Sana", scannedLabel: "Scansionato", recommendLabel: "Raccomandazione", btnToggleTable: "Mostra/Nascondi Tabella", thMetric: "Metrica", thProduct: "Prodotto", thAlt: "Alternativa",
-    reviewsTitle: "Recensioni della Community", addRatingLabel: "Aggiungi Valutazione:", reviewPlaceholder: "La tua opinione su gusto, prezzo o ingredienti...", btnSendReview: "Invia Recensione", btnNewScan: "Nuova Scansione"
+    reviewsTitle: "Recensioni della Community", addRatingLabel: "Aggiungi Valutazione:", reviewPlaceholder: "La tua opinione su gusto, prezzo o ingredienti...", btnSendReview: "Invia Recensione", btnNewScan: "Nuova Scansione",
+    scoreSugar: "Zucchero", scoreSalt: "Sale", scoreAdditives: "Additivi E", scoreProcessing: "Lavorazione"
   },
   fr: {
     subHeader: "Lecteur d'Étiquettes IA", btnHistory: "Historique", myProfileLabel: "Mon Profil:",
@@ -376,7 +381,8 @@ const UI_TRANSLATIONS = {
     btnBack1: "Retour", btnBack2: "Retour", btnStartScan: "Lancer l'Analyse IA", btnClearHistory: "Effacer l'Historique", historyTitle: "Mes Produits Scannés", historySub: "Enregistré localement sur cet appareil.",
     btnScanAgain: "Scanner", energyLabelTitle: "Impact sur l'Énergie et la Concentration", bodyTitle: "Impact Corporel Visuel", ingredientsTitle: "Ingrédients", additivesTitle: "Détails des Additifs (Numéros E)",
     swapHeader: "Alternative Plus Saine", scannedLabel: "Scanné", recommendLabel: "Recommandation", btnToggleTable: "Afficher/Masquer le Tableau", thMetric: "Métrique", thProduct: "Produit", thAlt: "Alternative",
-    reviewsTitle: "Avis de la Communauté", addRatingLabel: "Ajouter une Note:", reviewPlaceholder: "Votre avis sur le goût, le prix ou les ingrédients...", btnSendReview: "Envoyer l'Avis", btnNewScan: "Nouveau Scan"
+    reviewsTitle: "Avis de la Communauté", addRatingLabel: "Ajouter une Note:", reviewPlaceholder: "Votre avis sur le goût, le prix ou les ingrédients...", btnSendReview: "Envoyer l'Avis", btnNewScan: "Nouveau Scan",
+    scoreSugar: "Sucre", scoreSalt: "Sel", scoreAdditives: "Additifs E", scoreProcessing: "Transformation"
   },
   es: {
     subHeader: "Lector de Etiquetas IA", btnHistory: "Historial", myProfileLabel: "Mi Perfil:",
@@ -385,11 +391,12 @@ const UI_TRANSLATIONS = {
     btnBack1: "Volver", btnBack2: "Volver", btnStartScan: "Iniciar Análisis IA", btnClearHistory: "Borrar Historial", historyTitle: "Mis Productos Escaneados", historySub: "Guardado localmente en este dispositivo.",
     btnScanAgain: "Escanear", energyLabelTitle: "Impacto en Energía y Concentración", bodyTitle: "Impacto Corporal Visual", ingredientsTitle: "Ingredientes", additivesTitle: "Detalle de Aditivos (Números E)",
     swapHeader: "Alternativa Más Saludable", scannedLabel: "Escaneado", recommendLabel: "Recomendación", btnToggleTable: "Mostrar/Ocultar Comparación", thMetric: "Métrica", thProduct: "Producto", thAlt: "Alternativa",
-    reviewsTitle: "Reseñas de la Comunidad", addRatingLabel: "Añadir Valoración:", reviewPlaceholder: "Tu opinión sobre sabor, precio o ingredientes...", btnSendReview: "Enviar Reseña", btnNewScan: "Nuevo Escaneo"
+    reviewsTitle: "Reseñas de la Comunidad", addRatingLabel: "Añadir Valoración:", reviewPlaceholder: "Tu opinión sobre sabor, precio o ingredientes...", btnSendReview: "Enviar Reseña", btnNewScan: "Nuevo Escaneo",
+    scoreSugar: "Azúcar", scoreSalt: "Sal", scoreAdditives: "E-Números", scoreProcessing: "Procesamiento"
   }
 };
 
-const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", currentProductKey: null };
+const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", currentProductKey: null, currentData: null };
 const screens = { hero: document.getElementById("screen-hero"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
 
 function makeSafeKey(text) {
@@ -406,43 +413,49 @@ function makeSafeKey(text) {
 function updateUI() {
   const dict = UI_TRANSLATIONS[state.lang] || UI_TRANSLATIONS.sk;
   
-  document.getElementById("ui-subHeader").textContent = dict.subHeader;
-  document.getElementById("ui-btnHistory").textContent = dict.btnHistory;
-  document.getElementById("ui-myProfileLabel").textContent = dict.myProfileLabel;
-  document.getElementById("ui-profGeneral").textContent = dict.profGeneral;
-  document.getElementById("ui-profHeart").textContent = dict.profHeart;
-  document.getElementById("ui-profDiabetes").textContent = dict.profDiabetes;
-  document.getElementById("ui-profClean").textContent = dict.profClean;
-  document.getElementById("ui-heroBadge").textContent = dict.heroBadge;
-  document.getElementById("ui-heroTitle").innerHTML = dict.heroTitle;
-  document.getElementById("ui-heroDesc").textContent = dict.heroDesc;
-  document.getElementById("ui-btnCamera").textContent = dict.btnCamera;
-  document.getElementById("ui-btnBack1").textContent = dict.btnBack1;
-  document.getElementById("ui-btnBack2").textContent = dict.btnBack2;
-  document.getElementById("ui-btnStartScan").textContent = dict.btnStartScan;
-  document.getElementById("ui-btnClearHistory").textContent = dict.btnClearHistory;
-  document.getElementById("ui-historyTitle").textContent = dict.historyTitle;
-  document.getElementById("ui-historySub").textContent = dict.historySub;
-  document.getElementById("ui-btnScanAgain").textContent = dict.btnScanAgain;
-  document.getElementById("ui-energyLabelTitle").textContent = dict.energyLabelTitle;
-  document.getElementById("ui-bodyTitle").textContent = dict.bodyTitle;
-  document.getElementById("ui-ingredientsTitle").textContent = dict.ingredientsTitle;
-  document.getElementById("ui-additivesTitle").textContent = dict.additivesTitle;
-  document.getElementById("ui-swapHeader").textContent = dict.swapHeader;
-  document.getElementById("ui-scannedLabel").textContent = dict.scannedLabel;
-  document.getElementById("ui-recommendLabel").textContent = dict.recommendLabel;
-  document.getElementById("ui-btnToggleTable").textContent = dict.btnToggleTable;
-  document.getElementById("ui-thMetric").textContent = dict.thMetric;
-  document.getElementById("ui-thProduct").textContent = dict.thProduct;
-  document.getElementById("ui-thAlt").textContent = dict.thAlt;
-  document.getElementById("ui-reviewsTitle").textContent = dict.reviewsTitle;
-  document.getElementById("ui-addRatingLabel").textContent = dict.addRatingLabel;
-  document.getElementById("reviewInputText").placeholder = dict.reviewPlaceholder;
-  document.getElementById("ui-btnSendReview").textContent = dict.btnSendReview;
-  document.getElementById("ui-btnNewScan").textContent = dict.btnNewScan;
+  const el = (id) => document.getElementById(id);
+
+  if(el("ui-subHeader")) el("ui-subHeader").textContent = dict.subHeader;
+  if(el("ui-btnHistory")) el("ui-btnHistory").textContent = dict.btnHistory;
+  if(el("ui-myProfileLabel")) el("ui-myProfileLabel").textContent = dict.myProfileLabel;
+  if(el("ui-profGeneral")) el("ui-profGeneral").textContent = dict.profGeneral;
+  if(el("ui-profHeart")) el("ui-profHeart").textContent = dict.profHeart;
+  if(el("ui-profDiabetes")) el("ui-profDiabetes").textContent = dict.profDiabetes;
+  if(el("ui-profClean")) el("ui-profClean").textContent = dict.profClean;
+  if(el("ui-heroBadge")) el("ui-heroBadge").textContent = dict.heroBadge;
+  if(el("ui-heroTitle")) el("ui-heroTitle").innerHTML = dict.heroTitle;
+  if(el("ui-heroDesc")) el("ui-heroDesc").textContent = dict.heroDesc;
+  if(el("ui-btnCamera")) el("ui-btnCamera").textContent = dict.btnCamera;
+  if(el("ui-btnBack1")) el("ui-btnBack1").textContent = dict.btnBack1;
+  if(el("ui-btnBack2")) el("ui-btnBack2").textContent = dict.btnBack2;
+  if(el("ui-btnStartScan")) el("ui-btnStartScan").textContent = dict.btnStartScan;
+  if(el("ui-btnClearHistory")) el("ui-btnClearHistory").textContent = dict.btnClearHistory;
+  if(el("ui-historyTitle")) el("ui-historyTitle").textContent = dict.historyTitle;
+  if(el("ui-historySub")) el("ui-historySub").textContent = dict.historySub;
+  if(el("ui-btnScanAgain")) el("ui-btnScanAgain").textContent = dict.btnScanAgain;
+  if(el("ui-energyLabelTitle")) el("ui-energyLabelTitle").textContent = dict.energyLabelTitle;
+  if(el("ui-bodyTitle")) el("ui-bodyTitle").textContent = dict.bodyTitle;
+  if(el("ui-ingredientsTitle")) el("ui-ingredientsTitle").textContent = dict.ingredientsTitle;
+  if(el("ui-additivesTitle")) el("ui-additivesTitle").textContent = dict.additivesTitle;
+  if(el("ui-swapHeader")) el("ui-swapHeader").textContent = dict.swapHeader;
+  if(el("ui-scannedLabel")) el("ui-scannedLabel").textContent = dict.scannedLabel;
+  if(el("ui-recommendLabel")) el("ui-recommendLabel").textContent = dict.recommendLabel;
+  if(el("ui-btnToggleTable")) el("ui-btnToggleTable").textContent = dict.btnToggleTable;
+  if(el("ui-thMetric")) el("ui-thMetric").textContent = dict.thMetric;
+  if(el("ui-thProduct")) el("ui-thProduct").textContent = dict.thProduct;
+  if(el("ui-thAlt")) el("ui-thAlt").textContent = dict.thAlt;
+  if(el("ui-reviewsTitle")) el("ui-reviewsTitle").textContent = dict.reviewsTitle;
+  if(el("ui-addRatingLabel")) el("ui-addRatingLabel").textContent = dict.addRatingLabel;
+  if(el("reviewInputText")) el("reviewInputText").placeholder = dict.reviewPlaceholder;
+  if(el("ui-btnSendReview")) el("ui-btnSendReview").textContent = dict.btnSendReview;
+  if(el("ui-btnNewScan")) el("ui-btnNewScan").textContent = dict.btnNewScan;
+
+  // Prerender skóre kartičiek ak sú zobrazené
+  if(state.currentData) renderScores(state.currentData.analysis?.scores);
 }
 
 function init(){ bindEvents(); renderHistoryList(); updateUI(); if(window.lucide) lucide.createIcons(); }
+
 function bindEvents(){
   document.getElementById("heroCameraBtn").addEventListener("click", () => { showScreen("scan"); document.getElementById("photoInput").click(); });
   document.getElementById("photoInput").addEventListener("change", handleFileSelected);
@@ -455,16 +468,22 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
   
-  // OKAMŽITÁ ZMENA JAZYKA VO FRONTENDE (BEZ NÁKLADOV)
-  document.getElementById("langSelect").addEventListener("change", (e) => {
+  // ZMENA JAZYKA VO FRONTENDE + PRERENDER
+  document.getElementById("langSelect").addEventListener("change", async (e) => {
     state.lang = e.target.value;
     updateUI();
-    if(state.currentProductKey) fetchReviews(state.currentProductKey);
+    if(state.selectedFile) {
+      // Ak je otvorený výsledok skenu, spusti nový sken pre nový jazyk
+      processCurrentFile();
+    } else if(state.currentProductKey) {
+      fetchReviews(state.currentProductKey);
+    }
   });
 
   // ZMENA ZDRAVOTNÉHO PROFILU
   document.getElementById("healthProfileSelect").addEventListener("change", (e) => {
     state.profile = e.target.value;
+    if(state.selectedFile) processCurrentFile();
   });
 
   document.getElementById("toggleTableBtn").addEventListener("click", () => {
@@ -496,6 +515,7 @@ async function processCurrentFile(){
   try {
     const res = await fetch("/api/scan", { method:"POST", body:formData });
     const data = await res.json();
+    state.currentData = data;
     saveToLocalHistory(data);
     renderResult(data);
     document.getElementById("scanLine").classList.add("hidden");
@@ -560,6 +580,7 @@ function renderHistoryList(){
 function openHistoryItem(idx){
   const history = getLocalHistory();
   if(history[idx]){
+    state.currentData = history[idx];
     renderResult(history[idx]);
     showScreen("result");
   }
@@ -567,6 +588,7 @@ function openHistoryItem(idx){
 
 function renderResult(data){
   if(!data) return;
+  state.currentData = data;
   const analysis = data.analysis || {};
   const verdict = analysis.verdict || {};
 
@@ -666,7 +688,7 @@ function renderEnergyImpact(energy){
   const descEl = document.getElementById("energyDesc");
   const badgeEl = document.getElementById("energyDurationBadge");
   const pathEl = document.getElementById("energyGraphPath");
-  const labelTitleEl = document.getElementById("energyLabelTitle");
+  const labelTitleEl = document.getElementById("ui-energyLabelTitle");
   const iconEl = document.getElementById("energyIcon");
 
   const type = energy?.type || "moderate";
@@ -715,11 +737,13 @@ function renderAdditivesDetail(list){
 function renderScores(scores){
   const grid = document.getElementById("scoresGrid");
   const s = scores || {};
+  const dict = UI_TRANSLATIONS[state.lang] || UI_TRANSLATIONS.sk;
+
   const items = [
-    { key:"sugar", title:"Cukor", icon:"candy", data: s.sugar },
-    { key:"salt", title:"Soľ", icon:"beaker", data: s.salt },
-    { key:"additives", title:"Éčka / Aditíva", icon:"flask-conical", data: s.additives },
-    { key:"processing", title:"Spracovanie", icon:"factory", data: s.processing }
+    { key:"sugar", title: dict.scoreSugar || "Cukor", icon:"candy", data: s.sugar },
+    { key:"salt", title: dict.scoreSalt || "Soľ", icon:"beaker", data: s.salt },
+    { key:"additives", title: dict.scoreAdditives || "Éčka / Aditíva", icon:"flask-conical", data: s.additives },
+    { key:"processing", title: dict.scoreProcessing || "Spracovanie", icon:"factory", data: s.processing }
   ];
 
   grid.innerHTML = items.map(item => {
@@ -774,21 +798,21 @@ function updateBodyOrgans(scores){
 
   if(scores?.salt?.severity === "red" || scores?.salt?.severity === "orange"){
     heart.setAttribute("fill", "#df5252");
-    impacts.push("cievy a tlak (soľ)");
+    impacts.push("cievy a tlak");
   } else {
     heart.setAttribute("fill", "#0f9f74");
   }
 
   if(scores?.additives?.severity === "red" || scores?.additives?.severity === "orange"){
     stomach.setAttribute("fill", "#f29a2e");
-    impacts.push("trávenie (aditíva)");
+    impacts.push("trávenie");
   } else {
     stomach.setAttribute("fill", "#0f9f74");
   }
 
   if(scores?.sugar?.severity === "red" || scores?.sugar?.severity === "orange"){
     brain.setAttribute("fill", "#df5252");
-    impacts.push("mozog (cukrový šok)");
+    impacts.push("mozog");
   } else {
     brain.setAttribute("fill", "#0f9f74");
   }
