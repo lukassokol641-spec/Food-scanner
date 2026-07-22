@@ -9,12 +9,17 @@ if (process.env.OPENAI_API_KEY) {
   openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 }
 
+// Pripojenie Supabase s automatickým vyčistením URL
 let supabase = null;
 try {
-  if (process.env.SUPABASE_URL && process.env.SUPABASE_KEY) {
+  let rawUrl = process.env.SUPABASE_URL || "";
+  // Automaticky odstráni /rest/v1, /v1 alebo koncové lomky ak ich používateľ skopíroval
+  let cleanUrl = rawUrl.trim().replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "");
+
+  if (cleanUrl && process.env.SUPABASE_KEY) {
     const { createClient } = require("@supabase/supabase-js");
-    supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-    console.log("[SUPABASE] Cloudová databáza pripojená.");
+    supabase = createClient(cleanUrl, process.env.SUPABASE_KEY.trim());
+    console.log("[SUPABASE] Cloudová databáza úspešne pripojená na:", cleanUrl);
   }
 } catch (e) {
   console.warn("[WARN] Supabase zlyhalo:", e.message);
@@ -55,7 +60,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// GET recenzie cez Query Parameter (?key=...) namiesto nebezpečnej URL cesty
+// GET recenzie cez Query Parameter
 app.get("/api/reviews", async (req, res) => {
   if (!supabase) return res.json([]);
   try {
@@ -79,7 +84,7 @@ app.get("/api/reviews", async (req, res) => {
   }
 });
 
-// POST recenzia - kľúč ide v JSON tele
+// POST recenzia
 app.post("/api/reviews", async (req, res) => {
   if (!supabase) {
     return res.status(500).json({ error: "Supabase nie je pripojená na serveri." });
@@ -132,7 +137,7 @@ Return JSON strictly:
     }
   ],
   "energy_impact": {
-    "type": "spike", // DÔLEŽITÉ: Použi presne jednu z hodnôt: "spike" (pre sladkosti/fastfood), "moderate" (pre stredný výkyv), alebo "stable" (pre čisté/proteínové jedlá)
+    "type": "spike", // Použi strictly: "spike", "moderate", alebo "stable"
     "title": "Názov dopadu na energiu",
     "description": "Detailný popis správania glukózy a sústredenia po zjedení.",
     "duration": "Podpora energie: napr. ~45 min alebo ~3 hodiny"
