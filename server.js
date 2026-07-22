@@ -30,53 +30,61 @@ const upload = multer({
 function buildPrompt(lang) {
   const languageName = { sk: "Slovak", en: "English", de: "German" }[(["sk", "en", "de"].includes(lang) ? lang : "sk")];
   
-  return `
-Analyze this food package / label image and return STRICT JSON only. 
-The product label may be in Swedish, German, Polish, or other European languages.
-Read the exact printed text first before classifying the product.
+  return `Analyze this food package or label image and return STRICT JSON only.
+The printed text may be in Swedish, German, Polish, Slovak, English, or any European language.
+Perform precise OCR and translate all output texts into ${languageName}.
 
-Perform a full breakdown and translate all text into ${languageName}.
-
-If the text is not readable, return exactly this JSON error object: 
-{"error": "Text na etikete nie je čitateľný, skúste odfotiť zblízka"}
-
-Otherwise, return a JSON object with this EXACT structure:
+Return a JSON object with this EXACT structure (do not change key names):
 {
   "scan": {
     "status": "success",
-    "language": "${lang}"
+    "language": "${lang}",
+    "highlights": [
+      { "x": 10, "y": 20, "w": 30, "h": 15, "label": "E211 / Cukor", "severity": "danger" }
+    ]
   },
   "product": {
-    "name": "Exact or translated product name",
-    "brand": "Brand name if visible, or null",
-    "category": "e.g. Bakery, Dairy, Snacks"
+    "name": "Názov produktu preložený do ${languageName}",
+    "category": "Kategória (napr. Pečivo, Mliečne výrobky, Šalát)",
+    "portion": "Veľkosť porcie alebo balenia (napr. 200g)"
   },
   "analysis": {
-    "ingredients": [
-      "Translated ingredient 1",
-      "Translated ingredient 2"
-    ],
-    "additives": [
-      {
-        "code": "E-number (e.g. E211) or name",
-        "name": "Translated name of additive",
-        "type": "Natural / Synthetic / Fermented",
-        "risk": "Low / Medium / High",
-        "info": "Brief clear explanation of what it does and health considerations"
+    "verdict": {
+      "score": 65,
+      "severity": "orange",
+      "label": "Vhodné s mierou / Radšej obmedziť / Výborná voľba"
+    },
+    "recommendation": "Detailné 2-3 vetové zhodnotenie produktu v reči ${languageName}. Vysvetli zloženie a E-čka.",
+    "scores": {
+      "sugar": { "value": "12g / 100g", "level": "Stredný", "severity": "orange" },
+      "salt": { "value": "0.8g / 100g", "level": "Nízky", "severity": "green" },
+      "additives": { "value": "2 prídavné látky (E211, E202)", "level": "Pozor", "severity": "orange" },
+      "processing": { "value": "Spracovaná potravina", "level": "Mierne vyššie", "severity": "orange" }
+    },
+    "healthierSwap": {
+      "enabled": true,
+      "summary": "Stručný tip na zdravšiu alternatívu z obchodu",
+      "improvement": "+20 bodov",
+      "product": {
+        "name": "Názov zdravšej alternatívy",
+        "score": 85,
+        "sugar": "2g / 100g",
+        "salt": "0.4g / 100g",
+        "additives": "Bez E-čiek",
+        "processing": "Minimálne spracované"
       }
-    ],
-    "summary": "Clear 2-3 sentence assessment of the product in ${languageName}."
+    }
   },
   "ui": {
-    "title": "Názov produktu",
-    "ingredients_title": "Zloženie",
-    "additives_title": "Prídavné látky (E-čka)",
-    "summary_title": "Zhodnotenie"
+    "mode": "live",
+    "progressTitle": "Analýza dokončená",
+    "progressText": "Všetky dáta boli úspešne prečítané z obalu.",
+    "ocrStatus": "Hotovo"
   }
 }
 
-Write all user-facing strings strictly in ${languageName}. No markdown, no HTML wrappers. Return STRICT JSON.
-`;
+Severity can only be: "green", "orange", or "red".
+Write all string values strictly in ${languageName}. No markdown wrappers. Return STRICT JSON.`;
 }
 
 function extractText(content) {
@@ -91,13 +99,13 @@ app.get("/api/health", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/index.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.post("/api/scan", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: "Chyba priloha 'image' vo FormData." });
+      return res.status(400).json({ error: "Chyba príloha 'image' vo FormData." });
     }
 
     if (!openai) {
@@ -115,7 +123,7 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
       messages: [
         {
           role: "system",
-          content: `You are a food label analysis engine. Perform precise OCR first, then classify only from the exact printed text. Return ONLY valid JSON. Write all user-facing text strictly in ${lang === "sk" ? "Slovak" : lang === "en" ? "English" : "German"}. If the image text is unreadable, return exactly: {"error":"Text na etikete nie je čitateľný, skúste odfotiť zblízka"}.`
+          content: `You are an expert food label analysis engine. Extract text from the image, translate all findings to ${lang === "sk" ? "Slovak" : lang === "en" ? "English" : "German"}, and return ONLY valid JSON matching the exact requested schema.`
         },
         {
           role: "user",
@@ -129,14 +137,14 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
 
     const content = extractText(completion?.choices?.[0]?.message?.content);
     if (!content) {
-      return res.status(502).json({ error: "OpenAI nevratil ziadny content." });
+      return res.status(502).json({ error: "OpenAI nevráil žiadny obsah." });
     }
 
     let parsed;
     try {
       parsed = JSON.parse(content);
     } catch (err) {
-      return res.status(502).json({ error: `Neplatna JSON odpoved od OpenAI: ${err.message}` });
+      return res.status(502).json({ error: `Neplatná JSON odpoveď od OpenAI: ${err.message}` });
     }
 
     if (parsed?.error) {
@@ -145,7 +153,7 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
 
     return res.json(parsed);
   } catch (err) {
-    console.error("[/api/scan] OpenAI/API chyba:", err);
+    console.error("[/api/scan] OpenAI API chyba:", err);
     return res.status(502).json({ error: String(err?.message || err) });
   }
 });
@@ -155,11 +163,11 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ error: `Chyba uploadu: ${err.message}` });
   }
   if (err) {
-    return res.status(400).json({ error: err.message || "Neznama chyba." });
+    return res.status(400).json({ error: err.message || "Neznáma chyba." });
   }
   next();
 });
 
 app.listen(PORT, () => {
-  console.log(`Food Scanner backend bezi na http://localhost:${PORT}`);
+  console.log(`Food Scanner backend beží na portu ${PORT}`);
 });
