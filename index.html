@@ -82,14 +82,13 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </div>
         <div>
           <p class="title-xs">Food Scanner</p>
-          <h1 style="font-size:16px;font-weight:600;margin:0;">AI čítanie etikiet</h1>
+          <h1 id="ui-subHeader" style="font-size:16px;font-weight:600;margin:0;">AI čítanie etikiet</h1>
         </div>
       </div>
       <div class="row" style="gap:8px;">
-        <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="history" style="width:16px;height:16px;"></i><span>História</span></button>
-        <!-- 🌐 9 JAZYKOV -->
+        <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="history" style="width:16px;height:16px;"></i><span id="ui-btnHistory">História</span></button>
         <select id="langSelect" class="toggle-pill">
-          <option value="sk">🇸KB SK</option>
+          <option value="sk">🇸🇰 SK</option>
           <option value="cz">🇨🇿 CZ</option>
           <option value="pl">🇵🇱 PL</option>
           <option value="hu">🇭🇺 HU</option>
@@ -104,12 +103,12 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     
     <!-- BAR PRE VYBER ZDRAVOTNÉHO PROFILU -->
     <div class="row-between" style="background:rgba(0,0,0,0.2);padding:8px 12px;border-radius:14px;">
-      <span class="title-xs" style="color:#4fbe99;">Môj Profil:</span>
+      <span class="title-xs" style="color:#4fbe99;" id="ui-myProfileLabel">Môj Profil:</span>
       <select id="healthProfileSelect" class="toggle-pill" style="padding:4px 8px;font-size:12px;border-color:rgba(79,190,153,0.3);">
-        <option value="general">👤 Všeobecný</option>
-        <option value="heart">🩺 Srdce & Tlak (Prísna soľ)</option>
-        <option value="diabetes">🩸 Cukor & Glukóza (Prísny cukor)</option>
-        <option value="clean">🌿 Bez E-čiek (Čistá strava)</option>
+        <option value="general" id="ui-profGeneral">👤 Všeobecný</option>
+        <option value="heart" id="ui-profHeart">🩺 Srdce & Tlak (Prísna soľ)</option>
+        <option value="diabetes" id="ui-profDiabetes">🩸 Cukor & Glukóza (Prísny cukor)</option>
+        <option value="clean" id="ui-profClean">🌿 Bez E-čiek (Čistá strava)</option>
       </select>
     </div>
   </header>
@@ -118,12 +117,12 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     <!-- SCREEN HERO -->
     <section id="screen-hero" class="screen active">
       <div class="card">
-        <div class="badge badge-ok"><span>Rýchla kontrola potravín</span></div>
+        <div class="badge badge-ok"><span id="ui-heroBadge">Rýchla kontrola potravín</span></div>
         <div class="stack" style="gap:10px;">
-          <h2 style="font-size:28px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu a zisti, <span style="color:#0f9f74;">čo kupuješ</span>.</h2>
-          <p class="muted" style="font-size:14px;line-height:1.5;margin:0;">Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.</p>
+          <h2 id="ui-heroTitle" style="font-size:28px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu a zisti, <span style="color:#0f9f74;">čo kupuješ</span>.</h2>
+          <p id="ui-heroDesc" class="muted" style="font-size:14px;line-height:1.5;margin:0;">Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.</p>
         </div>
-        <button id="heroCameraBtn" class="btn btn-primary"><i data-lucide="camera"></i><span>Odfotiť etiketu</span></button>
+        <button id="heroCameraBtn" class="btn btn-primary"><i data-lucide="camera"></i><span id="ui-btnCamera">Odfotiť etiketu</span></button>
         <input id="photoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
       </div>
     </section>
@@ -131,7 +130,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     <!-- SCREEN SCAN -->
     <section id="screen-scan" class="screen">
       <div class="row-between">
-        <button id="backToHeroBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
+        <button id="backToHeroBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBack1">Späť</span></button>
         <div class="badge badge-ok">Live OpenAI</div>
       </div>
       <div class="card">
@@ -140,20 +139,20 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <p id="placeholderText" class="muted">Obrázok sa načítava...</p>
           <div id="scanLine" class="scan-line hidden"></div>
         </div>
-        <button id="tryLiveScanBtn" class="btn btn-primary"><i data-lucide="sparkles"></i><span>Spustiť AI analýzu</span></button>
+        <button id="tryLiveScanBtn" class="btn btn-primary"><i data-lucide="sparkles"></i><span id="ui-btnStartScan">Spustiť AI analýzu</span></button>
       </div>
     </section>
 
     <!-- SCREEN HISTÓRIA -->
     <section id="screen-history" class="screen">
       <div class="row-between">
-        <button id="backFromHistoryBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
-        <button id="clearHistoryBtn" class="badge badge-red" style="cursor:pointer;">Vymazať históriu</button>
+        <button id="backFromHistoryBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBack2">Späť</span></button>
+        <button id="clearHistoryBtn" class="badge badge-red" style="cursor:pointer;" id="ui-btnClearHistory">Vymazať históriu</button>
       </div>
       <div class="card">
         <div class="stack" style="gap:4px;">
-          <h2 style="font-size:20px;font-weight:700;margin:0;">Moje naskenované produkty</h2>
-          <p class="muted" style="font-size:13px;margin:0;">Uložené lokálne v tomto zariadení.</p>
+          <h2 id="ui-historyTitle" style="font-size:20px;font-weight:700;margin:0;">Moje naskenované produkty</h2>
+          <p id="ui-historySub" class="muted" style="font-size:13px;margin:0;">Uložené lokálne v tomto zariadení.</p>
         </div>
         <div id="historyListWrap" class="stack" style="gap:10px;margin-top:8px;"></div>
       </div>
@@ -162,7 +161,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     <!-- SCREEN RESULT -->
     <section id="screen-result" class="screen">
       <div class="row-between">
-        <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Sken</span></button>
+        <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnScanAgain">Sken</span></button>
         <div class="badge badge-ok">Cloud Databáza</div>
       </div>
 
@@ -216,19 +215,19 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
             </svg>
           </div>
           <div class="stack" style="gap:6px;flex:1;">
-            <p class="title-xs" style="color:#4fbe99;">Vizuálny dopad na telo</p>
+            <p class="title-xs" style="color:#4fbe99;" id="ui-bodyTitle">Vizuálny dopad na telo</p>
             <h3 id="bodyImpactTitle" style="font-size:16px;font-weight:700;margin:0;">Analýza orgánov...</h3>
             <p id="bodyImpactText" class="muted" style="font-size:13px;line-height:1.4;margin:0;"></p>
           </div>
         </div>
 
         <div class="details-box">
-          <p class="title-xs" style="color:#4fbe99;">Surovinové Zloženie</p>
+          <p class="title-xs" style="color:#4fbe99;" id="ui-ingredientsTitle">Surovinové Zloženie</p>
           <p id="ingredientsRawText" style="font-size:14px;line-height:1.5;margin:0;font-weight:500;">Načítavam suroviny...</p>
         </div>
 
         <div class="details-box">
-          <p class="title-xs" style="color:#f29a2e;">Detailný rozbor Aditív (E-čiek)</p>
+          <p class="title-xs" style="color:#f29a2e;" id="ui-additivesTitle">Detailný rozbor Aditív (E-čiek)</p>
           <div id="additivesListWrap" class="stack" style="gap:8px;margin-top:4px;"></div>
         </div>
 
@@ -239,7 +238,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <div class="row-between">
             <div class="stack" style="gap:2px;">
               <p class="title-xs" style="color:#4fbe99;">Health Swap</p>
-              <h3 style="font-size:17px;font-weight:700;margin:0;">Zdravšia alternatíva</h3>
+              <h3 style="font-size:17px;font-weight:700;margin:0;" id="ui-swapHeader">Zdravšia alternatíva</h3>
             </div>
             <span id="swapImprovement" class="badge badge-ok">+20 bodov</span>
           </div>
@@ -247,24 +246,24 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
           <div class="compare-grid">
             <div class="compare-box">
-              <span class="title-xs">Skenované</span>
+              <span class="title-xs" id="ui-scannedLabel">Skenované</span>
               <p id="compareCurrentName" style="font-size:13px;font-weight:600;margin:0;">—</p>
             </div>
             <div class="compare-box">
-              <span class="title-xs" style="color:#4fbe99;">Odporúčanie</span>
+              <span class="title-xs" style="color:#4fbe99;" id="ui-recommendLabel">Odporúčanie</span>
               <p id="compareSwapName" style="font-size:13px;font-weight:600;color:#4fbe99;margin:0;">—</p>
             </div>
           </div>
 
-          <button id="toggleTableBtn" class="btn btn-secondary" style="font-size:13px;padding:10px 14px;background:rgba(255,255,255,0.08);color:#fff;">Skryť / Zobraziť detailné porovnanie</button>
+          <button id="toggleTableBtn" class="btn btn-secondary" style="font-size:13px;padding:10px 14px;background:rgba(255,255,255,0.08);color:#fff;" id="ui-btnToggleTable">Skryť / Zobraziť detailné porovnanie</button>
 
           <div id="compareTableWrap" style="overflow-x:auto;border-radius:16px;border:1px solid rgba(255,255,255,0.1);margin-top:4px;">
             <table class="compare-table">
               <thead>
                 <tr style="background:rgba(255,255,255,0.04);">
-                  <th>Metrika</th>
-                  <th>Produkt</th>
-                  <th style="color:#4fbe99;">Alternatíva</th>
+                  <th id="ui-thMetric">Metrika</th>
+                  <th id="ui-thProduct">Produkt</th>
+                  <th style="color:#4fbe99;" id="ui-thAlt">Alternatíva</th>
                 </tr>
               </thead>
               <tbody id="compareTableBody"></tbody>
@@ -272,16 +271,16 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <!-- 💬 KOMUNITNÉ RECENZIE S AI PREKLADOM -->
+        <!-- 💬 KOMUNITNÉ RECENZIE -->
         <div class="details-box">
           <div class="row-between">
-            <p class="title-xs" style="color:#4fbe99;">Komunitné recenzie</p>
+            <p class="title-xs" style="color:#4fbe99;" id="ui-reviewsTitle">Komunitné recenzie</p>
             <span id="reviewsCountBadge" class="badge" style="background:rgba(255,255,255,0.06);color:#a6a39b;">0 recenzií</span>
           </div>
 
           <div class="stack" style="gap:8px;background:rgba(0,0,0,0.2);padding:12px;border-radius:14px;">
             <div class="row-between">
-              <span style="font-size:13px;font-weight:600;">Pridať hodnotenie:</span>
+              <span style="font-size:13px;font-weight:600;" id="ui-addRatingLabel">Pridať hodnotenie:</span>
               <select id="reviewRatingSelect" class="toggle-pill" style="padding:4px 8px;font-size:12px;">
                 <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
                 <option value="4">⭐⭐⭐⭐ (4/5)</option>
@@ -291,7 +290,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
               </select>
             </div>
             <input id="reviewInputText" type="text" placeholder="Tvoj názor na chuť, cenu alebo zloženie..." style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;outline:none;" />
-            <button id="submitReviewBtn" class="btn btn-primary" style="padding:8px 12px;font-size:13px;border-radius:12px;">Odoslať recenziu</button>
+            <button id="submitReviewBtn" class="btn btn-primary" style="padding:8px 12px;font-size:13px;border-radius:12px;" id="ui-btnSendReview">Odoslať recenziu</button>
           </div>
 
           <div id="reviewsListWrap" class="stack" style="gap:8px;margin-top:4px;">
@@ -299,13 +298,97 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <button id="newScanBtn" class="btn btn-primary"><i data-lucide="refresh-ccw"></i><span>Skúsiť nový sken</span></button>
+        <button id="newScanBtn" class="btn btn-primary"><i data-lucide="refresh-ccw"></i><span id="ui-btnNewScan">Skúsiť nový sken</span></button>
       </div>
     </section>
   </main>
 </div>
 
 <script>
+const UI_TRANSLATIONS = {
+  sk: {
+    subHeader: "AI čítanie etikiet", btnHistory: "História", myProfileLabel: "Môj Profil:",
+    profGeneral: "👤 Všeobecný", profHeart: "🩺 Srdce & Tlak (Prísna soľ)", profDiabetes: "🩸 Cukor & Glukóza (Prísny cukor)", profClean: "🌿 Bez E-čiek (Čistá strava)",
+    heroBadge: "Rýchla kontrola potravín", heroTitle: 'Odfoť etiketu a zisti, <span style="color:#0f9f74;">čo kupuješ</span>.', heroDesc: "Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.", btnCamera: "Odfotiť etiketu",
+    btnBack1: "Späť", btnBack2: "Späť", btnStartScan: "Spustiť AI analýzu", btnClearHistory: "Vymazať históriu", historyTitle: "Moje naskenované produkty", historySub: "Uložené lokálne v tomto zariadení.",
+    btnScanAgain: "Sken", energyLabelTitle: "Dopad na energiu a sústredenie", bodyTitle: "Vizuálny dopad na telo", ingredientsTitle: "Surovinové Zloženie", additivesTitle: "Detailný rozbor Aditív (E-čiek)",
+    swapHeader: "Zdravšia alternatíva", scannedLabel: "Skenované", recommendLabel: "Odporúčanie", btnToggleTable: "Skryť / Zobraziť detailné porovnanie", thMetric: "Metrika", thProduct: "Produkt", thAlt: "Alternatíva",
+    reviewsTitle: "Komunitné recenzie", addRatingLabel: "Pridať hodnotenie:", reviewPlaceholder: "Tvoj názor na chuť, cenu alebo zloženie...", btnSendReview: "Odoslať recenziu", btnNewScan: "Skúsiť nový sken"
+  },
+  cz: {
+    subHeader: "AI čtení etiket", btnHistory: "Historie", myProfileLabel: "Můj Profil:",
+    profGeneral: "👤 Obecný", profHeart: "🩺 Srdce a Tlak (Přísná sůl)", profDiabetes: "🩸 Cukr a Glukóza (Přísný cukr)", profClean: "🌿 Bez E-ček (Čistá strava)",
+    heroBadge: "Rychlá kontrola potravin", heroTitle: 'Vyfoť etiketu a zjisti, <span style="color:#0f9f74;">co kupuješ</span>.', heroDesc: "Okamžitá AI analýza složení, energetické křivky a vizuální dopad na tělo.", btnCamera: "Vyfotit etiketu",
+    btnBack1: "Zpět", btnBack2: "Zpět", btnStartScan: "Spustit AI analýzu", btnClearHistory: "Smazat historii", historyTitle: "Moje naskenované produkty", historySub: "Uloženo lokálně v tomto zařízení.",
+    btnScanAgain: "Sken", energyLabelTitle: "Dopad na energii a soustředění", bodyTitle: "Vizuální dopad na tělo", ingredientsTitle: "Surovinové Složení", additivesTitle: "Detailní rozbor Aditiv (E-ček)",
+    swapHeader: "Zdravější alternativa", scannedLabel: "Naskenováno", recommendLabel: "Doporučení", btnToggleTable: "Skrýt / Zobrazit detailní srovnání", thMetric: "Metrika", thProduct: "Produkt", thAlt: "Alternativa",
+    reviewsTitle: "Komunitní recenze", addRatingLabel: "Přidat hodnocení:", reviewPlaceholder: "Tvůj názor na chuť, cenu nebo složení...", btnSendReview: "Odeslat recenzi", btnNewScan: "Zkusit nový sken"
+  },
+  pl: {
+    subHeader: "AI skanowanie etykiet", btnHistory: "Historia", myProfileLabel: "Mój Profil:",
+    profGeneral: "👤 Ogólny", profHeart: "🩺 Serce i Ciśnienie (Sól)", profDiabetes: "🩸 Cukier i Cukrzyca (Cukier)", profClean: "🌿 Bez E-dodatków (Czysta dieta)",
+    heroBadge: "Szybka kontrola żywności", heroTitle: 'Zrób zdjęcie etykiety i zobacz, <span style="color:#0f9f74;">co kupujesz</span>.', heroDesc: "Natychmiastowa analiza AI składu, krzywej energii i wpływu na organizm.", btnCamera: "Zrób zdjęcie etykiety",
+    btnBack1: "Wstecz", btnBack2: "Wstecz", btnStartScan: "Uruchom analizę AI", btnClearHistory: "Wyczyść historię", historyTitle: "Moje zeskanowane produkty", historySub: "Zapisano lokalnie na tym urządzeniu.",
+    btnScanAgain: "Skanuj", energyLabelTitle: "Wpływ na energię i skupienie", bodyTitle: "Wizualny wpływ na ciało", ingredientsTitle: "Składniki", additivesTitle: "Szczegóły Dodatków (E-numery)",
+    swapHeader: "Zdrowsza alternatywa", scannedLabel: "Zeskanowane", recommendLabel: "Rekomendacja", btnToggleTable: "Pokaż / Ukryj porównanie", thMetric: "Metryka", thProduct: "Produkt", thAlt: "Alternatywa",
+    reviewsTitle: "Recenzje społeczności", addRatingLabel: "Dodaj ocenę:", reviewPlaceholder: "Twoja opinia o smaku, cenie lub składzie...", btnSendReview: "Wyślij recenzję", btnNewScan: "Zeskanuj nowy produkt"
+  },
+  en: {
+    subHeader: "AI Label Reader", btnHistory: "History", myProfileLabel: "My Profile:",
+    profGeneral: "👤 General", profHeart: "🩺 Heart & Pressure (Strict Salt)", profDiabetes: "🩸 Blood Sugar (Strict Sugar)", profClean: "🌿 No Additives (Clean Food)",
+    heroBadge: "Quick Food Check", heroTitle: 'Snap a label and see <span style="color:#0f9f74;">what you buy</span>.', heroDesc: "Instant AI ingredient analysis, energy curve, and visual body impact.", btnCamera: "Scan Label Photo",
+    btnBack1: "Back", btnBack2: "Back", btnStartScan: "Start AI Analysis", btnClearHistory: "Clear History", historyTitle: "My Scanned Products", historySub: "Saved locally on this device.",
+    btnScanAgain: "Scan", energyLabelTitle: "Energy & Focus Impact", bodyTitle: "Visual Body Impact", ingredientsTitle: "Raw Ingredients", additivesTitle: "Additive Details (E-Numbers)",
+    swapHeader: "Healthier Swap", scannedLabel: "Scanned", recommendLabel: "Recommendation", btnToggleTable: "Toggle Comparison Table", thMetric: "Metric", thProduct: "Product", thAlt: "Alternative",
+    reviewsTitle: "Community Reviews", addRatingLabel: "Add Rating:", reviewPlaceholder: "Your opinion on taste, price or ingredients...", btnSendReview: "Submit Review", btnNewScan: "Try New Scan"
+  },
+  de: {
+    subHeader: "AI Etiketten-Scanner", btnHistory: "Verlauf", myProfileLabel: "Mein Profil:",
+    profGeneral: "👤 Allgemein", profHeart: "🩺 Herz & Druck (Strenge Salz)", profDiabetes: "🩸 Blutzucker (Strenger Zucker)", profClean: "🌿 Keine Zusatzstoffe (Clean)",
+    heroBadge: "Schneller Lebensmittel-Check", heroTitle: 'Fotografiere das Etikett und sieh, <span style="color:#0f9f74;">was du kaufst</span>.', heroDesc: "Sofortige KI-Analyse von Zutaten, Energie-Kurve und Auswirkung auf den Körper.", btnCamera: "Etikett Fotografieren",
+    btnBack1: "Zurück", btnBack2: "Zurück", btnStartScan: "KI-Analyse Starten", btnClearHistory: "Verlauf Löschen", historyTitle: "Meine Gescannte Produkte", historySub: "Lokal auf diesem Gerät gespeichert.",
+    btnScanAgain: "Scan", energyLabelTitle: "Auswirkung auf Energie & Fokus", bodyTitle: "Visuelle Körperauswirkung", ingredientsTitle: "Zutatenliste", additivesTitle: "Zusatzstoffe (E-Nummern)",
+    swapHeader: "Gesündere Alternative", scannedLabel: "Gescannt", recommendLabel: "Empfehlung", btnToggleTable: "Vergleichstabelle Umschalten", thMetric: "Metrik", thProduct: "Produkt", thAlt: "Alternative",
+    reviewsTitle: "Community-Bewertungen", addRatingLabel: "Bewertung abgeben:", reviewPlaceholder: "Deine Meinung zu Geschmack, Preis oder Zutaten...", btnSendReview: "Bewertung Absenden", btnNewScan: "Neuen Scan Starten"
+  },
+  hu: {
+    subHeader: "AI Címkeolvasó", btnHistory: "Előzmények", myProfileLabel: "Profilom:",
+    profGeneral: "👤 Általános", profHeart: "🩺 Szív és Vérnyomás (Szigorú só)", profDiabetes: "🩸 Cukor és Glükóz (Szigorú cukor)", profClean: "🌿 E-szám mentes (Tiszta étel)",
+    heroBadge: "Gyors Élelmiszer Ellenőrzés", heroTitle: 'Fotózd le a címkét és lásd, <span style="color:#0f9f74;">mit veszel</span>.', heroDesc: "Azonnali AI elemzés az összetevőkről, energiagörbéről és a testi hatásokról.", btnCamera: "Címke Fotózása",
+    btnBack1: "Vissza", btnBack2: "Vissza", btnStartScan: "AI Elemzés Indítása", btnClearHistory: "Előzmények Törlése", historyTitle: "Beszkenelt Termékek", historySub: "Helyileg mentve ezen az eszközön.",
+    btnScanAgain: "Szkennelés", energyLabelTitle: "Energia és Fókusz Hatás", bodyTitle: "Testi Hatások Vizualizációja", ingredientsTitle: "Összetevők", additivesTitle: "Adalékanyagok (E-számok)",
+    swapHeader: "Egészségesebb Alternatíva", scannedLabel: "Beszkenelt", recommendLabel: "Ajánlás", btnToggleTable: "Összehasonlító Táblázat", thMetric: "Jellemző", thProduct: "Termék", thAlt: "Alternatíva",
+    reviewsTitle: "Közösségi Értékelések", addRatingLabel: "Értékelés hozzáadása:", reviewPlaceholder: "Véleményed az ízről, árról vagy összetevőkről...", btnSendReview: "Értékelés Beküldése", btnNewScan: "Új Szkennelés"
+  },
+  it: {
+    subHeader: "Lettore Etichette AI", btnHistory: "Cronologia", myProfileLabel: "Il mio Profilo:",
+    profGeneral: "👤 Generale", profHeart: "🩺 Cuore e Pressione (Sale severo)", profDiabetes: "🩸 Zucchero e Glucosio (Zucchero severo)", profClean: "🌿 Senza Additivi (Cibo pulito)",
+    heroBadge: "Controllo Cibo Rapido", heroTitle: 'Scatta una foto all\'etichetta e vedi <span style="color:#0f9f74;">cosa compri</span>.', heroDesc: "Analisi AI istantanea di ingredienti, curva d'energia e impatto sul corpo.", btnCamera: "Scansiona Etichetta",
+    btnBack1: "Indietro", btnBack2: "Indietro", btnStartScan: "Avvia Analisi AI", btnClearHistory: "Cancella Cronologia", historyTitle: "I Miei Prodotti Scansionati", historySub: "Salvato localmente su questo dispositivo.",
+    btnScanAgain: "Scansiona", energyLabelTitle: "Impatto su Energia e Focus", bodyTitle: "Impatto Corporeo Visivo", ingredientsTitle: "Ingredienti", additivesTitle: "Dettaglio Additivi (Numeri E)",
+    swapHeader: "Alternativa Più Sana", scannedLabel: "Scansionato", recommendLabel: "Raccomandazione", btnToggleTable: "Mostra/Nascondi Tabella", thMetric: "Metrica", thProduct: "Prodotto", thAlt: "Alternativa",
+    reviewsTitle: "Recensioni della Community", addRatingLabel: "Aggiungi Valutazione:", reviewPlaceholder: "La tua opinione su gusto, prezzo o ingredienti...", btnSendReview: "Invia Recensione", btnNewScan: "Nuova Scansione"
+  },
+  fr: {
+    subHeader: "Lecteur d'Étiquettes IA", btnHistory: "Historique", myProfileLabel: "Mon Profil:",
+    profGeneral: "👤 Général", profHeart: "🩺 Cœur & Tension (Sel strict)", profDiabetes: "🩸 Sucre & Glycémie (Sucre strict)", profClean: "🌿 Sans Additifs (Alimentation propre)",
+    heroBadge: "Contrôle Alimentaire Rapide", heroTitle: 'Scannez l\'étiquette et voyez <span style="color:#0f9f74;">ce que vous achetez</span>.', heroDesc: "Analyse IA instantanée des ingrédients, courbe d'énergie et impact corporel.", btnCamera: "Scanner l'Étiquette",
+    btnBack1: "Retour", btnBack2: "Retour", btnStartScan: "Lancer l'Analyse IA", btnClearHistory: "Effacer l'Historique", historyTitle: "Mes Produits Scannés", historySub: "Enregistré localement sur cet appareil.",
+    btnScanAgain: "Scanner", energyLabelTitle: "Impact sur l'Énergie et la Concentration", bodyTitle: "Impact Corporel Visuel", ingredientsTitle: "Ingrédients", additivesTitle: "Détails des Additifs (Numéros E)",
+    swapHeader: "Alternative Plus Saine", scannedLabel: "Scanné", recommendLabel: "Recommandation", btnToggleTable: "Afficher/Masquer le Tableau", thMetric: "Métrique", thProduct: "Produit", thAlt: "Alternative",
+    reviewsTitle: "Avis de la Communauté", addRatingLabel: "Ajouter une Note:", reviewPlaceholder: "Votre avis sur le goût, le prix ou les ingrédients...", btnSendReview: "Envoyer l'Avis", btnNewScan: "Nouveau Scan"
+  },
+  es: {
+    subHeader: "Lector de Etiquetas IA", btnHistory: "Historial", myProfileLabel: "Mi Perfil:",
+    profGeneral: "👤 General", profHeart: "🩺 Corazón y Presión (Sal estricta)", profDiabetes: "🩸 Azúcar y Glucosa (Azúcar estricto)", profClean: "🌿 Sin Aditivos (Comida limpia)",
+    heroBadge: "Control Rápido de Comida", heroTitle: 'Escanea la etiqueta y mira <span style="color:#0f9f74;">lo que compras</span>.', heroDesc: "Análisis IA instantáneo de ingredientes, curva de energía e impacto corporal.", btnCamera: "Escanear Etiqueta",
+    btnBack1: "Volver", btnBack2: "Volver", btnStartScan: "Iniciar Análisis IA", btnClearHistory: "Borrar Historial", historyTitle: "Mis Productos Escaneados", historySub: "Guardado localmente en este dispositivo.",
+    btnScanAgain: "Escanear", energyLabelTitle: "Impacto en Energía y Concentración", bodyTitle: "Impacto Corporal Visual", ingredientsTitle: "Ingredientes", additivesTitle: "Detalle de Aditivos (Números E)",
+    swapHeader: "Alternativa Más Saludable", scannedLabel: "Escaneado", recommendLabel: "Recomendación", btnToggleTable: "Mostrar/Ocultar Comparación", thMetric: "Métrica", thProduct: "Producto", thAlt: "Alternativa",
+    reviewsTitle: "Reseñas de la Comunidad", addRatingLabel: "Añadir Valoración:", reviewPlaceholder: "Tu opinión sobre sabor, precio o ingredientes...", btnSendReview: "Enviar Reseña", btnNewScan: "Nuevo Escaneo"
+  }
+};
+
 const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", currentProductKey: null };
 const screens = { hero: document.getElementById("screen-hero"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
 
@@ -320,7 +403,46 @@ function makeSafeKey(text) {
     .trim();
 }
 
-function init(){ bindEvents(); renderHistoryList(); if(window.lucide) lucide.createIcons(); }
+function updateUI() {
+  const dict = UI_TRANSLATIONS[state.lang] || UI_TRANSLATIONS.sk;
+  
+  document.getElementById("ui-subHeader").textContent = dict.subHeader;
+  document.getElementById("ui-btnHistory").textContent = dict.btnHistory;
+  document.getElementById("ui-myProfileLabel").textContent = dict.myProfileLabel;
+  document.getElementById("ui-profGeneral").textContent = dict.profGeneral;
+  document.getElementById("ui-profHeart").textContent = dict.profHeart;
+  document.getElementById("ui-profDiabetes").textContent = dict.profDiabetes;
+  document.getElementById("ui-profClean").textContent = dict.profClean;
+  document.getElementById("ui-heroBadge").textContent = dict.heroBadge;
+  document.getElementById("ui-heroTitle").innerHTML = dict.heroTitle;
+  document.getElementById("ui-heroDesc").textContent = dict.heroDesc;
+  document.getElementById("ui-btnCamera").textContent = dict.btnCamera;
+  document.getElementById("ui-btnBack1").textContent = dict.btnBack1;
+  document.getElementById("ui-btnBack2").textContent = dict.btnBack2;
+  document.getElementById("ui-btnStartScan").textContent = dict.btnStartScan;
+  document.getElementById("ui-btnClearHistory").textContent = dict.btnClearHistory;
+  document.getElementById("ui-historyTitle").textContent = dict.historyTitle;
+  document.getElementById("ui-historySub").textContent = dict.historySub;
+  document.getElementById("ui-btnScanAgain").textContent = dict.btnScanAgain;
+  document.getElementById("ui-energyLabelTitle").textContent = dict.energyLabelTitle;
+  document.getElementById("ui-bodyTitle").textContent = dict.bodyTitle;
+  document.getElementById("ui-ingredientsTitle").textContent = dict.ingredientsTitle;
+  document.getElementById("ui-additivesTitle").textContent = dict.additivesTitle;
+  document.getElementById("ui-swapHeader").textContent = dict.swapHeader;
+  document.getElementById("ui-scannedLabel").textContent = dict.scannedLabel;
+  document.getElementById("ui-recommendLabel").textContent = dict.recommendLabel;
+  document.getElementById("ui-btnToggleTable").textContent = dict.btnToggleTable;
+  document.getElementById("ui-thMetric").textContent = dict.thMetric;
+  document.getElementById("ui-thProduct").textContent = dict.thProduct;
+  document.getElementById("ui-thAlt").textContent = dict.thAlt;
+  document.getElementById("ui-reviewsTitle").textContent = dict.reviewsTitle;
+  document.getElementById("ui-addRatingLabel").textContent = dict.addRatingLabel;
+  document.getElementById("reviewInputText").placeholder = dict.reviewPlaceholder;
+  document.getElementById("ui-btnSendReview").textContent = dict.btnSendReview;
+  document.getElementById("ui-btnNewScan").textContent = dict.btnNewScan;
+}
+
+function init(){ bindEvents(); renderHistoryList(); updateUI(); if(window.lucide) lucide.createIcons(); }
 function bindEvents(){
   document.getElementById("heroCameraBtn").addEventListener("click", () => { showScreen("scan"); document.getElementById("photoInput").click(); });
   document.getElementById("photoInput").addEventListener("change", handleFileSelected);
@@ -333,9 +455,10 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
   
-  // ZMENA JAZYKA
+  // OKAMŽITÁ ZMENA JAZYKA VO FRONTENDE (BEZ NÁKLADOV)
   document.getElementById("langSelect").addEventListener("change", (e) => {
     state.lang = e.target.value;
+    updateUI();
     if(state.currentProductKey) fetchReviews(state.currentProductKey);
   });
 
@@ -484,7 +607,7 @@ function renderReviewsList(reviews){
   const badge = document.getElementById("reviewsCountBadge");
 
   const list = Array.isArray(reviews) ? reviews : [];
-  badge.textContent = `${list.length} ${list.length === 1 ? 'recenzia' : 'recenzií'}`;
+  badge.textContent = `${list.length} recenzií`;
 
   if(list.length === 0){
     wrap.innerHTML = `<p class="muted" style="font-size:12px;">Zatiaľ tu nie sú žiadne recenzie. Buď prvý!</p>`;
@@ -495,7 +618,7 @@ function renderReviewsList(reviews){
     <div class="review-card">
       <div class="row-between">
         <span style="font-size:12px;color:#f29a2e;">${'⭐'.repeat(r.rating || 5)}</span>
-        <span class="muted" style="font-size:10px;">${r.created_at ? new Date(r.created_at).toLocaleDateString("sk-SK") : ""}</span>
+        <span class="muted" style="font-size:10px;">${r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}</span>
       </div>
       <p style="font-size:13px;margin:2px 0 0 0;color:#f1efe9;">${r.comment || "Bez komentára"}</p>
     </div>
@@ -531,7 +654,7 @@ async function submitReview(){
       document.getElementById("reviewInputText").value = "";
       fetchReviews(state.currentProductKey);
     } else {
-      alert("Chyba: " + (data.error || "Neznáma chyby pri ukladaní recenzie."));
+      alert("Chyba: " + (data.error || "Neznáma chyba pri ukladaní recenzie."));
     }
   } catch(e){
     alert("Chyba pripojenia: " + e.message);
