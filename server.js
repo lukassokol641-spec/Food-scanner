@@ -29,7 +29,54 @@ const upload = multer({
 
 function buildPrompt(lang) {
   const languageName = { sk: "Slovak", en: "English", de: "German" }[(["sk", "en", "de"].includes(lang) ? lang : "sk")];
-  return `Analyze this food package / label image and return STRICT JSON only. Read the exact printed text first before classifying the product. The product label may be in Swedish, German, Polish or other European languages. Read the exact printed text first before classifying the product. If the text is not readable, return exactly this JSON error object: {"error":"Text na etikete nie je čitateľný, skúste odfotiť zblízka"}. Return keys scan, product, analysis, ui. Write all user-facing strings in ${languageName}. No markdown.`;
+  
+  return `
+Analyze this food package / label image and return STRICT JSON only. 
+The product label may be in Swedish, German, Polish, or other European languages.
+Read the exact printed text first before classifying the product.
+
+Perform a full breakdown and translate all text into ${languageName}.
+
+If the text is not readable, return exactly this JSON error object: 
+{"error": "Text na etikete nie je čitateľný, skúste odfotiť zblízka"}
+
+Otherwise, return a JSON object with this EXACT structure:
+{
+  "scan": {
+    "status": "success",
+    "language": "${lang}"
+  },
+  "product": {
+    "name": "Exact or translated product name",
+    "brand": "Brand name if visible, or null",
+    "category": "e.g. Bakery, Dairy, Snacks"
+  },
+  "analysis": {
+    "ingredients": [
+      "Translated ingredient 1",
+      "Translated ingredient 2"
+    ],
+    "additives": [
+      {
+        "code": "E-number (e.g. E211) or name",
+        "name": "Translated name of additive",
+        "type": "Natural / Synthetic / Fermented",
+        "risk": "Low / Medium / High",
+        "info": "Brief clear explanation of what it does and health considerations"
+      }
+    ],
+    "summary": "Clear 2-3 sentence assessment of the product in ${languageName}."
+  },
+  "ui": {
+    "title": "Názov produktu",
+    "ingredients_title": "Zloženie",
+    "additives_title": "Prídavné látky (E-čka)",
+    "summary_title": "Zhodnotenie"
+  }
+}
+
+Write all user-facing strings strictly in ${languageName}. No markdown, no HTML wrappers. Return STRICT JSON.
+`;
 }
 
 function extractText(content) {
