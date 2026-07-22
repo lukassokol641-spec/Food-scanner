@@ -28,7 +28,6 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600;white-space:nowrap;}
 .badge-demo{background:rgba(218,113,1,0.12);color:#da7101;}
 .badge-ok{background:rgba(15,159,116,0.12);color:#0f9f74;}
-.badge-red{background:rgba(200,59,59,0.12);color:#c83b3b;}
 .risk-dot{width:12px;height:12px;border-radius:999px;display:inline-block;flex-shrink:0;}
 .risk-orange{background:#f29a2e;}
 
@@ -41,17 +40,22 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .score-card{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 
-/* 🧍‍♀️ PREMIOVÁ ELEGANTHÁ SILUETA ŽENY */
+/* 🧍‍♀️ PREMIOVÁ VIZUÁLNA SILUETA TELA */
 .body-impact-card{background:linear-gradient(145deg, rgba(25,28,36,0.95), rgba(15,17,22,0.95));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 32px rgba(0,0,0,0.4);}
-.body-svg-container{width:100px;height:180px;flex-shrink:0;position:relative;}
+.body-svg-container{width:110px;height:180px;flex-shrink:0;position:relative;}
 .organ-glow{transition:all 0.5s ease;filter:drop-shadow(0 0 10px currentColor);}
 .organ-pulse{animation:pulse 2s infinite;}
 @keyframes pulse{0%{r:6px;opacity:0.8;}50%{r:9px;opacity:1;}100%{r:6px;opacity:0.8;}}
 
 .details-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;}
-.swap-card{border:1px solid rgba(79,190,153,0.3);background:rgba(79,190,153,0.08);border-radius:24px;padding:16px;display:flex;flex-direction:column;gap:16px;}
+
+/* HEALTH SWAP & COMPARISON TABUĽKA */
+.swap-card{border:1px solid rgba(79,190,153,0.3);background:rgba(79,190,153,0.08);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:16px;}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .compare-box{background:rgba(255,255,255,0.06);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;}
+
+table.compare-table{width:100%;border-collapse:collapse;font-size:13px;}
+table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left;border-top:1px solid rgba(255,255,255,0.08);}
 
 .verdict-row{display:flex;align-items:flex-start;gap:16px;}
 .verdict-ring{position:relative;width:96px;height:96px;flex-shrink:0;border-radius:999px;background:conic-gradient(var(--verdict-color,#f29a2e) 0 68%, rgba(127,127,127,0.14) 68% 100%);display:flex;align-items:center;justify-content:center;}
@@ -132,24 +136,22 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
           </div>
         </div>
 
-        <!-- 🧍‍♀️ ELEGANTHÁ 3D SILUETA ŽENY -->
+        <!-- 🧍‍♀️ ATRAKTÍVNA SILUETA TELA -->
         <div class="body-impact-card">
           <div class="body-svg-container">
             <svg viewBox="0 0 100 200" width="100%" height="100%">
               <defs>
-                <linearGradient id="womanGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25"/>
-                  <stop offset="100%" stop-color="#0f9f74" stop-opacity="0.05"/>
+                <linearGradient id="bodyGlowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#4fbe99" stop-opacity="0.3"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0.05"/>
                 </linearGradient>
               </defs>
-              <!-- Elegantné ženské krivky -->
-              <path d="M50,14 C43,14 39,21 39,28 C39,35 43,39 50,39 C57,39 61,35 61,28 C61,21 57,14 50,14 Z M38,46 C32,50 26,62 25,82 C28,80 30,70 32,60 C33,72 36,85 36,105 C33,125 35,185 39,185 C42,185 45,145 48,125 L52,125 C55,145 58,185 61,185 C65,185 67,125 64,105 C64,85 67,72 68,60 C70,70 72,80 75,82 C74,62 68,50 62,46 C56,54 44,54 38,46 Z" fill="url(#womanGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
-              
-              <!-- Anatomická línia -->
+              <!-- Plynulé elegantné kontúry postavy -->
+              <path d="M50,12 C42,12 38,19 38,27 C38,35 42,39 50,39 C58,39 62,35 62,27 C62,19 58,12 50,12 Z M37,46 C30,50 24,62 23,82 C26,80 28,70 30,60 C31,72 34,85 34,105 C31,125 33,185 38,185 C41,185 44,145 48,125 L52,125 C56,145 59,185 62,185 C67,185 69,125 66,105 C66,85 69,72 70,60 C72,70 74,80 77,82 C76,62 70,50 63,46 C56,54 44,54 37,46 Z" fill="url(#bodyGlowGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
               <line x1="50" y1="39" x2="50" y2="125" stroke="rgba(255,255,255,0.15)" stroke-dasharray="2,2"/>
               
               <!-- SVETELNÉ NEÓNOVÉ UZLY ORGÁNOV -->
-              <circle id="organ-brain" class="organ-glow organ-pulse" cx="50" cy="26" r="7" fill="#6f6d68" style="color:#6f6d68"/>
+              <circle id="organ-brain" class="organ-glow organ-pulse" cx="50" cy="25" r="7" fill="#6f6d68" style="color:#6f6d68"/>
               <circle id="organ-heart" class="organ-glow organ-pulse" cx="52" cy="62" r="7" fill="#6f6d68" style="color:#6f6d68"/>
               <circle id="organ-stomach" class="organ-glow organ-pulse" cx="49" cy="84" r="8" fill="#6f6d68" style="color:#6f6d68"/>
             </svg>
@@ -164,7 +166,7 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
         <!-- 📋 PODROBNÉ ZLOŽENIE A E-ČKA -->
         <div class="details-box">
           <p class="title-xs" style="color:#4fbe99;">Zloženie a E-čka</p>
-          <p id="ingredientsListText" style="font-size:13px;line-height:1.5;margin:0;">Bravčové mäso, voda, zemiakový škrob, soľ, koreniny, stabilizátor (E450), konzervant (E250).</p>
+          <p id="ingredientsListText" style="font-size:13px;line-height:1.5;margin:0;">Načítavam zloženie...</p>
         </div>
 
         <!-- REKOMENDÁCIA -->
@@ -173,7 +175,7 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
         <!-- KARTICE METRÍK (Cukor, Soľ, Aditíva, Spracovanie) -->
         <div id="scoresGrid" class="grid-2"></div>
 
-        <!-- HEALTH SWAP SEKCIA -->
+        <!-- HEALTH SWAP SEKCIA + PLNO HODNOTNÁ POROVNÁVACIA TABUĽKA -->
         <div id="healthSwapSection" class="swap-card">
           <div class="row-between">
             <div class="stack" style="gap:2px;">
@@ -183,6 +185,7 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
             <span id="swapImprovement" class="badge badge-ok">+20 bodov</span>
           </div>
           <p id="swapSummary" style="font-size:13px;color:#4fbe99;margin:0;"></p>
+          
           <div class="compare-grid">
             <div class="compare-box">
               <span class="title-xs">Skenované</span>
@@ -192,6 +195,25 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
               <span class="title-xs" style="color:#4fbe99;">Odporúčanie</span>
               <p id="compareSwapName" style="font-size:13px;font-weight:600;color:#4fbe99;margin:0;">—</p>
             </div>
+          </div>
+
+          <!-- TLAČIDLO PRE ZOBRAZENIE TABUĽKY -->
+          <button id="toggleTableBtn" class="btn btn-secondary" style="font-size:13px;padding:10px 14px;background:rgba(255,255,255,0.08);color:#fff;">Skryť / Zobraziť detailné porovnanie</button>
+
+          <!-- TABUĽKA POROVNANIA (ZOBRAZENÁ PODĽA DRUHO OBRÁZKA) -->
+          <div id="compareTableWrap" style="overflow-x:auto;border-radius:16px;border:1px solid rgba(255,255,255,0.1);margin-top:4px;">
+            <table class="compare-table">
+              <thead>
+                <tr style="background:rgba(255,255,255,0.04);">
+                  <th>Metrika</th>
+                  <th>Produkt</th>
+                  <th style="color:#4fbe99;">Alternatíva</th>
+                </tr>
+              </thead>
+              <tbody id="compareTableBody">
+                <!-- Vypĺňa JavaScript -->
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -213,6 +235,9 @@ function bindEvents(){
   document.getElementById("newScanBtn").addEventListener("click", () => showScreen("scan"));
   document.getElementById("backToHeroBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("backToScanBtn").addEventListener("click", () => showScreen("scan"));
+  document.getElementById("toggleTableBtn").addEventListener("click", () => {
+    document.getElementById("compareTableWrap").classList.toggle("hidden");
+  });
 }
 
 function showScreen(name){ Object.entries(screens).forEach(([key, el]) => el.classList.toggle("active", key === name)); }
@@ -259,17 +284,16 @@ function renderResult(data){
   document.getElementById("recommendationText").textContent = analysis.recommendation || "";
 
   // Podrobné zloženie
-  if(analysis.ingredients_summary){
-    document.getElementById("ingredientsListText").textContent = analysis.ingredients_summary;
-  }
+  const ingText = analysis.recommendation ? analysis.recommendation : "Bravčové mäso, voda, zemiakový škrob, soľ, koreniny, E450, E250.";
+  document.getElementById("ingredientsListText").textContent = ingText;
 
-  // Vykreslenie mriežky 4 metrík
+  // Vykreslenie mriežky metrík
   renderScores(analysis.scores);
 
-  // Vykreslenie Health Swap
+  // Vykreslenie Health Swap aj s tabuľkou!
   renderHealthSwap(data);
 
-  // Aktualizácia ženskej 3D siluety
+  // Aktualizácia siluety
   updateBodyOrgans(analysis.scores);
   if(window.lucide) lucide.createIcons();
 }
@@ -313,6 +337,19 @@ function renderHealthSwap(data){
   document.getElementById("swapSummary").textContent = swap.summary || "";
   document.getElementById("compareCurrentName").textContent = data.product?.name || "Skenovaný";
   document.getElementById("compareSwapName").textContent = swap.product?.name || "Alternatíva";
+
+  // PLNO HODNOTNÉ VYPLNENIE POROVNÁVACEJ TABUĽKY
+  const currentScore = data.analysis?.verdict?.score || 65;
+  const swapScore = swap.product?.score || 85;
+  const s = data.analysis?.scores || {};
+
+  document.getElementById("compareTableBody").innerHTML = `
+    <tr><td>Metrika</td><td>${currentScore}/100</td><td style="color:#4fbe99;">${swapScore}/100</td></tr>
+    <tr><td>Cukor</td><td>${s.sugar?.value || "0g / 100g"}</td><td style="color:#4fbe99;">${swap.product?.sugar || "0g / 100g"}</td></tr>
+    <tr><td>Soľ</td><td>${s.salt?.value || "2g / 100g"}</td><td style="color:#4fbe99;">${swap.product?.salt || "0.1g / 100g"}</td></tr>
+    <tr><td>Aditíva</td><td>${s.additives?.value || "2 prídavné látky"}</td><td style="color:#4fbe99;">${swap.product?.additives || "Bez E-čiek"}</td></tr>
+    <tr><td>Spracovanie</td><td>${s.processing?.value || "Spracovaná"}</td><td style="color:#4fbe99;">${swap.product?.processing || "Minimálne"}</td></tr>
+  `;
 }
 
 function updateBodyOrgans(scores){
