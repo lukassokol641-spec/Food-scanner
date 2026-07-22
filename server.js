@@ -13,7 +13,6 @@ if (process.env.OPENAI_API_KEY) {
 let supabase = null;
 try {
   let rawUrl = process.env.SUPABASE_URL || "";
-  // Automaticky odstráni /rest/v1, /v1 alebo koncové lomky ak ich používateľ skopíroval
   let cleanUrl = rawUrl.trim().replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "");
 
   if (cleanUrl && process.env.SUPABASE_KEY) {
@@ -109,18 +108,30 @@ app.post("/api/reviews", async (req, res) => {
   }
 });
 
-// Hlavný AI sken
+// Hlavný AI sken s podporou osobných zdravotných profilov
 app.post("/api/scan", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "Chýba fotka." });
     if (!openai) return res.status(500).json({ error: "Chýba API kľúč pre OpenAI." });
 
     const lang = ["sk", "en", "de"].includes(req.body?.lang) ? req.body.lang : "sk";
+    const profile = req.body?.profile || "general"; // "general", "heart", "diabetes", "clean"
     const mimeType = req.file.mimetype || "image/jpeg";
     const base64Image = req.file.buffer.toString("base64");
 
+    let profileContext = "General health evaluation.";
+    if (profile === "heart") {
+      profileContext = "USER PROFILE: Heart & Pressure Focus. Be extra strict on high SALT and sodium content. Highlight heart/vascular risks if salt is high.";
+    } else if (profile === "diabetes") {
+      profileContext = "USER PROFILE: Diabetes / Blood Sugar Focus. Be extra strict on ADDED SUGAR and carb spikes. Lower verdict score if sugar is high.";
+    } else if (profile === "clean") {
+      profileContext = "USER PROFILE: Clean Eating / Minimal Processing. Be extra strict on ADDITIVES, E-numbers, and ultra-processed ingredients.";
+    }
+
     const systemPrompt = `Analyze food package label. Translate response strictly to ${lang === "sk" ? "Slovak" : lang === "en" ? "English" : "German"}.
-Determine exact energy curve impact based on nutrients (sugar, carbs, protein, fat).
+${profileContext}
+
+Determine exact energy curve impact based on nutrients.
 
 Return JSON strictly:
 {
@@ -137,14 +148,14 @@ Return JSON strictly:
     }
   ],
   "energy_impact": {
-    "type": "spike", // Použi strictly: "spike", "moderate", alebo "stable"
+    "type": "spike", // strictly: "spike", "moderate", or "stable"
     "title": "Názov dopadu na energiu",
     "description": "Detailný popis správania glukózy a sústredenia po zjedení.",
     "duration": "Podpora energie: napr. ~45 min alebo ~3 hodiny"
   },
   "analysis": {
     "verdict": { "score": 65, "severity": "orange", "label": "Radšej obmedziť" },
-    "recommendation": "Stručné zhodnotenie.",
+    "recommendation": "Stručné zhodnotenie zohľadňujúce zvolený profil používateľa.",
     "scores": {
       "sugar": { "value": "0g / 100g", "level": "Nízky", "severity": "green" },
       "salt": { "value": "2g / 100g", "level": "Vyšší", "severity": "orange" },
@@ -172,7 +183,7 @@ Return JSON strictly:
     });
 
     const parsed = JSON.parse(completion.choices[0].message.content);
-    const prodKey = makeSafeKey(parsed?.product?.name) + "_" + lang;
+    const prodKey = makeSafeKey(parsed?.product?.name) + "_" + lang + "_" + profile;
     parsed.product_key = prodKey;
 
     if (supabase && prodKey.length > 3) {
