@@ -818,6 +818,41 @@ function updateBodyOrgans(scores){
 }
 
 init();
-</script>
+// --- KALKULAČKA LAKTÁZY ---
+function vypocitajLaktazu(laktozaNa100g, porciaGramy, silaTabletky = 4500) {
+  if (!laktozaNa100g || laktozaNa100g <= 0 || !porciaGramy || porciaGramy <= 0) {
+    return { gLaktozy: 0, fcc: 0, tabletky: 0 };
+  }
+  
+  // 1g laktózy = cca 1250 FCC
+  const gLaktozy = (laktozaNa100g / 100) * porciaGramy;
+  const fcc = Math.round(gLaktozy * 1250);
+  const tabletky = Math.ceil(fcc / silaTabletky);
+
+  return {
+    gLaktozy: gLaktozy.toFixed(1),
+    fcc: fcc,
+    tabletky: tabletky
+  };
+}
+
+// Funkcia na prepočet pri zmene porcie v UI
+function aktualizujVypocetLaktazy(laktozaNa100g) {
+  const porciaInput = document.getElementById('lactose-portion-input');
+  const vysledokTabletky = document.getElementById('lactose-result-tablets');
+  const vysledokDetails = document.getElementById('lactose-result-details');
+  
+  if (!porciaInput) return;
+  
+  const porcia = parseFloat(porciaInput.value) || 0;
+  const res = vypocitajLaktazu(laktozaNa100g, porcia);
+  
+  if (vysledokTabletky) {
+    vysledokTabletky.innerText = res.tabletky + (res.tabletky === 1 ? ' tabletka' : ' tabletky');
+  }
+  if (vysledokDetails) {
+    vysledokDetails.innerText = `(${res.gLaktozy} g laktózy • ${res.fcc} FCC)`;
+  }
+}</script>
 </body>
 </html>
