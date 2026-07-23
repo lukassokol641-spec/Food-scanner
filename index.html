@@ -152,7 +152,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN BARCODE SCANNER (ŽIVÁ KAMERA PRE EAN) -->
+    <!-- SCREEN BARCODE SCANNER -->
     <section id="screen-barcode" class="screen">
       <div class="row-between">
         <button id="stopBarcodeScannerBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
@@ -594,7 +594,6 @@ function bindEvents(){
   });
 }
 
-// LOGIKA SKENOVANIA EAN ČIAROVÝCH KÓDOV
 function startBarcodeScanner() {
   showScreen("barcode");
   html5QrCode = new Html5Qrcode("barcode-scanner-container");
@@ -624,29 +623,53 @@ function stopBarcodeScanner() {
   }
 }
 
+// UPRAVENÁ LOGIKA PRE SLOVENSKÉ PREKLADY Z EAN KÓDU
 async function handleBarcodeDetected(eanCode) {
-  alert("Naskenovaný EAN: " + eanCode);
-  // Tu vyhľadáme produkt podľa EAN kódov v OpenFoodFacts
   try {
-    const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${eanCode}.json`);
+    // Pridaný parameter lc=sk pre preferenciu slovenčiny
+    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${eanCode}.json?lc=sk`);
     const data = await res.json();
+    
     if(data.status === 1) {
       const p = data.product;
+      
+      // Vybratie slovenských alebo vyčistených textov
+      const name = p.product_name_sk || p.product_name || "Produkt";
+      const category = p.categories_sk || p.categories || "Potravina";
+      const rawIngredients = p.ingredients_text_sk || p.ingredients_text || "Zloženie z EAN databázy";
+      
+      // Detekcia alkoholu a alergénov
+      const warnings = [];
+      const isAlcoholic = (p.categories_tags || []).some(t => t.includes("alcoholic") || t.includes("beer") || t.includes("pivo")) ||
+                          (p.nutriments?.alcohol || 0) > 0;
+      
+      if(isAlcoholic) warnings.push("Alkohol");
+      if(p.allergens_tags) p.allergens_tags.forEach(a => warnings.push(a.replace("en:", "")));
+
       const formattedData = {
-        product: { name: p.product_name || "Produkt", category: p.categories || "Potravina", portion: "100g" },
+        product: { name: name, category: category, portion: "100g" },
         lactose_g: p.nutriments?.sugars_100g || 0,
-        allergen_warnings: p.allergens_tags || [],
-        ingredients_raw: p.ingredients_text || "Zloženie z EAN databázy",
-        energy_impact: { type: "moderate", title: "Dopad z EAN kódov", description: "Stabilná energia", duration: "~1 hodina" },
-        analysis: { verdict: { score: 80, label: "Vhodné", severity: "green" }, recommendation: "Produkt nájdený podľa EAN kódov.", scores: {} }
+        allergen_warnings: warnings,
+        ingredients_raw: rawIngredients,
+        energy_impact: { type: isAlcoholic ? "spike" : "moderate", title: isAlcoholic ? "Záťaž organizmu" : "Dopad na energiu", description: isAlcoholic ? "Obsahuje alkohol — spomaľuje metabolizmus." : "Stabilná hladina glukózy.", duration: "~1 hodina" },
+        analysis: { 
+          verdict: { 
+            score: isAlcoholic ? 35 : 80, 
+            label: isAlcoholic ? "Alkoholický nápoj" : "Vhodné", 
+            severity: isAlcoholic ? "red" : "green" 
+          }, 
+          recommendation: "Analýza vytvorená na základe EAN kódu.", 
+          scores: {} 
+        }
       };
+
       renderResult(formattedData);
       showScreen("result");
     } else {
-      alert("Produkt s týmto EAN kódom nebol nájdený. Skús odfotiť obal.");
+      alert("Produkt s týmto EAN kódom sa nenašiel v databáze. Skús odfotiť celú etiketu.");
     }
   } catch(e) {
-    alert("Chyba vyhľadávania EAN.");
+    alert("Chyba pri načítavaní EAN kódu.");
   }
 }
 
