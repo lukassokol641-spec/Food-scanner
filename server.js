@@ -47,15 +47,8 @@ function makeSafeKey(text) {
 }
 
 const LANG_MAP = {
-  sk: "Slovak",
-  cz: "Czech",
-  pl: "Polish",
-  hu: "Hungarian",
-  en: "English",
-  de: "German",
-  it: "Italian",
-  fr: "French",
-  es: "Spanish"
+  sk: "Slovak", cz: "Czech", pl: "Polish", hu: "Hungarian",
+  en: "English", de: "German", it: "Italian", fr: "French", es: "Spanish"
 };
 
 app.get("/api/health", (req, res) => {
@@ -70,7 +63,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
 
-// GET recenzie + AI preklad do zvoleného jazyka
+// GET recenzie
 app.get("/api/reviews", async (req, res) => {
   if (!supabase) return res.json([]);
   try {
@@ -84,17 +77,11 @@ app.get("/api/reviews", async (req, res) => {
       .eq("product_key", cleanKey)
       .order("created_at", { ascending: false });
 
-    if (error || !data || data.length === 0) {
-      return res.json([]);
-    }
+    if (error || !data || data.length === 0) return res.json([]);
 
-    // Ak nemáme OpenAI alebo používateľ chce slovenčinu, vrátime pôvodné
-    if (!openai || req.query.lang === "sk") {
-      return res.json(data);
-    }
+    if (!openai || req.query.lang === "sk") return res.json(data);
 
-    // AI preklad recenzií do nového jazyka
-    const prompt = `Translate the following list of food user reviews into ${targetLang}. Preserve rating and structure. Return JSON array: [{ "id": 1, "comment": "translated text" }].
+    const prompt = `Translate user food reviews to ${targetLang}. Preserve rating and structure. Return JSON object with array 'reviews': [{ "id": 1, "comment": "text" }].
 Reviews: ${JSON.stringify(data.map(r => ({ id: r.id, comment: r.comment })))}`;
 
     const completion = await openai.chat.completions.create({
@@ -109,24 +96,18 @@ Reviews: ${JSON.stringify(data.map(r => ({ id: r.id, comment: r.comment })))}`;
 
     const finalReviews = data.map(orig => {
       const trans = Array.isArray(translatedList) ? translatedList.find(t => t.id === orig.id) : null;
-      return {
-        ...orig,
-        comment: trans?.comment || orig.comment
-      };
+      return { ...orig, comment: trans?.comment || orig.comment };
     });
 
     res.json(finalReviews);
   } catch (err) {
-    console.error("[REVIEWS GET EXCEPTION]", err);
     res.json([]);
   }
 });
 
 // POST recenzia
 app.post("/api/reviews", async (req, res) => {
-  if (!supabase) {
-    return res.status(500).json({ error: "Supabase nie je pripojená." });
-  }
+  if (!supabase) return res.status(500).json({ error: "Supabase nie je pripojená." });
   try {
     const { productKey, rating, comment } = req.body;
     const cleanKey = makeSafeKey(productKey);
@@ -136,16 +117,14 @@ app.post("/api/reviews", async (req, res) => {
       .insert([{ product_key: cleanKey, rating: Number(rating) || 5, comment: comment || "" }])
       .select();
 
-    if (error) {
-      return res.status(400).json({ error: error.message });
-    }
+    if (error) return res.status(400).json({ error: error.message });
     res.json({ ok: true, review: data?.[0] });
   } catch (err) {
     res.status(500).json({ error: String(err?.message || err) });
   }
 });
 
-// Hlavný AI sken s podporou 9 jazykov a zdravotných profilov
+// Hlavný AI sken s profilmi a alergénmi
 app.post("/api/scan", upload.single("image"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "Chýba fotka." });
@@ -154,27 +133,34 @@ app.post("/api/scan", upload.single("image"), async (req, res) => {
     const langKey = req.body?.lang || "sk";
     const targetLang = LANG_MAP[langKey] || "Slovak";
     const profile = req.body?.profile || "general";
+    const userAllergens = req.body?.allergens ? JSON.parse(req.body.allergens) : [];
+    
     const mimeType = req.file.mimetype || "image/jpeg";
     const base64Image = req.file.buffer.toString("base64");
 
     let profileContext = "General health evaluation.";
     if (profile === "heart") {
-      profileContext = "USER PROFILE: Heart & Blood Pressure Focus. Be extremely strict on high SALT and SODIUM. If salt is high, reduce verdict score severely and warn about blood pressure.";
+      profileContext = "USER PROFILE: Heart & Blood Pressure Focus. Be extremely strict on high SALT and SODIUM.";
     } else if (profile === "diabetes") {
-      profileContext = "USER PROFILE: Diabetes / Blood Sugar Focus. Be extremely strict on ADDED SUGARS and carb spikes. Lower verdict score if sugar is high.";
+      profileContext = "USER PROFILE: Diabetes / Blood Sugar Focus. Be extremely strict on ADDED SUGARS and carb spikes.";
     } else if (profile === "clean") {
-      profileContext = "USER PROFILE: Clean Eating / No Additives. Be extremely strict on ADDITIVES, E-numbers, and ultra-processing.";
+      profileContext = "USER PROFILE: Clean Eating / No Additives. Be extremely strict on ADDITIVES and E-numbers.";
+    }
+
+    let allergenContext = "";
+    if (userAllergens.length > 0) {
+      allergenContext = `CRITICAL CHECK: User avoids these items: ${userAllergens.join(", ")}. If present in ingredients, list them strictly in 'allergen_warnings' in ${targetLang}.`;
     }
 
     const systemPrompt = `Analyze food package label. Translate response strictly to ${targetLang}.
 ${profileContext}
-
-Determine exact energy curve impact based on nutrients.
+${allergenContext}
 
 Return JSON strictly:
 {
   "scan": { "status": "success", "language": "${langKey}" },
   "product": { "name": "Exact product name", "category": "Category", "portion": "Size" },
+  "allergen_warnings": [], // Array of detected forbidden ingredients/allergens in ${targetLang} (e.g. ["Laktóza", "Palmový olej"])
   "ingredients_raw": "Vyber a prelož celý text zloženia z obalu do ${targetLang}",
   "additives_detail": [
     {
@@ -193,7 +179,7 @@ Return JSON strictly:
   },
   "analysis": {
     "verdict": { "score": 65, "severity": "orange", "label": "Text verdiktu" },
-    "recommendation": "Stručné zhodnotenie s ohľadom na profil používateľa v reči ${targetLang}.",
+    "recommendation": "Stručné zhodnotenie s ohľadom na profil v reči ${targetLang}.",
     "scores": {
       "sugar": { "value": "0g / 100g", "level": "Nízky", "severity": "green" },
       "salt": { "value": "2g / 100g", "level": "Vyšší", "severity": "orange" },
@@ -212,7 +198,7 @@ Return JSON strictly:
     const completion = await openai.chat.completions.create({
       model: "gpt-4o",
       temperature: 0.1,
-      max_tokens: 950,
+      max_tokens: 980,
       response_format: { type: "json_object" },
       messages: [
         { role: "system", content: systemPrompt },
@@ -221,7 +207,8 @@ Return JSON strictly:
     });
 
     const parsed = JSON.parse(completion.choices[0].message.content);
-    const prodKey = makeSafeKey(parsed?.product?.name) + "_" + langKey + "_" + profile;
+    const safeAllergens = userAllergens.sort().join("_");
+    const prodKey = makeSafeKey(parsed?.product?.name) + "_" + langKey + "_" + profile + "_" + safeAllergens;
     parsed.product_key = prodKey;
 
     if (supabase && prodKey.length > 3) {
@@ -232,9 +219,7 @@ Return JSON strictly:
           .eq("product_key", prodKey)
           .single();
 
-        if (dbProduct && dbProduct.data) {
-          return res.json(dbProduct.data);
-        }
+        if (dbProduct && dbProduct.data) return res.json(dbProduct.data);
       } catch (e) {}
     }
 
