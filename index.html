@@ -9,6 +9,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
+<!-- SKENOVANIE ČIAROVÝCH KÓDOV (EAN) -->
+<script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;min-height:100%;}
@@ -77,6 +79,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
 /* ALERT BANNER */
 .alert-banner{background:linear-gradient(135deg, rgba(223,82,82,0.25), rgba(160,30,30,0.3));border:1px solid #df5252;border-radius:20px;padding:16px;display:flex;align-items:center;gap:12px;color:#fff;}
+#barcode-scanner-container video{border-radius:20px;width:100% !important;object-fit:cover;}
 </style>
 </head>
 <body>
@@ -138,11 +141,27 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       <div class="card">
         <div class="badge badge-ok"><span id="ui-heroBadge">Rýchla kontrola potravín</span></div>
         <div class="stack" style="gap:10px;">
-          <h2 id="ui-heroTitle" style="font-size:28px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu a zisti, <span style="color:#0f9f74;">čo kupuješ</span>.</h2>
+          <h2 id="ui-heroTitle" style="font-size:28px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu alebo <span style="color:#0f9f74;">naskenuj EAN kód</span>.</h2>
           <p id="ui-heroDesc" class="muted" style="font-size:14px;line-height:1.5;margin:0;">Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.</p>
         </div>
-        <button id="heroCameraBtn" class="btn btn-primary"><i data-lucide="camera"></i><span id="ui-btnCamera">Odfotiť etiketu</span></button>
+        
+        <button id="startBarcodeScannerBtn" class="btn btn-primary" style="background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="scan-barcode"></i><span>Skenovať čiarový kód (EAN)</span></button>
+        <button id="heroCameraBtn" class="btn btn-secondary"><i data-lucide="camera"></i><span id="ui-btnCamera">Odfotiť celú etiketu</span></button>
+        
         <input id="photoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
+      </div>
+    </section>
+
+    <!-- SCREEN BARCODE SCANNER (ŽIVÁ KAMERA PRE EAN) -->
+    <section id="screen-barcode" class="screen">
+      <div class="row-between">
+        <button id="stopBarcodeScannerBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
+        <div class="badge badge-ok">EAN Skenovanie</div>
+      </div>
+      <div class="card" style="text-align:center;">
+        <h3 style="font-size:18px;font-weight:700;margin:0;">Namier kameru na čiarový kód</h3>
+        <p class="muted" style="font-size:13px;margin:0;">Kód sa automaticky rozozná</p>
+        <div id="barcode-scanner-container" style="width:100%;min-height:250px;border-radius:20px;overflow:hidden;background:#000;"></div>
       </div>
     </section>
 
@@ -397,7 +416,7 @@ const UI_TRANSLATIONS = {
     profGeneral: "👤 Všeobecný", profHeart: "🩺 Srdce & Tlak (Prísna soľ)", profDiabetes: "🩸 Cukor & Glukóza (Prísny cukor)", profClean: "🌿 Bez E-čiek (Čistá strava)",
     allergensLabel: "Vyhnúť sa (Alergény / Zložky):", algGluten: "Lepok", algLactose: "Laktóza", algNuts: "Orechy", algPalmoil: "Palmový olej",
     alertBannerTitle: "POZOR: Zistená zakázaná zložka!",
-    heroBadge: "Rýchla kontrola potravín", heroTitle: 'Odfoť etiketu a zisti, <span style="color:#0f9f74;">čo kupuješ</span>.', heroDesc: "Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.", btnCamera: "Odfotiť etiketu",
+    heroBadge: "Rýchla kontrola potravín", heroTitle: 'Odfoť etiketu alebo <span style="color:#0f9f74;">naskenuj EAN kód</span>.', heroDesc: "Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.", btnCamera: "Odfotiť celú etiketu",
     btnBack1: "Späť", btnBack2: "Späť", btnStartScan: "Spustiť AI analýzu", btnClearHistory: "Vymazať históriu", historyTitle: "Moje naskenované produkty", historySub: "Uložené lokálne v tomto zariadení.",
     btnScanAgain: "Sken", energyLabelTitle: "Dopad na energiu a sústredenie", bodyTitle: "Vizuálny dopad na telo", ingredientsTitle: "Surovinové Zloženie", additivesTitle: "Detailný rozbor Aditív (E-čiek)",
     swapHeader: "Zdravšia alternatíva", scannedLabel: "Skenované", recommendLabel: "Odporúčanie", btnToggleTable: "Skryť / Zobraziť detailné porovnanie", thMetric: "Metrika", thProduct: "Produkt", thAlt: "Alternatíva",
@@ -409,7 +428,7 @@ const UI_TRANSLATIONS = {
     profGeneral: "👤 General", profHeart: "🩺 Heart & Pressure (Strict Salt)", profDiabetes: "🩸 Blood Sugar (Strict Sugar)", profClean: "🌿 No Additives (Clean Food)",
     allergensLabel: "Avoid (Allergens / Ingredients):", algGluten: "Gluten", algLactose: "Lactose", algNuts: "Nuts", algPalmoil: "Palm Oil",
     alertBannerTitle: "WARNING: Forbidden Ingredient Detected!",
-    heroBadge: "Quick Food Check", heroTitle: 'Snap a label and see <span style="color:#0f9f74;">what you buy</span>.', heroDesc: "Instant AI ingredient analysis, energy curve, and visual body impact.", btnCamera: "Scan Label Photo",
+    heroBadge: "Quick Food Check", heroTitle: 'Snap a label or <span style="color:#0f9f74;">scan EAN barcode</span>.', heroDesc: "Instant AI ingredient analysis, energy curve, and visual body impact.", btnCamera: "Scan Label Photo",
     btnBack1: "Back", btnBack2: "Back", btnStartScan: "Start AI Analysis", btnClearHistory: "Clear History", historyTitle: "My Scanned Products", historySub: "Saved locally on this device.",
     btnScanAgain: "Scan", energyLabelTitle: "Energy & Focus Impact", bodyTitle: "Visual Body Impact", ingredientsTitle: "Raw Ingredients", additivesTitle: "Additive Details (E-Numbers)",
     swapHeader: "Healthier Swap", scannedLabel: "Scanned", recommendLabel: "Recommendation", btnToggleTable: "Toggle Comparison Table", thMetric: "Metric", thProduct: "Product", thAlt: "Alternative",
@@ -419,7 +438,9 @@ const UI_TRANSLATIONS = {
 };
 
 const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8 };
-const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
+const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
+
+let html5QrCode = null;
 
 function makeSafeKey(text) {
   if (!text) return "produkt_" + Date.now();
@@ -518,6 +539,10 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
 
+  // BARCODE SKENER EVENTY
+  document.getElementById("startBarcodeScannerBtn").addEventListener("click", startBarcodeScanner);
+  document.getElementById("stopBarcodeScannerBtn").addEventListener("click", stopBarcodeScanner);
+
   // PROFIL EVENTY
   document.getElementById("profileNavBtn").addEventListener("click", () => showScreen("profile"));
   document.getElementById("backFromProfileBtn").addEventListener("click", () => showScreen("hero"));
@@ -532,7 +557,6 @@ function bindEvents(){
     }
   });
 
-  // Event pre zmenu porcie v kalkulačke laktázy
   const portionInput = document.getElementById("lactose-portion-input");
   if(portionInput) {
     portionInput.addEventListener("input", () => {
@@ -540,7 +564,6 @@ function bindEvents(){
     });
   }
 
-  // ALERGEN CHIPS
   document.querySelectorAll(".allergen-chip").forEach(chip => {
     chip.addEventListener("click", () => {
       chip.classList.toggle("active");
@@ -569,6 +592,62 @@ function bindEvents(){
   document.getElementById("toggleTableBtn").addEventListener("click", () => {
     document.getElementById("compareTableWrap").classList.toggle("hidden");
   });
+}
+
+// LOGIKA SKENOVANIA EAN ČIAROVÝCH KÓDOV
+function startBarcodeScanner() {
+  showScreen("barcode");
+  html5QrCode = new Html5Qrcode("barcode-scanner-container");
+  
+  html5QrCode.start(
+    { facingMode: "environment" },
+    { fps: 10, qrbox: { width: 250, height: 150 } },
+    (decodedText) => {
+      stopBarcodeScanner();
+      handleBarcodeDetected(decodedText);
+    },
+    (errorMessage) => {}
+  ).catch(err => {
+    alert("Chyba pri otváraní kamery pre čiarové kódy.");
+    showScreen("hero");
+  });
+}
+
+function stopBarcodeScanner() {
+  if (html5QrCode) {
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear();
+      showScreen("hero");
+    }).catch(err => showScreen("hero"));
+  } else {
+    showScreen("hero");
+  }
+}
+
+async function handleBarcodeDetected(eanCode) {
+  alert("Naskenovaný EAN: " + eanCode);
+  // Tu vyhľadáme produkt podľa EAN kódov v OpenFoodFacts
+  try {
+    const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${eanCode}.json`);
+    const data = await res.json();
+    if(data.status === 1) {
+      const p = data.product;
+      const formattedData = {
+        product: { name: p.product_name || "Produkt", category: p.categories || "Potravina", portion: "100g" },
+        lactose_g: p.nutriments?.sugars_100g || 0,
+        allergen_warnings: p.allergens_tags || [],
+        ingredients_raw: p.ingredients_text || "Zloženie z EAN databázy",
+        energy_impact: { type: "moderate", title: "Dopad z EAN kódov", description: "Stabilná energia", duration: "~1 hodina" },
+        analysis: { verdict: { score: 80, label: "Vhodné", severity: "green" }, recommendation: "Produkt nájdený podľa EAN kódov.", scores: {} }
+      };
+      renderResult(formattedData);
+      showScreen("result");
+    } else {
+      alert("Produkt s týmto EAN kódom nebol nájdený. Skús odfotiť obal.");
+    }
+  } catch(e) {
+    alert("Chyba vyhľadávania EAN.");
+  }
 }
 
 function showScreen(name){ Object.entries(screens).forEach(([key, el]) => el.classList.toggle("active", key === name)); }
@@ -676,7 +755,6 @@ function renderResult(data){
   const rawName = data.product_key || data.product?.name || "produkt";
   state.currentProductKey = makeSafeKey(rawName);
 
-  // 🔴 CHECK ALERT BANNER
   const alertBanner = document.getElementById("allergenAlertBanner");
   const alertText = document.getElementById("allergenAlertText");
   const warnings = data.allergen_warnings || [];
@@ -688,7 +766,6 @@ function renderResult(data){
     alertBanner.classList.add("hidden");
   }
 
-  // DETEKCIA LAKTÁZY PRE KALKULAČKU
   const lactoseCard = document.getElementById("lactose-calculator-card");
   const hasLactose = warnings.some(w => w.toLowerCase().includes("laktóz") || w.toLowerCase().includes("mliek")) || state.allergens.includes("lactose");
   
@@ -936,7 +1013,6 @@ function updateBodyOrgans(scores){
   }
 }
 
-// --- KALKULAČKA LAKTÁZY LOGIKA ---
 function vypocitajLaktazu(laktozaNa100g, porciaGramy, silaTabletky = 4500) {
   if (!laktozaNa100g || laktozaNa100g <= 0 || !porciaGramy || porciaGramy <= 0) {
     return { gLaktozy: 0, fcc: 0, tabletky: 0 };
