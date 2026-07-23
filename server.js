@@ -42,54 +42,48 @@ app.post('/api/scan', upload.single('image'), async (req, res) => {
     const mimeType = req.file.mimetype;
 
     const prompt = `
-Si expert na výživu a čítanie obalov potravín. Analýzuj priloženú fotku etikety potraviny a vráť STRIKTNE iba platný JSON objekt (bez Markdown obalu) v tomto presnom formáte:
+Si expert na výživu, chemické zloženie a čítanie obalov potravín a nápojov. Analýzuj priloženú fotku obalu/etikety a vráť STRIKTNE iba platný JSON objekt (bez Markdown obalu) v tomto presnom formáte:
 
 {
   "product": {
     "name": "Názov produktu",
-    "category": "Kategória (napr. Mliečne výrobky)",
+    "category": "Kategória (napr. Alkoholický nápoj / Pivo)",
     "portion": "Veľkosť balenia / porcia"
   },
-  "lactose_g": 4.8,
-  "allergen_warnings": ["Laktóza", "Mlieko"],
-  "ingredients_raw": "Zoznam surovín vytiahnutý z fotky...",
+  "lactose_g": 0,
+  "contains_alcohol": true,
+  "alcohol_percentage": "3.5%",
+  "allergen_warnings": ["Alkohol", "Laktóza"],
+  "ingredients_raw": "Zoznam surovín vytiahnutý z fotky (alebo odvodený z typu nápoja)...",
   "energy_impact": {
     "type": "spike",
     "title": "Titulok dopadu na energiu",
-    "description": "Stručný popis dopadu na glukózu",
+    "description": "Stručný popis dopadu",
     "duration": "~45 min"
   },
-  "additives_detail": [
-    {
-      "code": "E471",
-      "name": "Mono- a diglyceridy mastných kyselín",
-      "origin": "Rastlinný/Živočíšny",
-      "process": "Emulgátor",
-      "risk": "Bezpečné"
-    }
-  ],
+  "additives_detail": [],
   "analysis": {
     "verdict": {
-      "score": 75,
-      "label": "Radšej obmedziť",
-      "severity": "orange"
+      "score": 30,
+      "label": "Nevhodné pri intolerancii",
+      "severity": "red"
     },
     "recommendation": "Stručné odporúčanie pre užívateľa",
     "scores": {
-      "sugar": { "value": "4.8g", "level": "Nízky", "severity": "green" },
-      "salt": { "value": "0.1g", "level": "Nízky", "severity": "green" },
+      "sugar": { "value": "3.8g", "level": "Nízky", "severity": "green" },
+      "salt": { "value": "0g", "level": "Nízky", "severity": "green" },
       "additives": { "value": "0 aditív", "level": "Čisté", "severity": "green" },
-      "processing": { "value": "Minimálne", "level": "Dobré", "severity": "green" }
+      "processing": { "value": "Kvasenie", "level": "Stredné", "severity": "orange" }
     },
     "healthierSwap": {
       "enabled": false,
-      "improvement": "+15 bodov",
-      "summary": "Popis zdravšej alternatívy",
+      "improvement": "+40 bodov",
+      "summary": "Nealkoholické pivo / Nealko alternatíva",
       "product": {
-        "name": "Názov alternatívy",
-        "score": 90,
-        "sugar": "0g",
-        "salt": "0.1g",
+        "name": "Birell Nealko",
+        "score": 85,
+        "sugar": "2g",
+        "salt": "0g",
         "additives": "Bez E-čiek",
         "processing": "Minimálne"
       }
@@ -97,13 +91,16 @@ Si expert na výživu a čítanie obalov potravín. Analýzuj priloženú fotku 
   }
 }
 
-Pravidlá pre AI:
-- Všetky texty musia byť v jazyku: ${lang}.
-- Užívateľský profil: ${profile}.
-- Užívateľ sa chce vyhnúť týmto zložkám/alergénom: ${allergens.join(', ')}.
-- DÔLEŽITÉ: Ak produkt obsahuje laktózu alebo mliečne zložky, do políčka "lactose_g" uveď presné gramy laktózy na 100g. Ak neobsahuje, uveď 0.
-- Ak v produkte nájdeš zakázaný alergén (${allergens.join(', ')}), uveď ho do "allergen_warnings".
-- Vráť IBA čistý JSON!
+KRITICKÉ PRAVIDLÁ PRE DETEKCIU ALKOHOLU A ALERGÉNOV:
+1. AK IDE O PIVO, VÍNO, CIDER, LIHOVINU ALEBO RADLER S ALKOHOLOM:
+   - Aj keď na obale nie je zloženie alebo slovo "alkohol" výslovne napísané v ingredienciách, ZISTI percentá alkoholu z obalu (napr. 3.5%, 5%, 12%) alebo z nápadov/značky.
+   - Považuj ALKOHOL automaticky za prítomný!
+   - Ak užívateľ zadal vo filtroch/alergénoch "alkohol", alebo má intoleranciu, OKAMŽITE pridaj "Alkohol" do "allergen_warnings" a do "verdict" daj nízke skóre a červenú varovnú farbu ("severity": "red")!
+2. Všetky texty musia byť v jazyku: ${lang}.
+3. Užívateľský profil: ${profile}.
+4. Užívateľ sa chce vyhnúť týmto zložkám/alergénom: ${allergens.join(', ')}.
+5. Ak produkt obsahuje laktózu, uveď g do "lactose_g". Ak neobsahuje, daj 0.
+6. Vráť IBA čistý JSON!
 `;
 
     // 1. Zavolanie OpenAI Vision API
@@ -141,7 +138,7 @@ Pravidlá pre AI:
     const productKey = makeSafeKey(jsonResult.product?.name);
     jsonResult.product_key = productKey;
 
-    // 2. Uloženie do Supabase (ak je Supabase nakonfigurovaná)
+    // 2. Uloženie do Supabase
     if (supabase) {
       try {
         await supabase.from('products').upsert({
