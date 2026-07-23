@@ -96,7 +96,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="history" style="width:16px;height:16px;"></i><span id="ui-btnHistory">História</span></button>
         <select id="langSelect" class="toggle-pill">
           <option value="sk">🇸🇰 SK</option>
-          <option value="cz">🇨🇿 CZ</option>
+          <option value="cz">🇨ZB CZ</option>
           <option value="pl">🇵🇱 PL</option>
           <option value="hu">🇭🇺 HU</option>
           <option value="en">🇬🇧 EN</option>
@@ -199,6 +199,36 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
             <div id="verdictBadge" class="badge badge-demo" style="align-self:flex-start;"><span class="risk-dot risk-orange"></span><span id="verdictLabel">Radšej obmedziť</span></div>
             <h2 id="productName" style="font-size:22px;font-weight:800;margin:0;">—</h2>
             <p id="productMeta" class="muted" style="font-size:14px;margin:0;"></p>
+          </div>
+        </div>
+
+        <!-- 💊 KALKULAČKA LAKTÁZY -->
+        <div id="lactose-calculator-card" style="background: #0e1013; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 16px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+            <span style="font-size: 20px;">💊</span>
+            <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #f1efe9;">Kalkulačka dávkovania laktázy</h3>
+          </div>
+
+          <label style="font-size: 13px; color: #a1a1aa; display: block; margin-bottom: 6px;">
+            Koľko g/ml chystáš zjesť/vypiť?
+          </label>
+          
+          <input 
+            type="number" 
+            id="lactose-portion-input" 
+            value="150" 
+            placeholder="napr. 150"
+            style="width: 100%; background: #16191f; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 10px 14px; color: #fff; font-size: 16px; outline: none;"
+          />
+
+          <div style="margin-top: 14px; background: rgba(15, 159, 116, 0.15); border: 1px solid #0f9f74; border-radius: 14px; padding: 12px; text-align: center;">
+            <div style="font-size: 13px; color: #a1a1aa;">Odporúčaná dávka:</div>
+            <div id="lactose-result-tablets" style="font-size: 22px; font-weight: 700; color: #0f9f74; margin: 4px 0;">
+              0 tabletiek
+            </div>
+            <div id="lactose-result-details" style="font-size: 12px; color: #a1a1aa;">
+              (0 g laktózy • 0 FCC)
+            </div>
           </div>
         </div>
 
@@ -359,7 +389,7 @@ const UI_TRANSLATIONS = {
   }
 };
 
-const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], currentProductKey: null, currentData: null };
+const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8 };
 const screens = { hero: document.getElementById("screen-hero"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
 
 function makeSafeKey(text) {
@@ -435,6 +465,14 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
   
+  // Event pre zmenu porcie v kalkulačke laktázy
+  const portionInput = document.getElementById("lactose-portion-input");
+  if(portionInput) {
+    portionInput.addEventListener("input", () => {
+      aktualizujVypocetLaktazy(state.currentLactosePer100g);
+    });
+  }
+
   // ALERGEN CHIPS
   document.querySelectorAll(".allergen-chip").forEach(chip => {
     chip.addEventListener("click", () => {
@@ -581,6 +619,20 @@ function renderResult(data){
     alertText.textContent = `Tento produkt obsahuje: ${warnings.join(", ")}.`;
   } else {
     alertBanner.classList.add("hidden");
+  }
+
+  // DETEKCIA LAKTÁZY PRE KALKULAČKU
+  const lactoseCard = document.getElementById("lactose-calculator-card");
+  const hasLactose = warnings.some(w => w.toLowerCase().includes("laktóz") || w.toLowerCase().includes("mliek")) || state.allergens.includes("lactose");
+  
+  if (lactoseCard) {
+    if (hasLactose || data.lactose_g) {
+      lactoseCard.classList.remove("hidden");
+      state.currentLactosePer100g = data.lactose_g || 4.8;
+      aktualizujVypocetLaktazy(state.currentLactosePer100g);
+    } else {
+      lactoseCard.classList.add("hidden");
+    }
   }
 
   document.getElementById("verdictPercent").textContent = verdict.score || 0;
@@ -817,14 +869,12 @@ function updateBodyOrgans(scores){
   }
 }
 
-init();
-// --- KALKULAČKA LAKTÁZY ---
+// --- KALKULAČKA LAKTÁZY LOGIKA ---
 function vypocitajLaktazu(laktozaNa100g, porciaGramy, silaTabletky = 4500) {
   if (!laktozaNa100g || laktozaNa100g <= 0 || !porciaGramy || porciaGramy <= 0) {
     return { gLaktozy: 0, fcc: 0, tabletky: 0 };
   }
   
-  // 1g laktózy = cca 1250 FCC
   const gLaktozy = (laktozaNa100g / 100) * porciaGramy;
   const fcc = Math.round(gLaktozy * 1250);
   const tabletky = Math.ceil(fcc / silaTabletky);
@@ -836,7 +886,6 @@ function vypocitajLaktazu(laktozaNa100g, porciaGramy, silaTabletky = 4500) {
   };
 }
 
-// Funkcia na prepočet pri zmene porcie v UI
 function aktualizujVypocetLaktazy(laktozaNa100g) {
   const porciaInput = document.getElementById('lactose-portion-input');
   const vysledokTabletky = document.getElementById('lactose-result-tablets');
@@ -853,6 +902,9 @@ function aktualizujVypocetLaktazy(laktozaNa100g) {
   if (vysledokDetails) {
     vysledokDetails.innerText = `(${res.gLaktozy} g laktózy • ${res.fcc} FCC)`;
   }
-}</script>
+}
+
+init();
+</script>
 </body>
 </html>
