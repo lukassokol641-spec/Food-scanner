@@ -11,8 +11,6 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <!-- SKENOVANIE ČIAROVÝCH KÓDOV -->
 <script src="https://unpkg.com/html5-qrcode"></script>
-<!-- SUPABASE CLIENT JS SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;min-height:100%;}
@@ -29,7 +27,6 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:24px;padding:16px 20px;font-weight:600;font-size:16px;border:none;cursor:pointer;text-align:center;}
 .btn-primary{background:linear-gradient(180deg,#0f9f74,#0a7f5b);color:#fff;box-shadow:0 12px 24px rgba(15,159,116,0.22);}
 .btn-secondary{background:#16191f;color:#f1efe9;border:1px solid rgba(255,255,255,0.10);}
-.btn-google{background:#ffffff;color:#000000;font-weight:700;}
 .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600;white-space:nowrap;}
 .badge-demo{background:rgba(218,113,1,0.12);color:#da7101;}
 .badge-ok{background:rgba(15,159,116,0.12);color:#0f9f74;}
@@ -168,26 +165,14 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN PROFIL / AUTH -->
+    <!-- SCREEN PROFIL (LOKÁLNY) -->
     <section id="screen-profile" class="screen">
       <div class="row-between">
         <button id="backFromProfileBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
         <div class="badge badge-ok">Môj Profil</div>
       </div>
 
-      <!-- AUTH BOX GOOGLE -->
-      <div id="authContainer" class="card" style="text-align:center;">
-        <h3 style="font-size:20px;font-weight:700;margin:0;">Prihlásenie</h3>
-        <p class="muted" style="font-size:13px;margin:0;">Ulož si svoje nastavenia a históriu skenov do cloudu.</p>
-        
-        <button id="googleLoginBtn" class="btn btn-google" style="margin-top:10px;">
-          <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
-          <span>Prihlásiť sa cez Google</span>
-        </button>
-      </div>
-
-      <!-- PROFIL BOX (KEĎ JE PRIHLÁSENÝ) -->
-      <div id="profileContainer" class="card hidden" style="align-items:center;text-align:center;">
+      <div class="card" style="align-items:center;text-align:center;">
         <div style="position:relative;width:100px;height:100px;margin:0 auto;">
           <img id="profileAvatarImg" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" style="width:100px;height:100px;border-radius:999px;object-fit:cover;border:2px solid #0f9f74;" />
           <button id="changeAvatarBtn" style="position:absolute;bottom:0;right:0;background:#0f9f74;border:none;border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;"><i data-lucide="camera" style="width:16px;height:16px;"></i></button>
@@ -195,17 +180,16 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </div>
         
         <h3 id="profileDisplayName" style="font-size:20px;font-weight:700;margin:10px 0 0 0;">Používateľ</h3>
-        <p id="profileEmailText" class="muted" style="font-size:13px;margin:2px 0 0 0;">email@domain.com</p>
+        <p class="muted" style="font-size:13px;margin:2px 0 0 0;">Osobné nastavenia v zariadení</p>
 
         <div style="width:100%;text-align:left;margin-top:10px;" class="stack">
           <label style="font-size:13px;color:#a1a1aa;">Meno a Priezvisko:</label>
           <input id="profileNameInput" type="text" placeholder="Tvoje meno..." style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
 
           <label style="font-size:13px;color:#a1a1aa;margin-top:6px;">Info / Poznámka (napr. Intolerancia):</label>
-          <input id="profileInfoInput" type="text" placeholder="napr. Silná alergia na laktózu" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
+          <input id="profileInfoInput" type="text" placeholder="napr. Silná alergia na laktózu, bez alkoholu" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
 
-          <button id="saveProfileBtn" class="btn btn-primary" style="margin-top:12px;">Uložiť profil do Cloud</button>
-          <button id="logoutBtn" class="btn btn-secondary" style="color:#df5252;border-color:rgba(223,82,82,0.3);margin-top:6px;">Odhlásiť sa</button>
+          <button id="saveProfileBtn" class="btn btn-primary" style="margin-top:12px;">Uložiť profil</button>
         </div>
       </div>
     </section>
@@ -235,7 +219,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       <div class="card">
         <div class="stack" style="gap:4px;">
           <h2 id="ui-historyTitle" style="font-size:20px;font-weight:700;margin:0;">Moje naskenované produkty</h2>
-          <p id="ui-historySub" class="muted" style="font-size:13px;margin:0;">Uložené v tvojom cloudovom účte.</p>
+          <p id="ui-historySub" class="muted" style="font-size:13px;margin:0;">Uložené lokálne v tomto zariadení.</p>
         </div>
         <div id="historyListWrap" class="stack" style="gap:10px;margin-top:8px;"></div>
       </div>
@@ -245,7 +229,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     <section id="screen-result" class="screen">
       <div class="row-between">
         <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnScanAgain">Sken</span></button>
-        <div class="badge badge-ok">Cloud Databáza</div>
+        <div class="badge badge-ok">AI Analýza</div>
       </div>
 
       <div id="allergenAlertBanner" class="alert-banner hidden">
@@ -422,9 +406,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 </div>
 
 <script>
-let supabaseClient = null;
-let currentUser = null;
-
 const UI_TRANSLATIONS = {
   sk: {
     subHeader: "AI čítanie etikiet", btnHistory: "História", myProfileLabel: "Môj Profil:",
@@ -432,7 +413,7 @@ const UI_TRANSLATIONS = {
     allergensLabel: "Vyhnúť sa (Alergény / Zložky):", algGluten: "Lepok", algLactose: "Laktóza", algNuts: "Orechy", algPalmoil: "Palmový olej",
     alertBannerTitle: "POZOR: Zistená zakázaná zložka!",
     heroBadge: "Rýchla kontrola potravín", heroTitle: 'Odfoť etiketu alebo <span style="color:#0f9f74;">naskenuj EAN kód</span>.', heroDesc: "Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.", btnCamera: "Odfotiť celú etiketu",
-    btnBack1: "Späť", btnBack2: "Späť", btnStartScan: "Spustiť AI analýzu", btnClearHistory: "Vymazať históriu", historyTitle: "Moje naskenované produkty", historySub: "Uložené v tvojom cloudovom účte.",
+    btnBack1: "Späť", btnBack2: "Späť", btnStartScan: "Spustiť AI analýzu", btnClearHistory: "Vymazať históriu", historyTitle: "Moje naskenované produkty", historySub: "Uložené lokálne v tomto zariadení.",
     btnScanAgain: "Sken", energyLabelTitle: "Dopad na energiu a sústredenie", bodyTitle: "Vizuálny dopad na telo", ingredientsTitle: "Surovinové Zloženie", additivesTitle: "Detailný rozbor Aditív (E-čiek)",
     swapHeader: "Zdravšia alternatíva", scannedLabel: "Skenované", recommendLabel: "Odporúčanie", btnToggleTable: "Skryť / Zobraziť detailné porovnanie", thMetric: "Metrika", thProduct: "Produkt", thAlt: "Alternatíva",
     reviewsTitle: "Komunitné recenzie", addRatingLabel: "Pridať hodnotenie:", reviewPlaceholder: "Tvoj názor na chuť, cenu alebo zloženie...", btnSendReview: "Odoslať recenziu", btnNewScan: "Skúsiť nový sken",
@@ -456,97 +437,35 @@ function makeSafeKey(text) {
     .trim();
 }
 
-async function initSupabase() {
+function loadUserProfile(){
   try {
-    const res = await fetch("/api/config");
-    const cfg = await res.json();
-    if (cfg.supabaseUrl && cfg.supabaseKey && window.supabase) {
-      supabaseClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey);
-      checkUserSession();
+    const saved = localStorage.getItem("userProfile");
+    if(saved){
+      const p = JSON.parse(saved);
+      document.getElementById("profileNameInput").value = p.name || "";
+      document.getElementById("profileInfoInput").value = p.info || "";
+      document.getElementById("profileDisplayName").textContent = p.name || "Používateľ";
+      if(p.avatar) document.getElementById("profileAvatarImg").src = p.avatar;
     }
-  } catch(e) {}
+  } catch(e){}
 }
 
-async function checkUserSession() {
-  if (!supabaseClient) return;
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (session?.user) {
-    currentUser = session.user;
-    showLoggedInProfile();
-  } else {
-    showAuthContainer();
-  }
-}
-
-function showAuthContainer() {
-  document.getElementById("authContainer").classList.remove("hidden");
-  document.getElementById("profileContainer").classList.add("hidden");
-}
-
-async function showLoggedInProfile() {
-  document.getElementById("authContainer").classList.add("hidden");
-  document.getElementById("profileContainer").classList.remove("hidden");
-  
-  document.getElementById("profileEmailText").textContent = currentUser.email;
-
-  const { data } = await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id", currentUser.id)
-    .single();
-
-  if (data) {
-    document.getElementById("profileNameInput").value = data.display_name || currentUser.user_metadata?.full_name || "";
-    document.getElementById("profileInfoInput").value = data.health_info || "";
-    document.getElementById("profileDisplayName").textContent = data.display_name || currentUser.user_metadata?.full_name || currentUser.email;
-    if (data.avatar_url || currentUser.user_metadata?.avatar_url) {
-      document.getElementById("profileAvatarImg").src = data.avatar_url || currentUser.user_metadata?.avatar_url;
-    }
-  }
-}
-
-async function handleGoogleLogin() {
-  if (!supabaseClient) return alert("Databáza sa načítava...");
-  const { error } = await supabaseClient.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin }
-  });
-  if (error) alert("Chyba prihlásenia: " + error.message);
-}
-
-async function handleLogout() {
-  if (supabaseClient) await supabaseClient.auth.signOut();
-  currentUser = null;
-  showAuthContainer();
-}
-
-async function saveUserProfile() {
-  if (!currentUser || !supabaseClient) return alert("Musíš byť prihlásený.");
-
-  const name = document.getElementById("profileNameInput").value;
-  const info = document.getElementById("profileInfoInput").value;
+function saveUserProfile(){
+  const name = document.getElementById("profileNameInput").value || "Používateľ";
+  const info = document.getElementById("profileInfoInput").value || "";
   const avatar = document.getElementById("profileAvatarImg").src;
-
-  const { error } = await supabaseClient.from("profiles").upsert({
-    id: currentUser.id,
-    display_name: name,
-    health_info: info,
-    avatar_url: avatar,
-    updated_at: new Date()
-  });
-
-  if (error) alert("Chyba pri ukladaní: " + error.message);
-  else {
-    document.getElementById("profileDisplayName").textContent = name || currentUser.email;
-    alert("Profil úspešne uložený do cloudu!");
-  }
+  
+  const p = { name, info, avatar };
+  localStorage.setItem("userProfile", JSON.stringify(p));
+  document.getElementById("profileDisplayName").textContent = name;
+  alert("Profil bol úspešne uložený do zariadenia!");
 }
 
 function init(){ 
+  loadUserProfile();
   bindEvents(); 
   renderHistoryList(); 
   updateUI(); 
-  initSupabase();
   if(window.lucide) lucide.createIcons(); 
 }
 
@@ -561,10 +480,6 @@ function bindEvents(){
   document.getElementById("backFromHistoryBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
-
-  // AUTH GOOGLE EVENT
-  document.getElementById("googleLoginBtn").addEventListener("click", handleGoogleLogin);
-  document.getElementById("logoutBtn").addEventListener("click", handleLogout);
 
   // BARCODE SKENER EVENTY
   document.getElementById("startBarcodeScannerBtn").addEventListener("click", startBarcodeScanner);
@@ -1090,6 +1005,54 @@ function aktualizujVypocetLaktazy(laktozaNa100g) {
   if (vysledokDetails) {
     vysledokDetails.innerText = `(${res.gLaktozy} g laktózy • ${res.fcc} FCC)`;
   }
+}
+
+function updateUI() {
+  const dict = UI_TRANSLATIONS[state.lang] || UI_TRANSLATIONS.sk;
+  const el = (id) => document.getElementById(id);
+
+  if(el("ui-subHeader")) el("ui-subHeader").textContent = dict.subHeader;
+  if(el("ui-btnHistory")) el("ui-btnHistory").textContent = dict.btnHistory;
+  if(el("ui-myProfileLabel")) el("ui-myProfileLabel").textContent = dict.myProfileLabel;
+  if(el("ui-profGeneral")) el("ui-profGeneral").textContent = dict.profGeneral;
+  if(el("ui-profHeart")) el("ui-profHeart").textContent = dict.profHeart;
+  if(el("ui-profDiabetes")) el("ui-profDiabetes").textContent = dict.profDiabetes;
+  if(el("ui-profClean")) el("ui-profClean").textContent = dict.profClean;
+  if(el("ui-allergensLabel")) el("ui-allergensLabel").textContent = dict.allergensLabel || "Vyhnúť sa:";
+  if(el("ui-algGluten")) el("ui-algGluten").textContent = dict.algGluten || "Lepok";
+  if(el("ui-algLactose")) el("ui-algLactose").textContent = dict.algLactose || "Laktóza";
+  if(el("ui-algNuts")) el("ui-algNuts").textContent = dict.algNuts || "Orechy";
+  if(el("ui-algPalmoil")) el("ui-algPalmoil").textContent = dict.algPalmoil || "Palmový olej";
+  if(el("ui-alertBannerTitle")) el("ui-alertBannerTitle").textContent = dict.alertBannerTitle || "POZOR!";
+  if(el("ui-heroBadge")) el("ui-heroBadge").textContent = dict.heroBadge;
+  if(el("ui-heroTitle")) el("ui-heroTitle").innerHTML = dict.heroTitle;
+  if(el("ui-heroDesc")) el("ui-heroDesc").textContent = dict.heroDesc;
+  if(el("ui-btnCamera")) el("ui-btnCamera").textContent = dict.btnCamera;
+  if(el("ui-btnBack1")) el("ui-btnBack1").textContent = dict.btnBack1;
+  if(el("ui-btnBack2")) el("ui-btnBack2").textContent = dict.btnBack2;
+  if(el("ui-btnStartScan")) el("ui-btnStartScan").textContent = dict.btnStartScan;
+  if(el("ui-btnClearHistory")) el("ui-btnClearHistory").textContent = dict.btnClearHistory;
+  if(el("ui-historyTitle")) el("ui-historyTitle").textContent = dict.historyTitle;
+  if(el("ui-historySub")) el("ui-historySub").textContent = dict.historySub;
+  if(el("ui-btnScanAgain")) el("ui-btnScanAgain").textContent = dict.btnScanAgain;
+  if(el("ui-energyLabelTitle")) el("ui-energyLabelTitle").textContent = dict.energyLabelTitle;
+  if(el("ui-bodyTitle")) el("ui-bodyTitle").textContent = dict.bodyTitle;
+  if(el("ui-ingredientsTitle")) el("ui-ingredientsTitle").textContent = dict.ingredientsTitle;
+  if(el("ui-additivesTitle")) el("ui-additivesTitle").textContent = dict.additivesTitle;
+  if(el("ui-swapHeader")) el("ui-swapHeader").textContent = dict.swapHeader;
+  if(el("ui-scannedLabel")) el("ui-scannedLabel").textContent = dict.scannedLabel;
+  if(el("ui-recommendLabel")) el("ui-recommendLabel").textContent = dict.recommendLabel;
+  if(el("ui-btnToggleTable")) el("ui-btnToggleTable").textContent = dict.btnToggleTable;
+  if(el("ui-thMetric")) el("ui-thMetric").textContent = dict.thMetric;
+  if(el("ui-thProduct")) el("ui-thProduct").textContent = dict.thProduct;
+  if(el("ui-thAlt")) el("ui-thAlt").textContent = dict.thAlt;
+  if(el("ui-reviewsTitle")) el("ui-reviewsTitle").textContent = dict.reviewsTitle;
+  if(el("ui-addRatingLabel")) el("ui-addRatingLabel").textContent = dict.addRatingLabel;
+  if(el("reviewInputText")) el("reviewInputText").placeholder = dict.reviewPlaceholder;
+  if(el("ui-btnSendReview")) el("ui-btnSendReview").textContent = dict.btnSendReview;
+  if(el("ui-btnNewScan")) el("ui-btnNewScan").textContent = dict.btnNewScan;
+
+  if(state.currentData) renderScores(state.currentData.analysis?.scores);
 }
 
 init();
