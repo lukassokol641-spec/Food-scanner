@@ -4,23 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>Food Scanner</title>
-
-<!-- PWA METADÁTA A IKONKY -->
-<link rel="manifest" href="/manifest.json" />
-<meta name="theme-color" content="#0e1013" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Food Scanner" />
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2927/2927347.png" />
-<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2927/2927347.png" />
-
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
-<!-- SKENOVANIE ČIAROVÝCH KÓDOV -->
-<script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;min-height:100%;}
@@ -74,7 +62,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 .verdict-row{display:flex;align-items:flex-start;gap:16px;}
 .verdict-ring{position:relative;width:96px;height:96px;flex-shrink:0;border-radius:999px;background:conic-gradient(var(--verdict-color,#f29a2e) 0 68%, rgba(127,127,127,0.14) 68% 100%);display:flex;align-items:center;justify-content:center;}
 .verdict-ring-inner{position:absolute;inset:12px;border-radius:999px;background:#16191f;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.toggle-pill{border-radius:16px;border:1px solid rgba(255,255,255,0.10);padding:8px 12px;font-weight:600;font-size:13px;background:#16191f;color:#f1efe9;cursor:pointer;}
+.toggle-pill{border-radius:16px;border:1px solid rgba(255,255,255,0.10);padding:8px 12px;font-weight:600;font-size:13px;background:#16191f;color:#f1efe9;}
 .logo-badge{width:44px;height:44px;border-radius:16px;flex-shrink:0;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;}
 .muted{color:#a6a39b;}
 .title-xs{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#a6a39b;}
@@ -89,7 +77,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
 /* ALERT BANNER */
 .alert-banner{background:linear-gradient(135deg, rgba(223,82,82,0.25), rgba(160,30,30,0.3));border:1px solid #df5252;border-radius:20px;padding:16px;display:flex;align-items:center;gap:12px;color:#fff;}
-#barcode-scanner-container video{border-radius:20px;width:100% !important;object-fit:cover;}
 </style>
 </head>
 <body>
@@ -105,12 +92,11 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <h1 id="ui-subHeader" style="font-size:16px;font-weight:600;margin:0;">AI čítanie etikiet</h1>
         </div>
       </div>
-      <div class="row" style="gap:6px;">
-        <button id="profileNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="user" style="width:16px;height:16px;"></i><span id="ui-btnProfile">Profil</span></button>
+      <div class="row" style="gap:8px;">
         <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="history" style="width:16px;height:16px;"></i><span id="ui-btnHistory">História</span></button>
         <select id="langSelect" class="toggle-pill">
           <option value="sk">🇸🇰 SK</option>
-          <option value="cz">🇨🇿 CZ</option>
+          <option value="cz">🇨ZB CZ</option>
           <option value="pl">🇵🇱 PL</option>
           <option value="hu">🇭🇺 HU</option>
           <option value="en">🇬🇧 EN</option>
@@ -151,56 +137,11 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       <div class="card">
         <div class="badge badge-ok"><span id="ui-heroBadge">Rýchla kontrola potravín</span></div>
         <div class="stack" style="gap:10px;">
-          <h2 id="ui-heroTitle" style="font-size:28px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu alebo <span style="color:#0f9f74;">naskenuj EAN kód</span>.</h2>
+          <h2 id="ui-heroTitle" style="font-size:28px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu a zisti, <span style="color:#0f9f74;">čo kupuješ</span>.</h2>
           <p id="ui-heroDesc" class="muted" style="font-size:14px;line-height:1.5;margin:0;">Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.</p>
         </div>
-        
-        <button id="startBarcodeScannerBtn" class="btn btn-primary" style="background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="scan-barcode"></i><span>Skenovať čiarový kód (EAN)</span></button>
-        <button id="heroCameraBtn" class="btn btn-secondary"><i data-lucide="camera"></i><span id="ui-btnCamera">Odfotiť celú etiketu</span></button>
-        
+        <button id="heroCameraBtn" class="btn btn-primary"><i data-lucide="camera"></i><span id="ui-btnCamera">Odfotiť etiketu</span></button>
         <input id="photoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
-      </div>
-    </section>
-
-    <!-- SCREEN BARCODE SCANNER -->
-    <section id="screen-barcode" class="screen">
-      <div class="row-between">
-        <button id="stopBarcodeScannerBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
-        <div class="badge badge-ok">EAN Skenovanie</div>
-      </div>
-      <div class="card" style="text-align:center;">
-        <h3 style="font-size:18px;font-weight:700;margin:0;">Namier kameru na čiarový kód</h3>
-        <p class="muted" style="font-size:13px;margin:0;">Kód sa automaticky rozozná</p>
-        <div id="barcode-scanner-container" style="width:100%;min-height:250px;border-radius:20px;overflow:hidden;background:#000;"></div>
-      </div>
-    </section>
-
-    <!-- SCREEN PROFIL (LOKÁLNY) -->
-    <section id="screen-profile" class="screen">
-      <div class="row-between">
-        <button id="backFromProfileBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
-        <div class="badge badge-ok">Môj Profil</div>
-      </div>
-
-      <div class="card" style="align-items:center;text-align:center;">
-        <div style="position:relative;width:100px;height:100px;margin:0 auto;">
-          <img id="profileAvatarImg" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" style="width:100px;height:100px;border-radius:999px;object-fit:cover;border:2px solid #0f9f74;" />
-          <button id="changeAvatarBtn" style="position:absolute;bottom:0;right:0;background:#0f9f74;border:none;border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;"><i data-lucide="camera" style="width:16px;height:16px;"></i></button>
-          <input id="avatarFileInput" type="file" accept="image/*" class="file-hidden" />
-        </div>
-        
-        <h3 id="profileDisplayName" style="font-size:20px;font-weight:700;margin:10px 0 0 0;">Používateľ</h3>
-        <p class="muted" style="font-size:13px;margin:2px 0 0 0;">Osobné nastavenia v zariadení</p>
-
-        <div style="width:100%;text-align:left;margin-top:10px;" class="stack">
-          <label style="font-size:13px;color:#a1a1aa;">Meno a Priezvisko:</label>
-          <input id="profileNameInput" type="text" placeholder="Tvoje meno..." style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
-
-          <label style="font-size:13px;color:#a1a1aa;margin-top:6px;">Info / Poznámka (napr. Intolerancia):</label>
-          <input id="profileInfoInput" type="text" placeholder="napr. Silná alergia na laktózu, bez alkoholu" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
-
-          <button id="saveProfileBtn" class="btn btn-primary" style="margin-top:12px;">Uložiť profil</button>
-        </div>
       </div>
     </section>
 
@@ -239,9 +180,10 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     <section id="screen-result" class="screen">
       <div class="row-between">
         <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnScanAgain">Sken</span></button>
-        <div class="badge badge-ok">AI Analýza</div>
+        <div class="badge badge-ok">Cloud Databáza</div>
       </div>
 
+      <!-- 🔴 ALERT BANNER DÔLEŽITÉ UPOZORNENIE -->
       <div id="allergenAlertBanner" class="alert-banner hidden">
         <i data-lucide="alert-triangle" style="width:28px;height:28px;color:#df5252;flex-shrink:0;"></i>
         <div class="stack" style="gap:2px;">
@@ -260,6 +202,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
+        <!-- 💊 KALKULAČKA LAKTÁZY -->
         <div id="lactose-calculator-card" style="background: #0e1013; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 16px;">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
             <span style="font-size: 20px;">💊</span>
@@ -289,6 +232,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
+        <!-- ⚡ ENERGETICKÁ KRIVKA -->
         <div class="energy-card">
           <div class="row-between">
             <div class="row" style="gap:8px;">
@@ -310,6 +254,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <p id="energyDesc" style="font-size:13px;line-height:1.4;margin:0;" class="muted">Tento produkt rýchlo dvihne hladinu cukru, no po krátkom čase nasleduje pád pod normál.</p>
         </div>
 
+        <!-- 🧍‍♀️ SILUETA TELA -->
         <div class="body-impact-card">
           <div class="body-svg-container">
             <svg viewBox="0 0 100 200" width="100%" height="100%">
@@ -383,6 +328,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
+        <!-- 💬 KOMUNITNÉ RECENZIE -->
         <div class="details-box">
           <div class="row-between">
             <p class="title-xs" style="color:#4fbe99;" id="ui-reviewsTitle">Komunitné recenzie</p>
@@ -416,32 +362,35 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 </div>
 
 <script>
-// REGISTRÁCIA SERVICE WORKERA PRE PWA
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
-  });
-}
-
 const UI_TRANSLATIONS = {
   sk: {
     subHeader: "AI čítanie etikiet", btnHistory: "História", myProfileLabel: "Môj Profil:",
     profGeneral: "👤 Všeobecný", profHeart: "🩺 Srdce & Tlak (Prísna soľ)", profDiabetes: "🩸 Cukor & Glukóza (Prísny cukor)", profClean: "🌿 Bez E-čiek (Čistá strava)",
     allergensLabel: "Vyhnúť sa (Alergény / Zložky):", algGluten: "Lepok", algLactose: "Laktóza", algNuts: "Orechy", algPalmoil: "Palmový olej",
     alertBannerTitle: "POZOR: Zistená zakázaná zložka!",
-    heroBadge: "Rýchla kontrola potravín", heroTitle: 'Odfoť etiketu alebo <span style="color:#0f9f74;">naskenuj EAN kód</span>.', heroDesc: "Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.", btnCamera: "Odfotiť celú etiketu",
+    heroBadge: "Rýchla kontrola potravín", heroTitle: 'Odfoť etiketu a zisti, <span style="color:#0f9f74;">čo kupuješ</span>.', heroDesc: "Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.", btnCamera: "Odfotiť etiketu",
     btnBack1: "Späť", btnBack2: "Späť", btnStartScan: "Spustiť AI analýzu", btnClearHistory: "Vymazať históriu", historyTitle: "Moje naskenované produkty", historySub: "Uložené lokálne v tomto zariadení.",
     btnScanAgain: "Sken", energyLabelTitle: "Dopad na energiu a sústredenie", bodyTitle: "Vizuálny dopad na telo", ingredientsTitle: "Surovinové Zloženie", additivesTitle: "Detailný rozbor Aditív (E-čiek)",
     swapHeader: "Zdravšia alternatíva", scannedLabel: "Skenované", recommendLabel: "Odporúčanie", btnToggleTable: "Skryť / Zobraziť detailné porovnanie", thMetric: "Metrika", thProduct: "Produkt", thAlt: "Alternatíva",
     reviewsTitle: "Komunitné recenzie", addRatingLabel: "Pridať hodnotenie:", reviewPlaceholder: "Tvoj názor na chuť, cenu alebo zloženie...", btnSendReview: "Odoslať recenziu", btnNewScan: "Skúsiť nový sken",
     scoreSugar: "Cukor", scoreSalt: "Soľ", scoreAdditives: "Éčka / Aditíva", scoreProcessing: "Spracovanie"
+  },
+  en: {
+    subHeader: "AI Label Reader", btnHistory: "History", myProfileLabel: "My Profile:",
+    profGeneral: "👤 General", profHeart: "🩺 Heart & Pressure (Strict Salt)", profDiabetes: "🩸 Blood Sugar (Strict Sugar)", profClean: "🌿 No Additives (Clean Food)",
+    allergensLabel: "Avoid (Allergens / Ingredients):", algGluten: "Gluten", algLactose: "Lactose", algNuts: "Nuts", algPalmoil: "Palm Oil",
+    alertBannerTitle: "WARNING: Forbidden Ingredient Detected!",
+    heroBadge: "Quick Food Check", heroTitle: 'Snap a label and see <span style="color:#0f9f74;">what you buy</span>.', heroDesc: "Instant AI ingredient analysis, energy curve, and visual body impact.", btnCamera: "Scan Label Photo",
+    btnBack1: "Back", btnBack2: "Back", btnStartScan: "Start AI Analysis", btnClearHistory: "Clear History", historyTitle: "My Scanned Products", historySub: "Saved locally on this device.",
+    btnScanAgain: "Scan", energyLabelTitle: "Energy & Focus Impact", bodyTitle: "Visual Body Impact", ingredientsTitle: "Raw Ingredients", additivesTitle: "Additive Details (E-Numbers)",
+    swapHeader: "Healthier Swap", scannedLabel: "Scanned", recommendLabel: "Recommendation", btnToggleTable: "Toggle Comparison Table", thMetric: "Metric", thProduct: "Product", thAlt: "Alternative",
+    reviewsTitle: "Community Reviews", addRatingLabel: "Add Rating:", reviewPlaceholder: "Your opinion on taste, price or ingredients...", btnSendReview: "Submit Review", btnNewScan: "Try New Scan",
+    scoreSugar: "Sugar", scoreSalt: "Salt", scoreAdditives: "E-Numbers", scoreProcessing: "Processing"
   }
 };
 
 const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8 };
-const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
-
-let html5QrCode = null;
+const screens = { hero: document.getElementById("screen-hero"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
 
 function makeSafeKey(text) {
   if (!text) return "produkt_" + Date.now();
@@ -454,37 +403,55 @@ function makeSafeKey(text) {
     .trim();
 }
 
-function loadUserProfile(){
-  try {
-    const saved = localStorage.getItem("userProfile");
-    if(saved){
-      const p = JSON.parse(saved);
-      document.getElementById("profileNameInput").value = p.name || "";
-      document.getElementById("profileInfoInput").value = p.info || "";
-      document.getElementById("profileDisplayName").textContent = p.name || "Používateľ";
-      if(p.avatar) document.getElementById("profileAvatarImg").src = p.avatar;
-    }
-  } catch(e){}
+function updateUI() {
+  const dict = UI_TRANSLATIONS[state.lang] || UI_TRANSLATIONS.sk;
+  const el = (id) => document.getElementById(id);
+
+  if(el("ui-subHeader")) el("ui-subHeader").textContent = dict.subHeader;
+  if(el("ui-btnHistory")) el("ui-btnHistory").textContent = dict.btnHistory;
+  if(el("ui-myProfileLabel")) el("ui-myProfileLabel").textContent = dict.myProfileLabel;
+  if(el("ui-profGeneral")) el("ui-profGeneral").textContent = dict.profGeneral;
+  if(el("ui-profHeart")) el("ui-profHeart").textContent = dict.profHeart;
+  if(el("ui-profDiabetes")) el("ui-profDiabetes").textContent = dict.profDiabetes;
+  if(el("ui-profClean")) el("ui-profClean").textContent = dict.profClean;
+  if(el("ui-allergensLabel")) el("ui-allergensLabel").textContent = dict.allergensLabel || "Vyhnúť sa:";
+  if(el("ui-algGluten")) el("ui-algGluten").textContent = dict.algGluten || "Lepok";
+  if(el("ui-algLactose")) el("ui-algLactose").textContent = dict.algLactose || "Laktóza";
+  if(el("ui-algNuts")) el("ui-algNuts").textContent = dict.algNuts || "Orechy";
+  if(el("ui-algPalmoil")) el("ui-algPalmoil").textContent = dict.algPalmoil || "Palmový olej";
+  if(el("ui-alertBannerTitle")) el("ui-alertBannerTitle").textContent = dict.alertBannerTitle || "POZOR!";
+  if(el("ui-heroBadge")) el("ui-heroBadge").textContent = dict.heroBadge;
+  if(el("ui-heroTitle")) el("ui-heroTitle").innerHTML = dict.heroTitle;
+  if(el("ui-heroDesc")) el("ui-heroDesc").textContent = dict.heroDesc;
+  if(el("ui-btnCamera")) el("ui-btnCamera").textContent = dict.btnCamera;
+  if(el("ui-btnBack1")) el("ui-btnBack1").textContent = dict.btnBack1;
+  if(el("ui-btnBack2")) el("ui-btnBack2").textContent = dict.btnBack2;
+  if(el("ui-btnStartScan")) el("ui-btnStartScan").textContent = dict.btnStartScan;
+  if(el("ui-btnClearHistory")) el("ui-btnClearHistory").textContent = dict.btnClearHistory;
+  if(el("ui-historyTitle")) el("ui-historyTitle").textContent = dict.historyTitle;
+  if(el("ui-historySub")) el("ui-historySub").textContent = dict.historySub;
+  if(el("ui-btnScanAgain")) el("ui-btnScanAgain").textContent = dict.btnScanAgain;
+  if(el("ui-energyLabelTitle")) el("ui-energyLabelTitle").textContent = dict.energyLabelTitle;
+  if(el("ui-bodyTitle")) el("ui-bodyTitle").textContent = dict.bodyTitle;
+  if(el("ui-ingredientsTitle")) el("ui-ingredientsTitle").textContent = dict.ingredientsTitle;
+  if(el("ui-additivesTitle")) el("ui-additivesTitle").textContent = dict.additivesTitle;
+  if(el("ui-swapHeader")) el("ui-swapHeader").textContent = dict.swapHeader;
+  if(el("ui-scannedLabel")) el("ui-scannedLabel").textContent = dict.scannedLabel;
+  if(el("ui-recommendLabel")) el("ui-recommendLabel").textContent = dict.recommendLabel;
+  if(el("ui-btnToggleTable")) el("ui-btnToggleTable").textContent = dict.btnToggleTable;
+  if(el("ui-thMetric")) el("ui-thMetric").textContent = dict.thMetric;
+  if(el("ui-thProduct")) el("ui-thProduct").textContent = dict.thProduct;
+  if(el("ui-thAlt")) el("ui-thAlt").textContent = dict.thAlt;
+  if(el("ui-reviewsTitle")) el("ui-reviewsTitle").textContent = dict.reviewsTitle;
+  if(el("ui-addRatingLabel")) el("ui-addRatingLabel").textContent = dict.addRatingLabel;
+  if(el("reviewInputText")) el("reviewInputText").placeholder = dict.reviewPlaceholder;
+  if(el("ui-btnSendReview")) el("ui-btnSendReview").textContent = dict.btnSendReview;
+  if(el("ui-btnNewScan")) el("ui-btnNewScan").textContent = dict.btnNewScan;
+
+  if(state.currentData) renderScores(state.currentData.analysis?.scores);
 }
 
-function saveUserProfile(){
-  const name = document.getElementById("profileNameInput").value || "Používateľ";
-  const info = document.getElementById("profileInfoInput").value || "";
-  const avatar = document.getElementById("profileAvatarImg").src;
-  
-  const p = { name, info, avatar };
-  localStorage.setItem("userProfile", JSON.stringify(p));
-  document.getElementById("profileDisplayName").textContent = name;
-  alert("Profil bol úspešne uložený do zariadenia!");
-}
-
-function init(){ 
-  loadUserProfile();
-  bindEvents(); 
-  renderHistoryList(); 
-  updateUI(); 
-  if(window.lucide) lucide.createIcons(); 
-}
+function init(){ bindEvents(); renderHistoryList(); updateUI(); if(window.lucide) lucide.createIcons(); }
 
 function bindEvents(){
   document.getElementById("heroCameraBtn").addEventListener("click", () => { showScreen("scan"); document.getElementById("photoInput").click(); });
@@ -497,25 +464,8 @@ function bindEvents(){
   document.getElementById("backFromHistoryBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
-
-  // BARCODE SKENER EVENTY
-  document.getElementById("startBarcodeScannerBtn").addEventListener("click", startBarcodeScanner);
-  document.getElementById("stopBarcodeScannerBtn").addEventListener("click", stopBarcodeScanner);
-
-  // PROFIL EVENTY
-  document.getElementById("profileNavBtn").addEventListener("click", () => showScreen("profile"));
-  document.getElementById("backFromProfileBtn").addEventListener("click", () => showScreen("hero"));
-  document.getElementById("saveProfileBtn").addEventListener("click", saveUserProfile);
-  document.getElementById("changeAvatarBtn").addEventListener("click", () => document.getElementById("avatarFileInput").click());
-  document.getElementById("avatarFileInput").addEventListener("change", (e) => {
-    const file = e.target.files?.[0];
-    if(file){
-      const r = new FileReader();
-      r.onload = () => { document.getElementById("profileAvatarImg").src = r.result; };
-      r.readAsDataURL(file);
-    }
-  });
-
+  
+  // Event pre zmenu porcie v kalkulačke laktázy
   const portionInput = document.getElementById("lactose-portion-input");
   if(portionInput) {
     portionInput.addEventListener("input", () => {
@@ -523,6 +473,7 @@ function bindEvents(){
     });
   }
 
+  // ALERGEN CHIPS
   document.querySelectorAll(".allergen-chip").forEach(chip => {
     chip.addEventListener("click", () => {
       chip.classList.toggle("active");
@@ -551,80 +502,6 @@ function bindEvents(){
   document.getElementById("toggleTableBtn").addEventListener("click", () => {
     document.getElementById("compareTableWrap").classList.toggle("hidden");
   });
-}
-
-function startBarcodeScanner() {
-  showScreen("barcode");
-  html5QrCode = new Html5Qrcode("barcode-scanner-container");
-  
-  html5QrCode.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: { width: 250, height: 150 } },
-    (decodedText) => {
-      stopBarcodeScanner();
-      handleBarcodeDetected(decodedText);
-    },
-    (errorMessage) => {}
-  ).catch(err => {
-    alert("Chyba pri otváraní kamery pre čiarové kódy.");
-    showScreen("hero");
-  });
-}
-
-function stopBarcodeScanner() {
-  if (html5QrCode) {
-    html5QrCode.stop().then(() => {
-      html5QrCode.clear();
-      showScreen("hero");
-    }).catch(err => showScreen("hero"));
-  } else {
-    showScreen("hero");
-  }
-}
-
-async function handleBarcodeDetected(eanCode) {
-  try {
-    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${eanCode}.json?lc=sk`);
-    const data = await res.json();
-    
-    if(data.status === 1) {
-      const p = data.product;
-      const name = p.product_name_sk || p.product_name || "Produkt";
-      const category = p.categories_sk || p.categories || "Potravina";
-      const rawIngredients = p.ingredients_text_sk || p.ingredients_text || "Zloženie z EAN databázy";
-      
-      const warnings = [];
-      const isAlcoholic = (p.categories_tags || []).some(t => t.includes("alcoholic") || t.includes("beer") || t.includes("pivo")) ||
-                          (p.nutriments?.alcohol || 0) > 0;
-      
-      if(isAlcoholic) warnings.push("Alkohol");
-      if(p.allergens_tags) p.allergens_tags.forEach(a => warnings.push(a.replace("en:", "")));
-
-      const formattedData = {
-        product: { name: name, category: category, portion: "100g" },
-        lactose_g: p.nutriments?.sugars_100g || 0,
-        allergen_warnings: warnings,
-        ingredients_raw: rawIngredients,
-        energy_impact: { type: isAlcoholic ? "spike" : "moderate", title: isAlcoholic ? "Záťaž organizmu" : "Dopad na energiu", description: isAlcoholic ? "Obsahuje alkohol — spomaľuje metabolizmus." : "Stabilná hladina glukózy.", duration: "~1 hodina" },
-        analysis: { 
-          verdict: { 
-            score: isAlcoholic ? 35 : 80, 
-            label: isAlcoholic ? "Alkoholický nápoj" : "Vhodné", 
-            severity: isAlcoholic ? "red" : "green" 
-          }, 
-          recommendation: "Analýza vytvorená na základe EAN kódu.", 
-          scores: {} 
-        }
-      };
-
-      renderResult(formattedData);
-      showScreen("result");
-    } else {
-      alert("Produkt s týmto EAN kódom sa nenašiel v databáze. Skús odfotiť celú etiketu.");
-    }
-  } catch(e) {
-    alert("Chyba pri načítavaní EAN kódu.");
-  }
 }
 
 function showScreen(name){ Object.entries(screens).forEach(([key, el]) => el.classList.toggle("active", key === name)); }
@@ -732,6 +609,7 @@ function renderResult(data){
   const rawName = data.product_key || data.product?.name || "produkt";
   state.currentProductKey = makeSafeKey(rawName);
 
+  // 🔴 CHECK ALERT BANNER
   const alertBanner = document.getElementById("allergenAlertBanner");
   const alertText = document.getElementById("allergenAlertText");
   const warnings = data.allergen_warnings || [];
@@ -743,6 +621,7 @@ function renderResult(data){
     alertBanner.classList.add("hidden");
   }
 
+  // DETEKCIA LAKTÁZY PRE KALKULAČKU
   const lactoseCard = document.getElementById("lactose-calculator-card");
   const hasLactose = warnings.some(w => w.toLowerCase().includes("laktóz") || w.toLowerCase().includes("mliek")) || state.allergens.includes("lactose");
   
@@ -990,6 +869,7 @@ function updateBodyOrgans(scores){
   }
 }
 
+// --- KALKULAČKA LAKTÁZY LOGIKA ---
 function vypocitajLaktazu(laktozaNa100g, porciaGramy, silaTabletky = 4500) {
   if (!laktozaNa100g || laktozaNa100g <= 0 || !porciaGramy || porciaGramy <= 0) {
     return { gLaktozy: 0, fcc: 0, tabletky: 0 };
@@ -1022,54 +902,6 @@ function aktualizujVypocetLaktazy(laktozaNa100g) {
   if (vysledokDetails) {
     vysledokDetails.innerText = `(${res.gLaktozy} g laktózy • ${res.fcc} FCC)`;
   }
-}
-
-function updateUI() {
-  const dict = UI_TRANSLATIONS[state.lang] || UI_TRANSLATIONS.sk;
-  const el = (id) => document.getElementById(id);
-
-  if(el("ui-subHeader")) el("ui-subHeader").textContent = dict.subHeader;
-  if(el("ui-btnHistory")) el("ui-btnHistory").textContent = dict.btnHistory;
-  if(el("ui-myProfileLabel")) el("ui-myProfileLabel").textContent = dict.myProfileLabel;
-  if(el("ui-profGeneral")) el("ui-profGeneral").textContent = dict.profGeneral;
-  if(el("ui-profHeart")) el("ui-profHeart").textContent = dict.profHeart;
-  if(el("ui-profDiabetes")) el("ui-profDiabetes").textContent = dict.profDiabetes;
-  if(el("ui-profClean")) el("ui-profClean").textContent = dict.profClean;
-  if(el("ui-allergensLabel")) el("ui-allergensLabel").textContent = dict.allergensLabel || "Vyhnúť sa:";
-  if(el("ui-algGluten")) el("ui-algGluten").textContent = dict.algGluten || "Lepok";
-  if(el("ui-algLactose")) el("ui-algLactose").textContent = dict.algLactose || "Laktóza";
-  if(el("ui-algNuts")) el("ui-algNuts").textContent = dict.algNuts || "Orechy";
-  if(el("ui-algPalmoil")) el("ui-algPalmoil").textContent = dict.algPalmoil || "Palmový olej";
-  if(el("ui-alertBannerTitle")) el("ui-alertBannerTitle").textContent = dict.alertBannerTitle || "POZOR!";
-  if(el("ui-heroBadge")) el("ui-heroBadge").textContent = dict.heroBadge;
-  if(el("ui-heroTitle")) el("ui-heroTitle").innerHTML = dict.heroTitle;
-  if(el("ui-heroDesc")) el("ui-heroDesc").textContent = dict.heroDesc;
-  if(el("ui-btnCamera")) el("ui-btnCamera").textContent = dict.btnCamera;
-  if(el("ui-btnBack1")) el("ui-btnBack1").textContent = dict.btnBack1;
-  if(el("ui-btnBack2")) el("ui-btnBack2").textContent = dict.btnBack2;
-  if(el("ui-btnStartScan")) el("ui-btnStartScan").textContent = dict.btnStartScan;
-  if(el("ui-btnClearHistory")) el("ui-btnClearHistory").textContent = dict.btnClearHistory;
-  if(el("ui-historyTitle")) el("ui-historyTitle").textContent = dict.historyTitle;
-  if(el("ui-historySub")) el("ui-historySub").textContent = dict.historySub;
-  if(el("ui-btnScanAgain")) el("ui-btnScanAgain").textContent = dict.btnScanAgain;
-  if(el("ui-energyLabelTitle")) el("ui-energyLabelTitle").textContent = dict.energyLabelTitle;
-  if(el("ui-bodyTitle")) el("ui-bodyTitle").textContent = dict.bodyTitle;
-  if(el("ui-ingredientsTitle")) el("ui-ingredientsTitle").textContent = dict.ingredientsTitle;
-  if(el("ui-additivesTitle")) el("ui-additivesTitle").textContent = dict.additivesTitle;
-  if(el("ui-swapHeader")) el("ui-swapHeader").textContent = dict.swapHeader;
-  if(el("ui-scannedLabel")) el("ui-scannedLabel").textContent = dict.scannedLabel;
-  if(el("ui-recommendLabel")) el("ui-recommendLabel").textContent = dict.recommendLabel;
-  if(el("ui-btnToggleTable")) el("ui-btnToggleTable").textContent = dict.btnToggleTable;
-  if(el("ui-thMetric")) el("ui-thMetric").textContent = dict.thMetric;
-  if(el("ui-thProduct")) el("ui-thProduct").textContent = dict.thProduct;
-  if(el("ui-thAlt")) el("ui-thAlt").textContent = dict.thAlt;
-  if(el("ui-reviewsTitle")) el("ui-reviewsTitle").textContent = dict.reviewsTitle;
-  if(el("ui-addRatingLabel")) el("ui-addRatingLabel").textContent = dict.addRatingLabel;
-  if(el("reviewInputText")) el("reviewInputText").placeholder = dict.reviewPlaceholder;
-  if(el("ui-btnSendReview")) el("ui-btnSendReview").textContent = dict.btnSendReview;
-  if(el("ui-btnNewScan")) el("ui-btnNewScan").textContent = dict.btnNewScan;
-
-  if(state.currentData) renderScores(state.currentData.analysis?.scores);
 }
 
 init();
