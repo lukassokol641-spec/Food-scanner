@@ -1,0 +1,21 @@
+{
+  "short_name": "FoodScanner",
+  "name": "Food Scanner AI",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3081/3081920.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3081/3081920.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0e1013",
+  "theme_color": "#0e1013",
+  "display": "standalone",
+  "orientation": "portrait"
+}
