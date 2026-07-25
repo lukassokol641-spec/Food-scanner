@@ -181,7 +181,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         
         <div class="stack" style="gap:10px;">
           <input id="authEmail" type="email" placeholder="Tvoj Email..." style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:12px;color:#fff;outline:none;" />
-          <input id="authPassword" type="password" placeholder="Heslo..." style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:12px;color:#fff;outline:none;" />
+          <input id="authPassword" type="password" placeholder="Heslo (min. 6 znakov)..." style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:12px;color:#fff;outline:none;" />
           
           <button id="loginBtn" class="btn btn-primary">Prihlásiť sa</button>
           <button id="signupBtn" class="btn btn-secondary">Vytvoriť nový účet</button>
@@ -424,10 +424,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 </div>
 
 <script>
-// --- KONFIGURÁCIA SUPABASE CLIENTA ---
-const SUPABASE_URL = "https://VASE_SUPABASE_URL.supabase.co"; // Nahradí sa v init()
-const SUPABASE_ANON_KEY = "VASE_SUPABASE_ANON_KEY"; 
-
 let supabaseClient = null;
 let currentUser = null;
 
@@ -466,11 +462,15 @@ async function initSupabase() {
   try {
     const res = await fetch("/api/config");
     const cfg = await res.json();
-    if (cfg.supabaseUrl && cfg.supabaseKey) {
-      supabaseClient = supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey);
+    if (cfg.supabaseUrl && cfg.supabaseKey && window.supabase) {
+      supabaseClient = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey);
       checkUserSession();
+    } else {
+      console.warn("Supabase kľúče chýbajú alebo knižnica nie je načítaná.");
     }
-  } catch(e) {}
+  } catch(e) {
+    console.error("Chyba pri inicializácii Supabase:", e);
+  }
 }
 
 async function checkUserSession() {
@@ -495,7 +495,6 @@ async function showLoggedInProfile() {
   
   document.getElementById("profileEmailText").textContent = currentUser.email;
 
-  // Načítanie profilu zo Supabase
   const { data } = await supabaseClient
     .from("profiles")
     .select("*")
@@ -511,6 +510,7 @@ async function showLoggedInProfile() {
 }
 
 async function handleLogin() {
+  if (!supabaseClient) return alert("Pripojenie k databáze sa nenačítalo.");
   const email = document.getElementById("authEmail").value;
   const password = document.getElementById("authPassword").value;
   if (!email || !password) return alert("Zadaj email aj heslo.");
@@ -524,19 +524,25 @@ async function handleLogin() {
 }
 
 async function handleSignup() {
+  if (!supabaseClient) return alert("Pripojenie k databáze sa nenačítalo.");
   const email = document.getElementById("authEmail").value;
   const password = document.getElementById("authPassword").value;
+  
   if (!email || !password) return alert("Zadaj email aj heslo.");
+  if (password.length < 6) return alert("Heslo musí mať aspoň 6 znakov.");
 
   const { data, error } = await supabaseClient.auth.signUp({ email, password });
-  if (error) alert("Chyba registrácie: " + error.message);
-  else {
-    alert("Účet vytvorený! Môžeš sa prihlásiť.");
+  if (error) {
+    alert("Chyba registrácie: " + error.message);
+  } else if (data.user) {
+    currentUser = data.user;
+    alert("Účet vytvorený!");
+    showLoggedInProfile();
   }
 }
 
 async function handleLogout() {
-  await supabaseClient.auth.signOut();
+  if (supabaseClient) await supabaseClient.auth.signOut();
   currentUser = null;
   showAuthContainer();
 }
