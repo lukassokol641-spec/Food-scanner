@@ -81,6 +81,9 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 .file-hidden{display:none;}
 .history-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s;}
 
+.shopping-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:14px;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;}
+.shopping-item.checked{opacity:0.5;text-decoration:line-through;}
+
 .review-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;}
 
 /* ALERGEN CHIPS */
@@ -105,10 +108,11 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <h1 id="ui-subHeader" style="font-size:16px;font-weight:600;margin:0;">AI čítanie etikiet</h1>
         </div>
       </div>
-      <div class="row" style="gap:6px;">
-        <button id="profileNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="user" style="width:16px;height:16px;"></i><span id="ui-btnProfile">Profil</span></button>
-        <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="history" style="width:16px;height:16px;"></i><span id="ui-btnHistory">História</span></button>
-        <select id="langSelect" class="toggle-pill">
+      <div class="row" style="gap:4px;">
+        <button id="shoppingNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="shopping-cart" style="width:14px;height:14px;color:#0f9f74;"></i><span>Zoznam</span></button>
+        <button id="profileNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="user" style="width:14px;height:14px;"></i><span id="ui-btnProfile">Profil</span></button>
+        <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="history" style="width:14px;height:14px;"></i><span id="ui-btnHistory">História</span></button>
+        <select id="langSelect" class="toggle-pill" style="padding:8px 4px;">
           <option value="sk">🇸🇰 SK</option>
           <option value="cz">🇨🇿 CZ</option>
           <option value="pl">🇵🇱 PL</option>
@@ -172,6 +176,21 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <h3 id="ui-eanTitle" style="font-size:18px;font-weight:700;margin:0;">Namier kameru na čiarový kód</h3>
         <p id="ui-eanSub" class="muted" style="font-size:13px;margin:0;">Kód sa automaticky rozozná</p>
         <div id="barcode-scanner-container" style="width:100%;min-height:250px;border-radius:20px;overflow:hidden;background:#000;"></div>
+      </div>
+    </section>
+
+    <!-- SCREEN NÁKUPNÝ ZOZNAM -->
+    <section id="screen-shopping" class="screen">
+      <div class="row-between">
+        <button id="backFromShoppingBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
+        <button id="clearShoppingBtn" class="badge badge-red" style="cursor:pointer;">Vymazať zoznam</button>
+      </div>
+      <div class="card">
+        <div class="stack" style="gap:4px;">
+          <h2 style="font-size:20px;font-weight:700;margin:0;">🛒 Nákupný zoznam</h2>
+          <p class="muted" style="font-size:13px;margin:0;">Uložené obľúbené produkty na nákup.</p>
+        </div>
+        <div id="shoppingListWrap" class="stack" style="gap:10px;margin-top:8px;"></div>
       </div>
     </section>
 
@@ -283,7 +302,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     <section id="screen-result" class="screen">
       <div class="row-between">
         <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnScanAgain">Sken</span></button>
-        <div class="badge badge-ok">AI Analýza</div>
+        <button id="addShoppingListBtn" class="badge badge-ok" style="cursor:pointer;background:rgba(15,159,116,0.2);color:#0f9f74;font-size:13px;padding:8px 12px;border:1px solid #0f9f74;">❤️ Do zoznamu</button>
       </div>
 
       <div id="allergenAlertBanner" class="alert-banner hidden">
@@ -486,7 +505,7 @@ const UI_TRANSLATIONS = {
 };
 
 const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null };
-const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
+const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping") };
 
 let html5QrCode = null;
 
@@ -529,6 +548,7 @@ function init(){
   loadUserProfile();
   bindEvents(); 
   renderHistoryList(); 
+  renderShoppingList();
   updateUI(); 
   if(window.lucide) lucide.createIcons(); 
 }
@@ -544,6 +564,12 @@ function bindEvents(){
   document.getElementById("backFromHistoryBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
+
+  // NÁKUPNÝ ZOZNAM EVENTY
+  document.getElementById("shoppingNavBtn").addEventListener("click", () => { renderShoppingList(); showScreen("shopping"); });
+  document.getElementById("backFromShoppingBtn").addEventListener("click", () => showScreen("hero"));
+  document.getElementById("clearShoppingBtn").addEventListener("click", clearShoppingList);
+  document.getElementById("addShoppingListBtn").addEventListener("click", addToShoppingList);
 
   // LEKÁRSKA SPRÁVA EVENTY V PROFILE
   document.getElementById("takeMedicalPhotoBtn").addEventListener("click", () => document.getElementById("medicalPhotoInput").click());
@@ -603,6 +629,93 @@ function bindEvents(){
   document.getElementById("toggleTableBtn").addEventListener("click", () => {
     document.getElementById("compareTableWrap").classList.toggle("hidden");
   });
+}
+
+function getShoppingList(){
+  try { return JSON.parse(localStorage.getItem("shoppingList") || "[]"); } catch(e){ return []; }
+}
+
+function saveShoppingList(list){
+  localStorage.setItem("shoppingList", JSON.stringify(list));
+}
+
+function addToShoppingList(){
+  if(!state.currentData || !state.currentData.product?.name) return;
+  let list = getShoppingList();
+  
+  const exists = list.some(item => item.name === state.currentData.product.name);
+  if(exists){
+    alert("Tento produkt už máš v nákupnom zozname!");
+    return;
+  }
+
+  const newItem = {
+    id: "item_" + Date.now(),
+    name: state.currentData.product.name,
+    category: state.currentData.product.category || "Potravina",
+    score: state.currentData.analysis?.verdict?.score || 0,
+    severity: state.currentData.analysis?.verdict?.severity || "orange",
+    checked: false
+  };
+
+  list.unshift(newItem);
+  saveShoppingList(list);
+  alert("Produkt bol pridaný do nákupného zoznamu!");
+}
+
+function toggleShoppingItem(id){
+  let list = getShoppingList();
+  list = list.map(item => item.id === id ? { ...item, checked: !item.checked } : item);
+  saveShoppingList(list);
+  renderShoppingList();
+}
+
+function deleteShoppingItem(id, e){
+  e.stopPropagation();
+  let list = getShoppingList();
+  list = list.filter(item => item.id !== id);
+  saveShoppingList(list);
+  renderShoppingList();
+}
+
+function clearShoppingList(){
+  if(confirm("Vymazať celý nákupný zoznam?")){
+    localStorage.removeItem("shoppingList");
+    renderShoppingList();
+  }
+}
+
+function renderShoppingList(){
+  const wrap = document.getElementById("shoppingListWrap");
+  const list = getShoppingList();
+
+  if(list.length === 0){
+    wrap.innerHTML = `<p class="muted" style="font-size:14px;text-align:center;padding:20px 0;">Váš nákupný zoznam je prázdny. Pridajte produkty tlačidlom ❤️ po naskenovaní.</p>`;
+    return;
+  }
+
+  wrap.innerHTML = list.map(item => {
+    const color = item.severity === "green" ? "#0f9f74" : item.severity === "red" ? "#df5252" : "#f29a2e";
+    const checkedClass = item.checked ? "checked" : "";
+
+    return `
+      <div class="shopping-item ${checkedClass}" onclick="toggleShoppingItem('${item.id}')">
+        <div class="row" style="gap:10px;">
+          <input type="checkbox" ${item.checked ? 'checked' : ''} style="width:18px;height:18px;accent-color:#0f9f74;" />
+          <div class="stack" style="gap:2px;">
+            <h4 style="font-size:15px;font-weight:700;margin:0;color:#fff;">${item.name}</h4>
+            <p class="muted" style="font-size:12px;margin:0;">${item.category}</p>
+          </div>
+        </div>
+        <div class="row" style="gap:10px;">
+          <span style="font-size:14px;font-weight:800;color:${color}">${item.score}/100</span>
+          <button onclick="deleteShoppingItem('${item.id}', event)" style="background:none;border:none;color:#df5252;cursor:pointer;padding:4px;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  if(window.lucide) lucide.createIcons();
 }
 
 async function handleMedicalFileSelected(e){
