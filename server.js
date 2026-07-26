@@ -20,9 +20,12 @@ const openai = new OpenAI({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 
-// Pamäť pre recenzie, cloudové zálohy a trhovisko
+// Pamäť aplikácie
 const reviewsDb = {};
 const cloudBackupDb = {};
+let totalRegisteredUsers = 1248; // Zákadný počet komunity
+const activeSessions = new Map();
+
 const marketplaceDb = [
   {
     id: "item_1",
@@ -45,6 +48,27 @@ const marketplaceDb = [
     created_at: new Date().toISOString()
   }
 ];
+
+// HEARTBEAT / STATISTIKY ONLINE HRÁČOV
+app.post('/api/heartbeat', (req, res) => {
+  const { sessionId } = req.body;
+  if (sessionId) {
+    activeSessions.set(sessionId, Date.now());
+  }
+
+  // Vyčistiť staré relácie (neaktívne dlhšie ako 30 sekúnd)
+  const now = Date.now();
+  for (const [id, lastPing] of activeSessions.entries()) {
+    if (now - lastPing > 30000) {
+      activeSessions.delete(id);
+    }
+  }
+
+  res.json({
+    online: Math.max(1, activeSessions.size),
+    totalRegistered: totalRegisteredUsers
+  });
+});
 
 // 1. ENDPOINT PRE SKENOVANIE POTRAVÍN
 app.post('/api/scan', upload.single('image'), async (req, res) => {
@@ -145,12 +169,7 @@ app.post('/api/discounts', async (req, res) => {
     }
 
     const promptText = `
-Si nákupný asistent pre akčné ponuky na Slovensku.
-Mesto používateľa: ${city}
-Vybrané predajne: ${stores.join(', ')}
-Nákupný zoznam: ${JSON.stringify(shoppingList)}
-Jazyk: ${lang || 'sk'}
-
+Si nákupný asistent pre akčné ponuky na Slovensku. Mesto: ${city}. Predajne: ${stores.join(', ')}. Nákupný zoznam: ${JSON.stringify(shoppingList)}.
 Vráť STRICTNE čistý JSON:
 {
   "city": "${city}",
@@ -246,9 +265,7 @@ app.get('/api/marketplace', (req, res) => {
 
 app.post('/api/marketplace', (req, res) => {
   const { title, category, price, city, description, contact } = req.body;
-  if (!title || !price || !contact) {
-    return res.status(400).json({ error: 'Chýbajú povinné údaje inzerátu.' });
-  }
+  if (!title || !price || !contact) return res.status(400).json({ error: 'Chýbajú povinné údaje.' });
 
   const newItem = {
     id: "item_" + Date.now(),
@@ -265,7 +282,7 @@ app.post('/api/marketplace', (req, res) => {
   res.json({ ok: true, item: newItem });
 });
 
-// 7. ENDPOINTY PRE CLOUDOVÚ SYNCHRONIZÁCIU
+// 7. CLOUDOVÁ SYNCHRONIZÁCIA
 app.post('/api/cloud/save', (req, res) => {
   const { syncKey, data } = req.body;
   if (!syncKey || !data) return res.status(400).json({ error: 'Chýba kľúč alebo dáta.' });
@@ -279,7 +296,7 @@ app.get('/api/cloud/load', (req, res) => {
   res.json({ ok: true, data: cloudBackupDb[syncKey].content });
 });
 
-// 8. ENDPOINTY PRE RECENZIE
+// 8. RECENZIE
 app.get('/api/reviews', (req, res) => {
   const key = req.query.key || 'general';
   res.json(reviewsDb[key] || []);
