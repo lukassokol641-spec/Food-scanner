@@ -17,10 +17,12 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 
+// Pamäť pre recenzie a cloudové zálohy
 const reviewsDb = {};
+const cloudBackupDb = {};
 
 // 1. ENDPOINT PRE SKENOVANIE POTRAVÍN
 app.post('/api/scan', upload.single('image'), async (req, res) => {
@@ -112,7 +114,7 @@ Formát JSON odpovede:
   }
 });
 
-// 3. ENDPOINT PRE AKČNÉ ZĽAVY V PREDAJNIACH
+// 3. ENDPOINT PRE AKČNÉ ZĽAVY
 app.post('/api/discounts', async (req, res) => {
   try {
     const { city, stores, shoppingList, lang } = req.body;
@@ -156,21 +158,21 @@ app.post('/api/daily-menu', async (req, res) => {
     const promptText = `
 Si gastro asistent pre denné menu a reštaurácie na Slovensku.
 Mesto: ${userCity}
-Aktuálny čas používateľa: ${currentTime || "12:00"}
-Zdravotný profil používateľa: ${profile || "general"}
-Zakázané alergény/zložky: ${(allergens || []).join(', ')}
-Poznámky z lekárskej správy: ${medicalNotes || "Žiadne špeciálne obmedzenia"}
+Aktuálny čas: ${currentTime || "12:00"}
+Zdravotný profil: ${profile || "general"}
+Zakázané alergény: ${(allergens || []).join(', ')}
+Lekárska správa: ${medicalNotes || "Žiadne obmedzenia"}
 Jazyk: ${lang || 'sk'}
 
 Vráť STRICTNE čistý JSON:
 {
   "mode": "lunch_menu" | "regular_menu",
   "city": "${userCity}",
-  "time_info": "Text informujúci o aktuálnom režime",
+  "time_info": "Text informujúci o režime",
   "restaurants": [
     {
       "name": "Názov reštaurácie",
-      "address": "Ulica / Lokalita",
+      "address": "Ulica",
       "serving_hours": "11:00 - 13:30",
       "menu_items": [
         {
@@ -178,7 +180,7 @@ Vráť STRICTNE čistý JSON:
           "price": "6.50 €",
           "is_suitable": true | false,
           "warning": "Dôvod ak nie je vhodné",
-          "health_score": "Výborná voľba / Mierne rizikové / Nevhodné"
+          "health_score": "Skóre"
         }
       ]
     }
@@ -198,22 +200,17 @@ Vráť STRICTNE čistý JSON:
   }
 });
 
-// 5. ENDPOINT PRE DENNÝ SÚHRN ASISTENTA (SVIATKY & DENNÝ TIP)
+// 5. ENDPOINT PRE DENNÝ SÚHRN ASISTENTA
 app.post('/api/assistant-summary', async (req, res) => {
   try {
     const { city, lang } = req.body;
     const userCity = city || "Revúca";
 
     const promptText = `
-Si inteligentný osobné asistent na Slovensku.
-Mesto: ${userCity}
-Dnešný dátum / Obdobie: Aktuálny kalendárny deň na Slovensku.
-
-Priprav krátky, praktický denný prehľad. Ak hrozí nadchádzajúci štátny sviatok na Slovensku, upozorni na zatvorené obchody a otváracie hodiny (napr. Billa do 19:00, Tesco do 22:00).
-
+Si inteligentný osobné asistent na Slovensku. Mesto: ${userCity}.
 Vráť STRICTNE čistý JSON v jazyku ${lang || 'sk'}:
 {
-  "holiday_alert": "Varovanie pred sviatkom a otváracími hodinami (napr. Pozor, zajtra je štátny sviatok, ak potrebuješ nakúpiť urob to ešte dnes. Billa je otvorená do 19:00, nejdlhšie je Tesco do 22:00)",
+  "holiday_alert": "Varovanie pred sviatkom a otváracími hodinami (napr. Billa do 19:00, Tesco do 22:00)",
   "daily_tip": "Pripomienka pitného režimu a zdravého dňa",
   "nameday_today": "Kto má dnes meniny na Slovensku"
 }
@@ -227,11 +224,32 @@ Vráť STRICTNE čistý JSON v jazyku ${lang || 'sk'}:
 
     res.json(JSON.parse(response.choices[0].message.content));
   } catch (error) {
-    res.status(500).json({ error: 'Chyba pri generovaní súhrnu asistenta.' });
+    res.status(500).json({ error: 'Chyba pri generovaní súhrnu.' });
   }
 });
 
-// 6. ENDPOINTY PRE RECENZIE
+// 6. ENDPOINTY PRE CLOUDOVÚ SYNCHRONIZÁCIU A ZÁLOHU
+app.post('/api/cloud/save', (req, res) => {
+  const { syncKey, data } = req.body;
+  if (!syncKey || !data) {
+    return res.status(400).json({ error: 'Chýba kľúč synchronizácie alebo dáta.' });
+  }
+  cloudBackupDb[syncKey] = {
+    updated_at: new Date().toISOString(),
+    content: data
+  };
+  res.json({ ok: true, message: 'Záloha bola úspešne uložená na cloud server.' });
+});
+
+app.get('/api/cloud/load', (req, res) => {
+  const syncKey = req.query.syncKey;
+  if (!syncKey || !cloudBackupDb[syncKey]) {
+    return res.status(404).json({ error: 'Žiadna záloha nebola pre tento kľúč nájdená.' });
+  }
+  res.json({ ok: true, data: cloudBackupDb[syncKey].content });
+});
+
+// 7. ENDPOINTY PRE RECENZIE
 app.get('/api/reviews', (req, res) => {
   const key = req.query.key || 'general';
   res.json(reviewsDb[key] || []);
