@@ -174,7 +174,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </select>
     </div>
 
-    <!-- 🚫 INTOLERANCIE A ALERGÉNY -->
+    <!-- INTOLERANCIE A ALERGÉNY -->
     <div class="stack" style="gap:4px;">
       <span class="title-xs" style="color:#ef4444;font-size:10px;" id="ui-allergensLabel">Vyhnúť sa (Intolerancie & Alergény):</span>
       <div style="display:flex;flex-wrap:wrap;gap:6px;" id="allergensWrap">
@@ -281,7 +281,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN DENNÝ ASISTENT S REÁLNYM ČASOVAČOM BUDÍKA -->
+    <!-- SCREEN DENNÝ ASISTENT -->
     <section id="screen-assistant" class="screen">
       <div class="row-between">
         <button id="backFromAssistantBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
@@ -364,7 +364,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     <section id="screen-barcode" class="screen">
       <div class="row-between">
         <button id="stopBarcodeScannerBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBackEan">Späť</span></button>
-        <div class="badge badge-ok">EAN Skenovanie</div>
+        <div class="badge badge-ok">EAN Skenowanie</div>
       </div>
       <div class="card" style="text-align:center;">
         <h3 id="ui-eanTitle" style="font-size:18px;font-weight:700;margin:0;">Namier kameru na čiarový kód</h3>
@@ -878,7 +878,6 @@ function init(){
   if(window.lucide) lucide.createIcons(); 
 }
 
-// REÁLNY ČASOVAČ BUDÍKA
 function initAlarmClockTimer(){
   if (alarmCheckInterval) clearInterval(alarmCheckInterval);
 
@@ -893,13 +892,11 @@ function initAlarmClockTimer(){
     const targetTime = document.getElementById("alarmTimeInput")?.value;
 
     if (targetTime === currentTimeStr) {
-      state.alarmActive = false; // Vypnúť, aby nezvonil stále dokola
+      state.alarmActive = false;
       document.getElementById("alarmStatusText").innerText = "Aktivovať ranný budík";
       
-      // Spustiť zvuk s plynulým zosilňovaním
       playNatureSoundWithFadeIn();
 
-      // Vyvolať systémovú notifikáciu ak je povolená
       if (Notification.permission === "granted") {
         new Notification("⏰ NutriPulse AI Budík", {
           body: "Dobré ráno! Je čas vstať a užiť si nový zdravý deň.",
@@ -909,7 +906,7 @@ function initAlarmClockTimer(){
         alert("⏰ BUDÍK ZVONÍ! Dobré ráno!");
       }
     }
-  }, 1000); // Kontroluje každú 1 sekundu
+  }, 1000);
 }
 
 function bindEvents(){
@@ -924,17 +921,13 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
 
-  // BUDÍK & ASISTENT
   document.getElementById("toggleAlarmBtn").addEventListener("click", toggleAlarm);
   document.getElementById("testAlarmSoundBtn").addEventListener("click", playNatureSoundWithFadeIn);
   document.getElementById("requestNotifBtn").addEventListener("click", requestNotificationPermission);
   document.getElementById("testNotifBtn").addEventListener("click", sendTestNotification);
   document.getElementById("loadAssistantSummaryBtn").addEventListener("click", loadAssistantSummary);
-
-  // PODPORA & HLÁSENIE CHÝB
   document.getElementById("sendSupportBtn").addEventListener("click", submitSupportTicket);
 
-  // MARKETPLACE EVENTY
   document.getElementById("marketNavBtn").addEventListener("click", () => { loadMarketplaceItems(); showScreen("marketplace"); });
   document.getElementById("backFromMarketBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("toggleAddMarketModalBtn").addEventListener("click", () => {
@@ -942,26 +935,21 @@ function bindEvents(){
   });
   document.getElementById("submitMarketItemBtn").addEventListener("click", submitMarketplaceItem);
 
-  // CLOUD SYNCHRONIZÁCIA
   document.getElementById("cloudSaveBtn").addEventListener("click", saveToCloud);
   document.getElementById("cloudLoadBtn").addEventListener("click", loadFromCloud);
 
-  // WATCH MODE EVENTY
   document.getElementById("watchNavBtn").addEventListener("click", () => { renderWatchShoppingList(); showScreen("watch"); });
   document.getElementById("backFromWatchBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("watchMinusBtn").addEventListener("click", () => updateWatchLactase(-25));
   document.getElementById("watchPlusBtn").addEventListener("click", () => updateWatchLactase(25));
 
-  // ASISTENT NAV
   document.getElementById("assistantNavBtn").addEventListener("click", () => showScreen("assistant"));
   document.getElementById("backFromAssistantBtn").addEventListener("click", () => showScreen("hero"));
 
-  // DENNÉ MENU EVENTY
   document.getElementById("menuNavBtn").addEventListener("click", () => showScreen("menu"));
   document.getElementById("backFromMenuBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("searchMenuBtn").addEventListener("click", searchDailyMenu);
 
-  // NÁKUPNÝ ZOZNAM EVENTY
   document.getElementById("shoppingNavBtn").addEventListener("click", () => { renderShoppingList(); showScreen("shopping"); });
   document.getElementById("backFromShoppingBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("clearShoppingBtn").addEventListener("click", clearShoppingList);
@@ -980,16 +968,13 @@ function bindEvents(){
     });
   });
 
-  // LEKÁRSKA SPRÁVA EVENTY
   document.getElementById("takeMedicalPhotoBtn").addEventListener("click", () => document.getElementById("medicalPhotoInput").click());
   document.getElementById("medicalPhotoInput").addEventListener("change", handleMedicalFileSelected);
   document.getElementById("applyMedicalProfileBtn").addEventListener("click", applyMedicalRecommendations);
 
-  // BARCODE SKENER EVENTY
   document.getElementById("startBarcodeScannerBtn").addEventListener("click", startBarcodeScanner);
   document.getElementById("stopBarcodeScannerBtn").addEventListener("click", stopBarcodeScanner);
 
-  // PROFIL EVENTY
   document.getElementById("profileNavBtn").addEventListener("click", () => showScreen("profile"));
   document.getElementById("backFromProfileBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("saveProfileBtn").addEventListener("click", saveUserProfile);
@@ -1047,7 +1032,7 @@ function toggleAlarm(){
 
   if(state.alarmActive){
     statusEl.innerText = `Budík AKTÍVNY na ${time}`;
-    alert(`Budík bol aktivovaný na čas ${time}! Nechaj aplikáciu otvorenú, aby mohla v daný čas zazvoniť.`);
+    alert(`Budík bol aktivovaný na čas ${time}!`);
   } else {
     statusEl.innerText = "Aktivovať ranný budík";
     alert("Budík bol vypnutý.");
@@ -1063,7 +1048,7 @@ function playNatureSoundWithFadeIn(){
   const gainNode = audioCtx.createGain();
 
   osc.type = 'sine';
-  osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5 tón
+  osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
   
   gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
   gainNode.gain.exponentialRampToValueAtTime(0.6, audioCtx.currentTime + 3);
@@ -1075,7 +1060,6 @@ function playNatureSoundWithFadeIn(){
   osc.stop(audioCtx.currentTime + 5);
 }
 
-// PODPORA & HLÁSENIE CHÝB
 async function submitSupportTicket(){
   const message = document.getElementById("supportMessageInput").value.trim();
   const userContact = document.getElementById("supportContactInput").value.trim();
@@ -1103,7 +1087,6 @@ async function submitSupportTicket(){
   }
 }
 
-// MARKETPLACE
 async function loadMarketplaceItems(){
   const city = document.getElementById("userCityInput")?.value || "Revúca";
   try {
@@ -1172,7 +1155,6 @@ async function submitMarketplaceItem(){
   }
 }
 
-// CLOUD SYNCHRONIZÁCIA
 async function saveToCloud(){
   const syncKey = document.getElementById("cloudSyncKeyInput").value.trim();
   if(!syncKey){
@@ -1225,7 +1207,6 @@ async function loadFromCloud(){
   }
 }
 
-// WATCH REŽIM
 function updateWatchLactase(delta){
   state.watchPortionGrams = Math.max(25, state.watchPortionGrams + delta);
   document.getElementById("watchPortionGrams").innerText = state.watchPortionGrams;
