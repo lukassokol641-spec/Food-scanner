@@ -105,11 +105,10 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <h1 id="ui-subHeader" style="font-size:16px;font-weight:600;margin:0;">AI čítanie etikiet</h1>
         </div>
       </div>
-      <div class="row" style="gap:4px;">
-        <button id="medicalNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="stethoscope" style="width:14px;height:14px;color:#4fbe99;"></i><span id="ui-btnMedical">Správa</span></button>
-        <button id="profileNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="user" style="width:14px;height:14px;"></i><span id="ui-btnProfile">Profil</span></button>
-        <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="history" style="width:14px;height:14px;"></i><span id="ui-btnHistory">História</span></button>
-        <select id="langSelect" class="toggle-pill" style="padding:8px 6px;">
+      <div class="row" style="gap:6px;">
+        <button id="profileNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="user" style="width:16px;height:16px;"></i><span id="ui-btnProfile">Profil</span></button>
+        <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:6px;"><i data-lucide="history" style="width:16px;height:16px;"></i><span id="ui-btnHistory">História</span></button>
+        <select id="langSelect" class="toggle-pill">
           <option value="sk">🇸🇰 SK</option>
           <option value="cz">🇨🇿 CZ</option>
           <option value="pl">🇵🇱 PL</option>
@@ -176,54 +175,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN LEKÁRSKA SPRÁVA -->
-    <section id="screen-medical" class="screen">
-      <div class="row-between">
-        <button id="backFromMedicalBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
-        <div class="badge badge-ok" style="background:rgba(79,190,153,0.15);color:#4fbe99;">🩺 Skener lekárskych správ</div>
-      </div>
-
-      <div class="card">
-        <div class="stack" style="gap:8px;">
-          <h3 style="font-size:20px;font-weight:700;margin:0;">Odfoť lekársky nález alebo krvné testy</h3>
-          <p class="muted" style="font-size:13px;margin:0;line-height:1.4;">AI preloží odbornú latinčinu do ľudskej reči, vytiahne kľúčové hodnoty a automaticky ti odporučí stravovací režim.</p>
-        </div>
-
-        <button id="takeMedicalPhotoBtn" class="btn btn-primary" style="background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="camera"></i><span>Odfotiť / Nahrať dokument</span></button>
-        <input id="medicalPhotoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
-
-        <div id="medicalLoadingWrap" class="stack hidden" style="text-align:center;padding:20px 0;">
-          <div class="scan-line" style="position:relative;left:0;right:0;width:100%;margin:0 auto 12px auto;"></div>
-          <p style="font-size:14px;font-weight:600;color:#4fbe99;margin:0;">Prebieha AI analýza lekárskeho nálezu...</p>
-        </div>
-
-        <div id="medicalResultWrap" class="stack hidden" style="gap:16px;">
-          <div class="details-box" style="border-color:rgba(79,190,153,0.3);background:rgba(79,190,153,0.05);">
-            <p class="title-xs" style="color:#4fbe99;">Zrozumiteľné zhrnutie</p>
-            <p id="medSummaryText" style="font-size:14px;line-height:1.5;margin:0;font-weight:500;"></p>
-          </div>
-
-          <div class="details-box">
-            <p class="title-xs" style="color:#f29a2e;">Diagnózy & Nálezy</p>
-            <ul id="medDiagnosesList" style="margin:0;padding-left:18px;font-size:13px;line-height:1.5;" class="stack" style="gap:4px;"></ul>
-          </div>
-
-          <div class="details-box">
-            <p class="title-xs" style="color:#4fbe99;">Sledované hodnoty (Krv / Urín)</p>
-            <div id="medBloodMarkersWrap" class="stack" style="gap:8px;margin-top:4px;"></div>
-          </div>
-
-          <div class="details-box">
-            <p class="title-xs" style="color:#0f9f74;">Odporúčania pre stravu</p>
-            <ul id="medDietRecsList" style="margin:0;padding-left:18px;font-size:13px;line-height:1.5;" class="stack" style="gap:4px;"></ul>
-          </div>
-
-          <button id="applyMedicalProfileBtn" class="btn btn-primary" style="background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="check-circle"></i><span>Aplikovať odporúčania do môjho profilu</span></button>
-        </div>
-      </div>
-    </section>
-
-    <!-- SCREEN PROFIL (LOKÁLNY) -->
+    <!-- SCREEN PROFIL (LOKÁLNY + SKENER SPRÁV) -->
     <section id="screen-profile" class="screen">
       <div class="row-between">
         <button id="backFromProfileBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBackProfile">Späť</span></button>
@@ -248,6 +200,50 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <input id="profileInfoInput" type="text" placeholder="napr. Silná alergia na laktózu, bez alkoholu" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
 
           <button id="saveProfileBtn" class="btn btn-primary" style="margin-top:12px;" id="ui-btnSaveProfile">Uložiť profil</button>
+        </div>
+      </div>
+
+      <!-- SEKCIA SKENER LEKÁRSKYCH SPRÁV V PROFILE -->
+      <div class="card" style="border-color:rgba(79,190,153,0.3);">
+        <div class="row" style="gap:10px;">
+          <div style="width:36px;height:36px;border-radius:12px;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="stethoscope" style="width:20px;height:20px;"></i>
+          </div>
+          <div>
+            <h3 style="font-size:16px;font-weight:700;margin:0;">Skener lekárskych správ & Krvných testov</h3>
+            <p class="muted" style="font-size:12px;margin:0;">AI nastaví tvoj profil podľa nálezu od lekára</p>
+          </div>
+        </div>
+
+        <button id="takeMedicalPhotoBtn" class="btn btn-secondary" style="background:rgba(255,255,255,0.05);border-color:rgba(79,190,153,0.3);color:#4fbe99;"><i data-lucide="file-text"></i><span>Odfotiť / Nahrať lekársku správu</span></button>
+        <input id="medicalPhotoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
+
+        <div id="medicalLoadingWrap" class="stack hidden" style="text-align:center;padding:12px 0;">
+          <p style="font-size:13px;font-weight:600;color:#4fbe99;margin:0;">Prebieha AI analýza lekárskeho nálezu...</p>
+        </div>
+
+        <div id="medicalResultWrap" class="stack hidden" style="gap:12px;margin-top:8px;">
+          <div class="details-box" style="border-color:rgba(79,190,153,0.3);background:rgba(79,190,153,0.05);">
+            <p class="title-xs" style="color:#4fbe99;">Zrozumiteľné zhrnutie nálezu</p>
+            <p id="medSummaryText" style="font-size:13px;line-height:1.5;margin:0;font-weight:500;"></p>
+          </div>
+
+          <div class="details-box">
+            <p class="title-xs" style="color:#f29a2e;">Diagnózy & Nálezy</p>
+            <ul id="medDiagnosesList" style="margin:0;padding-left:18px;font-size:12px;line-height:1.5;" class="stack" style="gap:4px;"></ul>
+          </div>
+
+          <div class="details-box">
+            <p class="title-xs" style="color:#4fbe99;">Sledované krvné parametre</p>
+            <div id="medBloodMarkersWrap" class="stack" style="gap:6px;margin-top:4px;"></div>
+          </div>
+
+          <div class="details-box">
+            <p class="title-xs" style="color:#0f9f74;">Diétne odporúčania z nálezu</p>
+            <ul id="medDietRecsList" style="margin:0;padding-left:18px;font-size:12px;line-height:1.5;" class="stack" style="gap:4px;"></ul>
+          </div>
+
+          <button id="applyMedicalProfileBtn" class="btn btn-primary" style="background:linear-gradient(180deg,#0f9f74,#0a7f5b);padding:12px 16px;font-size:14px;"><i data-lucide="check-circle"></i><span>Aplikovať odporúčania do diétneho profilu</span></button>
         </div>
       </div>
     </section>
@@ -473,7 +469,7 @@ if ('serviceWorker' in navigator) {
 
 const UI_TRANSLATIONS = {
   sk: {
-    subHeader: "AI čítanie etikiet", btnProfile: "Profil", btnHistory: "História", btnMedical: "Správa", myProfileLabel: "Môj Profil:",
+    subHeader: "AI čítanie etikiet", btnProfile: "Profil", btnHistory: "História", myProfileLabel: "Môj Profil:",
     profGeneral: "👤 Všeobecný", profHeart: "🩺 Srdce & Tlak (Prísna soľ)", profDiabetes: "🩸 Cukor & Glukóza (Prísny cukor)", profClean: "🌿 Bez E-čiek (Čistá strava)",
     allergensLabel: "Vyhnúť sa (Alergény / Zložky):", algGluten: "Lepok", algLactose: "Laktóza", algNuts: "Orechy", algPalmoil: "Palmový olej",
     alertBannerTitle: "POZOR: Zistená zakázaná zložka!",
@@ -490,7 +486,7 @@ const UI_TRANSLATIONS = {
 };
 
 const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null };
-const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), medical: document.getElementById("screen-medical") };
+const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history") };
 
 let html5QrCode = null;
 
@@ -549,9 +545,7 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
 
-  // LEKÁRSKA SPRÁVA EVENTY
-  document.getElementById("medicalNavBtn").addEventListener("click", () => showScreen("medical"));
-  document.getElementById("backFromMedicalBtn").addEventListener("click", () => showScreen("hero"));
+  // LEKÁRSKA SPRÁVA EVENTY V PROFILE
   document.getElementById("takeMedicalPhotoBtn").addEventListener("click", () => document.getElementById("medicalPhotoInput").click());
   document.getElementById("medicalPhotoInput").addEventListener("change", handleMedicalFileSelected);
   document.getElementById("applyMedicalProfileBtn").addEventListener("click", applyMedicalRecommendations);
@@ -646,10 +640,10 @@ function renderMedicalResult(data){
     return `
       <div class="additive-item">
         <div class="row-between">
-          <span style="font-weight:700;font-size:13px;color:#fff;">${m.name}: ${m.value}</span>
+          <span style="font-weight:700;font-size:12px;color:#fff;">${m.name}: ${m.value}</span>
           <span class="badge" style="background:${badgeColor}22;color:${badgeColor};font-size:10px;">${m.status.toUpperCase()}</span>
         </div>
-        <p style="font-size:12px;margin:2px 0 0 0;" class="muted">${m.note || ""}</p>
+        <p style="font-size:11px;margin:2px 0 0 0;" class="muted">${m.note || ""}</p>
       </div>
     `;
   }).join("") || `<p class="muted" style="font-size:12px;">Žiadne namerané krvné parametre.</p>`;
@@ -1158,7 +1152,6 @@ function updateUI() {
   const el = (id) => document.getElementById(id);
 
   if(el("ui-subHeader")) el("ui-subHeader").textContent = dict.subHeader;
-  if(el("ui-btnMedical")) el("ui-btnMedical").textContent = dict.btnMedical || "Správa";
   if(el("ui-btnProfile")) el("ui-btnProfile").textContent = dict.btnProfile || "Profil";
   if(el("ui-btnHistory")) el("ui-btnHistory").textContent = dict.btnHistory;
   if(el("ui-myProfileLabel")) el("ui-myProfileLabel").textContent = dict.myProfileLabel;
