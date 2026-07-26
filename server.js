@@ -1,1328 +1,226 @@
-<!DOCTYPE html>
-<html lang="sk" data-theme="dark">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Food Scanner</title>
+import express from 'express';
+import multer from 'multer';
+import dotenv from 'dotenv';
+import OpenAI from 'openai';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-<!-- PWA METADÁTA A IKONKY -->
-<link rel="manifest" href="/manifest.json" />
-<meta name="theme-color" content="#0e1013" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Food Scanner" />
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2927/2927347.png" />
-<link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2927/2927347.png" />
+dotenv.config();
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@latest"></script>
-<!-- SKENOVANIE ČIAROVÝCH KÓDOV -->
-<script src="https://unpkg.com/html5-qrcode"></script>
-<style>
-*{box-sizing:border-box;}
-html,body{margin:0;padding:0;min-height:100%;}
-body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
-.page{display:flex;flex-direction:column;width:100%;max-width:480px;margin:0 auto;padding:16px 16px 32px 16px;gap:16px;}
-.stack{display:flex;flex-direction:column;gap:12px;}
-.stack-lg{display:flex;flex-direction:column;gap:20px;}
-.row{display:flex;align-items:center;gap:10px;}
-.row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.header{position:relative;z-index:20;background:rgba(22,25,31,0.9);border:1px solid rgba(255,255,255,0.10);border-radius:24px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
-.screen{display:none;flex-direction:column;gap:16px;}
-.screen.active{display:flex;}
-.card{background:#16191f;border:1px solid rgba(255,255,255,0.10);border-radius:28px;padding:20px;display:flex;flex-direction:column;gap:20px;}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:24px;padding:16px 20px;font-weight:600;font-size:16px;border:none;cursor:pointer;text-align:center;}
-.btn-primary{background:linear-gradient(180deg,#0f9f74,#0a7f5b);color:#fff;box-shadow:0 12px 24px rgba(15,159,116,0.22);}
-.btn-secondary{background:#16191f;color:#f1efe9;border:1px solid rgba(255,255,255,0.10);}
-.badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600;white-space:nowrap;}
-.badge-demo{background:rgba(218,113,1,0.12);color:#da7101;}
-.badge-ok{background:rgba(15,159,116,0.12);color:#0f9f74;}
-.badge-red{background:rgba(200,59,59,0.12);color:#c83b3b;}
-.risk-dot{width:12px;height:12px;border-radius:999px;display:inline-block;flex-shrink:0;}
-.risk-orange{background:#f29a2e;}
+const app = express();
+const upload = multer({ storage: multer.memoryStorage() });
 
-.camera-frame{position:relative;width:100%;min-height:300px;border-radius:28px;overflow:hidden;border:1px solid rgba(255,255,255,0.10);background:#121418;display:flex;align-items:center;justify-content:center;}
-.camera-frame img.product-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.scan-line{position:absolute;left:8%;right:8%;top:18%;height:2px;background:linear-gradient(90deg,transparent,#0f9f74,transparent);box-shadow:0 0 18px #0f9f74;animation:scanMove 2.2s ease-in-out infinite;z-index:4;}
-@keyframes scanMove{0%{top:18%;}50%{top:74%;}100%{top:18%;}}
-.hidden{display:none !important;}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.score-card{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
-/* SILUETA */
-.body-impact-card{background:linear-gradient(145deg, rgba(25,28,36,0.95), rgba(15,17,22,0.95));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 32px rgba(0,0,0,0.4);}
-.body-svg-container{width:110px;height:180px;flex-shrink:0;position:relative;}
-.organ-glow{transition:all 0.5s ease;filter:drop-shadow(0 0 10px currentColor);}
-.organ-pulse{animation:pulse 2s infinite;}
-@keyframes pulse{0%{r:6px;opacity:0.8;}50%{r:9px;opacity:1;}100%{r:6px;opacity:0.8;}}
+app.use(express.json());
+app.use(express.static(__dirname));
 
-.energy-card{background:linear-gradient(145deg, rgba(20,24,32,0.95), rgba(14,16,20,0.95));border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:12px;}
-.details-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;}
-.additive-item{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;}
+const reviewsDb = {};
 
-.swap-card{border:1px solid rgba(79,190,153,0.3);background:rgba(79,190,153,0.08);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:16px;}
-.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.compare-box{background:rgba(255,255,255,0.06);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;}
-
-table.compare-table{width:100%;border-collapse:collapse;font-size:13px;}
-table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left;border-top:1px solid rgba(255,255,255,0.08);}
-
-.verdict-row{display:flex;align-items:flex-start;gap:16px;}
-.verdict-ring{position:relative;width:96px;height:96px;flex-shrink:0;border-radius:999px;background:conic-gradient(var(--verdict-color,#f29a2e) 0 68%, rgba(127,127,127,0.14) 68% 100%);display:flex;align-items:center;justify-content:center;}
-.verdict-ring-inner{position:absolute;inset:12px;border-radius:999px;background:#16191f;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.toggle-pill{border-radius:16px;border:1px solid rgba(255,255,255,0.10);padding:8px 12px;font-weight:600;font-size:13px;background:#16191f;color:#f1efe9;cursor:pointer;}
-.logo-badge{width:44px;height:44px;border-radius:16px;flex-shrink:0;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;}
-.muted{color:#a6a39b;}
-.title-xs{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#a6a39b;}
-.file-hidden{display:none;}
-.history-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s;}
-
-.shopping-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:14px;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;}
-.shopping-item.checked{opacity:0.5;text-decoration:line-through;}
-
-.review-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;}
-
-/* ALERGEN CHIPS */
-.allergen-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:12px;cursor:pointer;user-select:none;transition:all 0.2s;}
-.allergen-chip.active{background:rgba(223,82,82,0.2);border-color:#df5252;color:#df5252;font-weight:700;}
-
-/* ALERT BANNER */
-.alert-banner{background:linear-gradient(135deg, rgba(223,82,82,0.25), rgba(160,30,30,0.3));border:1px solid #df5252;border-radius:20px;padding:16px;display:flex;align-items:center;gap:12px;color:#fff;}
-#barcode-scanner-container video{border-radius:20px;width:100% !important;object-fit:cover;}
-</style>
-</head>
-<body>
-<div class="page">
-  <header class="header">
-    <div class="row-between">
-      <div class="row">
-        <div class="logo-badge">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M5 12C5 7.029 9.029 3 14 3c2.685 0 5.095 1.176 6.744 3.042" stroke="currentColor" stroke-width="1.8"/><path d="M19 12c0 4.971-4.029 9-9 9-2.685 0-5.095-1.176-6.744-3.042" stroke="currentColor" stroke-width="1.8"/><circle cx="10" cy="12" r="2.5" fill="currentColor"/></svg>
-        </div>
-        <div>
-          <p class="title-xs">Food Scanner</p>
-          <h1 id="ui-subHeader" style="font-size:16px;font-weight:600;margin:0;">AI čítanie etikiet</h1>
-        </div>
-      </div>
-      <div class="row" style="gap:4px;">
-        <button id="shoppingNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="shopping-cart" style="width:14px;height:14px;color:#0f9f74;"></i><span>Zoznam</span></button>
-        <button id="profileNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="user" style="width:14px;height:14px;"></i><span id="ui-btnProfile">Profil</span></button>
-        <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="history" style="width:14px;height:14px;"></i><span id="ui-btnHistory">História</span></button>
-        <select id="langSelect" class="toggle-pill" style="padding:8px 4px;">
-          <option value="sk">🇸🇰 SK</option>
-          <option value="cz">🇨🇿 CZ</option>
-          <option value="pl">🇵🇱 PL</option>
-          <option value="hu">🇭🇺 HU</option>
-          <option value="en">🇬🇧 EN</option>
-          <option value="de">🇩🇪 DE</option>
-          <option value="it">🇮🇹 IT</option>
-          <option value="fr">🇫🇷 FR</option>
-          <option value="es">🇪🇸 ES</option>
-        </select>
-      </div>
-    </div>
-    
-    <!-- BAR PRE VYBER ZDRAVOTNÉHO PROFILU -->
-    <div class="row-between" style="background:rgba(0,0,0,0.2);padding:8px 12px;border-radius:14px;">
-      <span class="title-xs" style="color:#4fbe99;" id="ui-myProfileLabel">Môj Profil:</span>
-      <select id="healthProfileSelect" class="toggle-pill" style="padding:4px 8px;font-size:12px;border-color:rgba(79,190,153,0.3);">
-        <option value="general" id="ui-profGeneral">👤 Všeobecný</option>
-        <option value="heart" id="ui-profHeart">🩺 Srdce & Tlak (Prísna soľ)</option>
-        <option value="diabetes" id="ui-profDiabetes">🩸 Cukor & Glukóza (Prísny cukor)</option>
-        <option value="clean" id="ui-profClean">🌿 Bez E-čiek (Čistá strava)</option>
-      </select>
-    </div>
-
-    <!-- 🚫 AKTUÁLNE ALERGÉNY A FILTRE -->
-    <div class="stack" style="gap:6px;">
-      <span class="title-xs" style="color:#df5252;" id="ui-allergensLabel">Vyhnúť sa (Alergény / Zložky):</span>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;" id="allergensWrap">
-        <div class="allergen-chip" data-value="gluten">🌾 <span id="ui-algGluten">Lepok</span></div>
-        <div class="allergen-chip" data-value="lactose">🥛 <span id="ui-algLactose">Laktóza</span></div>
-        <div class="allergen-chip" data-value="nuts">🥜 <span id="ui-algNuts">Orechy</span></div>
-        <div class="allergen-chip" data-value="palmoil">🌴 <span id="ui-algPalmoil">Palmový olej</span></div>
-      </div>
-    </div>
-  </header>
-
-  <main class="stack-lg">
-    <!-- SCREEN HERO -->
-    <section id="screen-hero" class="screen active">
-      <div class="card">
-        <div class="badge badge-ok"><span id="ui-heroBadge">Rýchla kontrola potravín</span></div>
-        <div class="stack" style="gap:10px;">
-          <h2 id="ui-heroTitle" style="font-size:28px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu alebo <span style="color:#0f9f74;">naskenuj EAN kód</span>.</h2>
-          <p id="ui-heroDesc" class="muted" style="font-size:14px;line-height:1.5;margin:0;">Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.</p>
-        </div>
-        
-        <button id="startBarcodeScannerBtn" class="btn btn-primary" style="background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="scan-barcode"></i><span id="ui-btnScanEan">Skenovať čiarový kód (EAN)</span></button>
-        <button id="heroCameraBtn" class="btn btn-secondary"><i data-lucide="camera"></i><span id="ui-btnCamera">Odfotiť celú etiketu</span></button>
-        
-        <input id="photoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
-      </div>
-    </section>
-
-    <!-- SCREEN BARCODE SCANNER -->
-    <section id="screen-barcode" class="screen">
-      <div class="row-between">
-        <button id="stopBarcodeScannerBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBackEan">Späť</span></button>
-        <div class="badge badge-ok">EAN Skenovanie</div>
-      </div>
-      <div class="card" style="text-align:center;">
-        <h3 id="ui-eanTitle" style="font-size:18px;font-weight:700;margin:0;">Namier kameru na čiarový kód</h3>
-        <p id="ui-eanSub" class="muted" style="font-size:13px;margin:0;">Kód sa automaticky rozozná</p>
-        <div id="barcode-scanner-container" style="width:100%;min-height:250px;border-radius:20px;overflow:hidden;background:#000;"></div>
-      </div>
-    </section>
-
-    <!-- SCREEN NÁKUPNÝ ZOZNAM -->
-    <section id="screen-shopping" class="screen">
-      <div class="row-between">
-        <button id="backFromShoppingBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
-        <button id="clearShoppingBtn" class="badge badge-red" style="cursor:pointer;">Vymazať zoznam</button>
-      </div>
-      <div class="card">
-        <div class="stack" style="gap:4px;">
-          <h2 style="font-size:20px;font-weight:700;margin:0;">🛒 Nákupný zoznam</h2>
-          <p class="muted" style="font-size:13px;margin:0;">Uložené obľúbené produkty na nákup.</p>
-        </div>
-        <div id="shoppingListWrap" class="stack" style="gap:10px;margin-top:8px;"></div>
-      </div>
-    </section>
-
-    <!-- SCREEN PROFIL (LOKÁLNY + SKENER SPRÁV) -->
-    <section id="screen-profile" class="screen">
-      <div class="row-between">
-        <button id="backFromProfileBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBackProfile">Späť</span></button>
-        <div class="badge badge-ok" id="ui-badgeProfile">Môj Profil</div>
-      </div>
-
-      <div class="card" style="align-items:center;text-align:center;">
-        <div style="position:relative;width:100px;height:100px;margin:0 auto;">
-          <img id="profileAvatarImg" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" style="width:100px;height:100px;border-radius:999px;object-fit:cover;border:2px solid #0f9f74;" />
-          <button id="changeAvatarBtn" style="position:absolute;bottom:0;right:0;background:#0f9f74;border:none;border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;"><i data-lucide="camera" style="width:16px;height:16px;"></i></button>
-          <input id="avatarFileInput" type="file" accept="image/*" class="file-hidden" />
-        </div>
-        
-        <h3 id="profileDisplayName" style="font-size:20px;font-weight:700;margin:10px 0 0 0;">Používateľ</h3>
-        <p class="muted" style="font-size:13px;margin:2px 0 0 0;" id="ui-profileSub">Osobné nastavenia v zariadení</p>
-
-        <div style="width:100%;text-align:left;margin-top:10px;" class="stack">
-          <label style="font-size:13px;color:#a1a1aa;" id="ui-lblName">Meno a Priezvisko:</label>
-          <input id="profileNameInput" type="text" placeholder="Tvoje meno..." style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
-
-          <label style="font-size:13px;color:#a1a1aa;margin-top:6px;" id="ui-lblInfo">Info / Poznámka (napr. Intolerancia):</label>
-          <input id="profileInfoInput" type="text" placeholder="napr. Silná alergia na laktózu, bez alkoholu" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
-
-          <button id="saveProfileBtn" class="btn btn-primary" style="margin-top:12px;" id="ui-btnSaveProfile">Uložiť profil</button>
-        </div>
-      </div>
-
-      <!-- SEKCIA SKENER LEKÁRSKYCH SPRÁV V PROFILE -->
-      <div class="card" style="border-color:rgba(79,190,153,0.3);">
-        <div class="row" style="gap:10px;">
-          <div style="width:36px;height:36px;border-radius:12px;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <i data-lucide="stethoscope" style="width:20px;height:20px;"></i>
-          </div>
-          <div>
-            <h3 style="font-size:16px;font-weight:700;margin:0;">Skener lekárskych správ & Krvných testov</h3>
-            <p class="muted" style="font-size:12px;margin:0;">AI nastaví tvoj profil podľa nálezu od lekára</p>
-          </div>
-        </div>
-
-        <button id="takeMedicalPhotoBtn" class="btn btn-secondary" style="background:rgba(255,255,255,0.05);border-color:rgba(79,190,153,0.3);color:#4fbe99;"><i data-lucide="file-text"></i><span>Odfotiť / Nahrať lekársku správu</span></button>
-        <input id="medicalPhotoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
-
-        <div id="medicalLoadingWrap" class="stack hidden" style="text-align:center;padding:12px 0;">
-          <p style="font-size:13px;font-weight:600;color:#4fbe99;margin:0;">Prebieha AI analýza lekárskeho nálezu...</p>
-        </div>
-
-        <div id="medicalResultWrap" class="stack hidden" style="gap:12px;margin-top:8px;">
-          <div class="details-box" style="border-color:rgba(79,190,153,0.3);background:rgba(79,190,153,0.05);">
-            <p class="title-xs" style="color:#4fbe99;">Zrozumiteľné zhrnutie nálezu</p>
-            <p id="medSummaryText" style="font-size:13px;line-height:1.5;margin:0;font-weight:500;"></p>
-          </div>
-
-          <div class="details-box">
-            <p class="title-xs" style="color:#f29a2e;">Diagnózy & Nálezy</p>
-            <ul id="medDiagnosesList" style="margin:0;padding-left:18px;font-size:12px;line-height:1.5;" class="stack" style="gap:4px;"></ul>
-          </div>
-
-          <div class="details-box">
-            <p class="title-xs" style="color:#4fbe99;">Sledované krvné parametre</p>
-            <div id="medBloodMarkersWrap" class="stack" style="gap:6px;margin-top:4px;"></div>
-          </div>
-
-          <div class="details-box">
-            <p class="title-xs" style="color:#0f9f74;">Diétne odporúčania z nálezu</p>
-            <ul id="medDietRecsList" style="margin:0;padding-left:18px;font-size:12px;line-height:1.5;" class="stack" style="gap:4px;"></ul>
-          </div>
-
-          <button id="applyMedicalProfileBtn" class="btn btn-primary" style="background:linear-gradient(180deg,#0f9f74,#0a7f5b);padding:12px 16px;font-size:14px;"><i data-lucide="check-circle"></i><span>Aplikovať odporúčania do diétneho profilu</span></button>
-        </div>
-      </div>
-    </section>
-
-    <!-- SCREEN SCAN -->
-    <section id="screen-scan" class="screen">
-      <div class="row-between">
-        <button id="backToHeroBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBack1">Späť</span></button>
-        <div class="badge badge-ok">Live OpenAI</div>
-      </div>
-      <div class="card">
-        <div class="camera-frame">
-          <img id="previewImage" class="product-image hidden" alt="Preview" />
-          <p id="placeholderText" class="muted">Obrázok sa načítava...</p>
-          <div id="scanLine" class="scan-line hidden"></div>
-        </div>
-        <button id="tryLiveScanBtn" class="btn btn-primary"><i data-lucide="sparkles"></i><span id="ui-btnStartScan">Spustiť AI analýzu</span></button>
-      </div>
-    </section>
-
-    <!-- SCREEN HISTÓRIA -->
-    <section id="screen-history" class="screen">
-      <div class="row-between">
-        <button id="backFromHistoryBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBack2">Späť</span></button>
-        <button id="clearHistoryBtn" class="badge badge-red" style="cursor:pointer;" id="ui-btnClearHistory">Vymazať históriu</button>
-      </div>
-      <div class="card">
-        <div class="stack" style="gap:4px;">
-          <h2 id="ui-historyTitle" style="font-size:20px;font-weight:700;margin:0;">Moje naskenované produkty</h2>
-          <p id="ui-historySub" class="muted" style="font-size:13px;margin:0;">Uložené lokálne v tomto zariadení.</p>
-        </div>
-        <div id="historyListWrap" class="stack" style="gap:10px;margin-top:8px;"></div>
-      </div>
-    </section>
-
-    <!-- SCREEN RESULT -->
-    <section id="screen-result" class="screen">
-      <div class="row-between">
-        <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnScanAgain">Sken</span></button>
-        <button id="addShoppingListBtn" class="badge badge-ok" style="cursor:pointer;background:rgba(15,159,116,0.2);color:#0f9f74;font-size:13px;padding:8px 12px;border:1px solid #0f9f74;">❤️ Do zoznamu</button>
-      </div>
-
-      <div id="allergenAlertBanner" class="alert-banner hidden">
-        <i data-lucide="alert-triangle" style="width:28px;height:28px;color:#df5252;flex-shrink:0;"></i>
-        <div class="stack" style="gap:2px;">
-          <h4 style="font-size:15px;font-weight:800;margin:0;color:#df5252;" id="ui-alertBannerTitle">POZOR: Zistená zakázaná zložka!</h4>
-          <p id="allergenAlertText" style="font-size:13px;margin:0;line-height:1.3;"></p>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="verdict-row">
-          <div id="verdictRing" class="verdict-ring"><div class="verdict-ring-inner"><div id="verdictPercent" style="font-size:20px;font-weight:800;">0</div><div class="title-xs" style="font-size:9px;">Score</div></div></div>
-          <div class="stack" style="gap:6px;flex:1;">
-            <div id="verdictBadge" class="badge badge-demo" style="align-self:flex-start;"><span class="risk-dot risk-orange"></span><span id="verdictLabel">Radšej obmedziť</span></div>
-            <h2 id="productName" style="font-size:22px;font-weight:800;margin:0;">—</h2>
-            <p id="productMeta" class="muted" style="font-size:14px;margin:0;"></p>
-          </div>
-        </div>
-
-        <div id="lactose-calculator-card" style="background: #0e1013; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 16px;">
-          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-            <span style="font-size: 20px;">💊</span>
-            <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #f1efe9;" id="ui-lactTitle">Kalkulačka dávkovania laktázy</h3>
-          </div>
-
-          <label style="font-size: 13px; color: #a1a1aa; display: block; margin-bottom: 6px;" id="ui-lactLabel">
-            Koľko g/ml chystáš zjesť/vypiť?
-          </label>
-          
-          <input 
-            type="number" 
-            id="lactose-portion-input" 
-            value="150" 
-            placeholder="napr. 150"
-            style="width: 100%; background: #16191f; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 10px 14px; color: #fff; font-size: 16px; outline: none;"
-          />
-
-          <div style="margin-top: 14px; background: rgba(15, 159, 116, 0.15); border: 1px solid #0f9f74; border-radius: 14px; padding: 12px; text-align: center;">
-            <div style="font-size: 13px; color: #a1a1aa;" id="ui-lactRec">Odporúčaná dávka:</div>
-            <div id="lactose-result-tablets" style="font-size: 22px; font-weight: 700; color: #0f9f74; margin: 4px 0;">
-              0 tabletiek
-            </div>
-            <div id="lactose-result-details" style="font-size: 12px; color: #a1a1aa;">
-              (0 g laktózy • 0 FCC)
-            </div>
-          </div>
-        </div>
-
-        <div class="energy-card">
-          <div class="row-between">
-            <div class="row" style="gap:8px;">
-              <i data-lucide="zap" id="energyIcon" style="width:18px;height:18px;color:#f29a2e;"></i>
-              <span class="title-xs" id="ui-energyLabelTitle" style="color:#f29a2e;">Dopad na energiu a sústredenie</span>
-            </div>
-            <span id="energyDurationBadge" class="badge" style="background:rgba(255,255,255,0.08);color:#a6a39b;">~45 min</span>
-          </div>
-
-          <h3 id="energyTitle" style="font-size:16px;font-weight:700;margin:0;color:#fff;">Prudký výkyv cukru & Únava</h3>
-
-          <div style="width:100%;height:60px;margin:4px 0;">
-            <svg viewBox="0 0 300 60" width="100%" height="100%">
-              <line x1="10" y1="40" x2="290" y2="40" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4,4"/>
-              <path id="energyGraphPath" d="M10,40 Q60,5 120,40 T290,55" fill="none" stroke="#df5252" stroke-width="3.5" stroke-linecap="round"/>
-            </svg>
-          </div>
-
-          <p id="energyDesc" style="font-size:13px;line-height:1.4;margin:0;" class="muted">Tento produkt rýchlo dvihne hladinu cukru, no po krátkom čase nasleduje pád pod normál.</p>
-        </div>
-
-        <div class="body-impact-card">
-          <div class="body-svg-container">
-            <svg viewBox="0 0 100 200" width="100%" height="100%">
-              <defs>
-                <linearGradient id="bodyGlowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#4fbe99" stop-opacity="0.3"/>
-                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0.05"/>
-                </linearGradient>
-              </defs>
-              <path d="M50,12 C42,12 38,19 38,27 C38,35 42,39 50,39 C58,39 62,35 62,27 C62,19 58,12 50,12 Z M37,46 C30,50 24,62 23,82 C26,80 28,70 30,60 C31,72 34,85 34,105 C31,125 33,185 38,185 C41,185 44,145 48,125 L52,125 C56,145 59,185 62,185 C67,185 69,125 66,105 C66,85 69,72 70,60 C72,70 74,80 77,82 C76,62 70,50 63,46 C56,54 44,54 37,46 Z" fill="url(#bodyGlowGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="1.2"/>
-              <line x1="50" y1="39" x2="50" y2="125" stroke="rgba(255,255,255,0.15)" stroke-dasharray="2,2"/>
-              <circle id="organ-brain" class="organ-glow organ-pulse" cx="50" cy="25" r="7" fill="#6f6d68"/>
-              <circle id="organ-heart" class="organ-glow organ-pulse" cx="52" cy="62" r="7" fill="#6f6d68"/>
-              <circle id="organ-stomach" class="organ-glow organ-pulse" cx="49" cy="84" r="8" fill="#6f6d68"/>
-            </svg>
-          </div>
-          <div class="stack" style="gap:6px;flex:1;">
-            <p class="title-xs" style="color:#4fbe99;" id="ui-bodyTitle">Vizuálny dopad na telo</p>
-            <h3 id="bodyImpactTitle" style="font-size:16px;font-weight:700;margin:0;">Analýza orgánov...</h3>
-            <p id="bodyImpactText" class="muted" style="font-size:13px;line-height:1.4;margin:0;"></p>
-          </div>
-        </div>
-
-        <div class="details-box">
-          <p class="title-xs" style="color:#4fbe99;" id="ui-ingredientsTitle">Surovinové Zloženie</p>
-          <p id="ingredientsRawText" style="font-size:14px;line-height:1.5;margin:0;font-weight:500;">Načítavam suroviny...</p>
-        </div>
-
-        <div class="details-box">
-          <p class="title-xs" style="color:#f29a2e;" id="ui-additivesTitle">Detailný rozbor Aditív (E-čiek)</p>
-          <div id="additivesListWrap" class="stack" style="gap:8px;margin-top:4px;"></div>
-        </div>
-
-        <p id="recommendationText" style="font-size:14px;line-height:1.5;margin:0;" class="muted"></p>
-        <div id="scoresGrid" class="grid-2"></div>
-
-        <div id="healthSwapSection" class="swap-card">
-          <div class="row-between">
-            <div class="stack" style="gap:2px;">
-              <p class="title-xs" style="color:#4fbe99;">Health Swap</p>
-              <h3 style="font-size:17px;font-weight:700;margin:0;" id="ui-swapHeader">Zdravšia alternatíva</h3>
-            </div>
-            <span id="swapImprovement" class="badge badge-ok">+20 bodov</span>
-          </div>
-          <p id="swapSummary" style="font-size:13px;color:#4fbe99;margin:0;"></p>
-
-          <div class="compare-grid">
-            <div class="compare-box">
-              <span class="title-xs" id="ui-scannedLabel">Skenované</span>
-              <p id="compareCurrentName" style="font-size:13px;font-weight:600;margin:0;">—</p>
-            </div>
-            <div class="compare-box">
-              <span class="title-xs" style="color:#4fbe99;" id="ui-recommendLabel">Odporúčanie</span>
-              <p id="compareSwapName" style="font-size:13px;font-weight:600;color:#4fbe99;margin:0;">—</p>
-            </div>
-          </div>
-
-          <button id="toggleTableBtn" class="btn btn-secondary" style="font-size:13px;padding:10px 14px;background:rgba(255,255,255,0.08);color:#fff;" id="ui-btnToggleTable">Skryť / Zobraziť detailné porovnanie</button>
-
-          <div id="compareTableWrap" style="overflow-x:auto;border-radius:16px;border:1px solid rgba(255,255,255,0.1);margin-top:4px;">
-            <table class="compare-table">
-              <thead>
-                <tr style="background:rgba(255,255,255,0.04);">
-                  <th id="ui-thMetric">Metrika</th>
-                  <th id="ui-thProduct">Produkt</th>
-                  <th style="color:#4fbe99;" id="ui-thAlt">Alternatíva</th>
-                </tr>
-              </thead>
-              <tbody id="compareTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="details-box">
-          <div class="row-between">
-            <p class="title-xs" style="color:#4fbe99;" id="ui-reviewsTitle">Komunitné recenzie</p>
-            <span id="reviewsCountBadge" class="badge" style="background:rgba(255,255,255,0.06);color:#a6a39b;">0 recenzií</span>
-          </div>
-
-          <div class="stack" style="gap:8px;background:rgba(0,0,0,0.2);padding:12px;border-radius:14px;">
-            <div class="row-between">
-              <span style="font-size:13px;font-weight:600;" id="ui-addRatingLabel">Pridať hodnotenie:</span>
-              <select id="reviewRatingSelect" class="toggle-pill" style="padding:4px 8px;font-size:12px;">
-                <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
-                <option value="4">⭐⭐⭐⭐ (4/5)</option>
-                <option value="3">⭐⭐⭐ (3/5)</option>
-                <option value="2">⭐⭐ (2/5)</option>
-                <option value="1">⭐ (1/5)</option>
-              </select>
-            </div>
-            <input id="reviewInputText" type="text" placeholder="Tvoj názor na chuť, cenu alebo zloženie..." style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;outline:none;" />
-            <button id="submitReviewBtn" class="btn btn-primary" style="padding:8px 12px;font-size:13px;border-radius:12px;" id="ui-btnSendReview">Odoslať recenziu</button>
-          </div>
-
-          <div id="reviewsListWrap" class="stack" style="gap:8px;margin-top:4px;">
-            <p class="muted" style="font-size:12px;">Zatiaľ tu nie sú žiadne recenzie. Buď prvý!</p>
-          </div>
-        </div>
-
-        <button id="newScanBtn" class="btn btn-primary"><i data-lucide="refresh-ccw"></i><span id="ui-btnNewScan">Skúsiť nový sken</span></button>
-      </div>
-    </section>
-  </main>
-</div>
-
-<script>
-// REGISTRÁCIA SERVICE WORKERA PRE PWA
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
-  });
-}
-
-const UI_TRANSLATIONS = {
-  sk: {
-    subHeader: "AI čítanie etikiet", btnProfile: "Profil", btnHistory: "História", myProfileLabel: "Môj Profil:",
-    profGeneral: "👤 Všeobecný", profHeart: "🩺 Srdce & Tlak (Prísna soľ)", profDiabetes: "🩸 Cukor & Glukóza (Prísny cukor)", profClean: "🌿 Bez E-čiek (Čistá strava)",
-    allergensLabel: "Vyhnúť sa (Alergény / Zložky):", algGluten: "Lepok", algLactose: "Laktóza", algNuts: "Orechy", algPalmoil: "Palmový olej",
-    alertBannerTitle: "POZOR: Zistená zakázaná zložka!",
-    heroBadge: "Rýchla kontrola potravín", heroTitle: 'Odfoť etiketu alebo <span style="color:#0f9f74;">naskenuj EAN kód</span>.', heroDesc: "Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.", btnScanEan: "Skenovať čiarový kód (EAN)", btnCamera: "Odfotiť celú etiketu",
-    btnBack1: "Späť", btnBack2: "Späť", btnBackProfile: "Späť", btnBackEan: "Späť", badgeProfile: "Môj Profil", profileSub: "Osobné nastavenia v zariadení", lblName: "Meno a Priezvisko:", lblInfo: "Info / Poznámka (napr. Intolerancia):", btnSaveProfile: "Uložiť profil",
-    eanTitle: "Namier kameru na čiarový kód", eanSub: "Kód sa automaticky rozozná",
-    btnStartScan: "Spustiť AI analýzu", btnClearHistory: "Vymazať históriu", historyTitle: "Moje naskenované produkty", historySub: "Uložené lokálne v tomto zariadení.",
-    btnScanAgain: "Sken", energyLabelTitle: "Dopad na energiu a sústredenie", bodyTitle: "Vizuálny dopad na telo", ingredientsTitle: "Surovinové Zloženie", additivesTitle: "Detailný rozbor Aditív (E-čiek)",
-    lactTitle: "Kalkulačka dávkovania laktázy", lactLabel: "Koľko g/ml chystáš zjesť/vypiť?", lactRec: "Odporúčana dávka:",
-    swapHeader: "Zdravšia alternatíva", scannedLabel: "Skenované", recommendLabel: "Odporúčanie", btnToggleTable: "Skryť / Zobraziť detailné porovnanie", thMetric: "Metrika", thProduct: "Produkt", thAlt: "Alternatíva",
-    reviewsTitle: "Komunitné recenzie", addRatingLabel: "Pridať hodnotenie:", reviewPlaceholder: "Tvoj názor na chuť, cenu alebo zloženie...", btnSendReview: "Odoslať recenziu", btnNewScan: "Skúsiť nový sken",
-    scoreSugar: "Cukor", scoreSalt: "Soľ", scoreAdditives: "Éčka / Aditíva", scoreProcessing: "Spracovanie"
-  }
-};
-
-const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null };
-const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping") };
-
-let html5QrCode = null;
-
-function makeSafeKey(text) {
-  if (!text) return "produkt_" + Date.now();
-  return String(text)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "_")
-    .replace(/_+/g, "_")
-    .trim();
-}
-
-function loadUserProfile(){
+// 1. ENDPOINT PRE SKENOVANIE POTRAVÍN
+app.post('/api/scan', upload.single('image'), async (req, res) => {
   try {
-    const saved = localStorage.getItem("userProfile");
-    if(saved){
-      const p = JSON.parse(saved);
-      document.getElementById("profileNameInput").value = p.name || "";
-      document.getElementById("profileInfoInput").value = p.info || "";
-      document.getElementById("profileDisplayName").textContent = p.name || "Používateľ";
-      if(p.avatar) document.getElementById("profileAvatarImg").src = p.avatar;
-    }
-  } catch(e){}
-}
+    if (!req.file) return res.status(400).json({ error: 'Nebol odoslaný žiadny obrázok.' });
 
-function saveUserProfile(){
-  const name = document.getElementById("profileNameInput").value || "Používateľ";
-  const info = document.getElementById("profileInfoInput").value || "";
-  const avatar = document.getElementById("profileAvatarImg").src;
-  
-  const p = { name, info, avatar };
-  localStorage.setItem("userProfile", JSON.stringify(p));
-  document.getElementById("profileDisplayName").textContent = name;
-  alert("Profil bol úspešne uložený do zariadenia!");
-}
+    const lang = req.body.lang || 'sk';
+    const profile = req.body.profile || 'general';
+    const allergens = req.body.allergens ? JSON.parse(req.body.allergens) : [];
+    const imageBase64 = req.file.buffer.toString('base64');
 
-function init(){ 
-  loadUserProfile();
-  bindEvents(); 
-  renderHistoryList(); 
-  renderShoppingList();
-  updateUI(); 
-  if(window.lucide) lucide.createIcons(); 
-}
+    const promptText = `
+Analýzuj túto etiketu potraviny/nápoja.
+Používateľský jazyk: ${lang}
+Zdravotný profil používateľa: ${profile}
+Zakázané alergény/zložky pre používateľa: ${allergens.join(', ')}
 
-function bindEvents(){
-  document.getElementById("heroCameraBtn").addEventListener("click", () => { showScreen("scan"); document.getElementById("photoInput").click(); });
-  document.getElementById("photoInput").addEventListener("change", handleFileSelected);
-  document.getElementById("tryLiveScanBtn").addEventListener("click", processCurrentFile);
-  document.getElementById("newScanBtn").addEventListener("click", () => showScreen("scan"));
-  document.getElementById("backToHeroBtn").addEventListener("click", () => showScreen("hero"));
-  document.getElementById("backToScanBtn").addEventListener("click", () => showScreen("scan"));
-  document.getElementById("historyNavBtn").addEventListener("click", () => { renderHistoryList(); showScreen("history"); });
-  document.getElementById("backFromHistoryBtn").addEventListener("click", () => showScreen("hero"));
-  document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
-  document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
-
-  // NÁKUPNÝ ZOZNAM EVENTY
-  document.getElementById("shoppingNavBtn").addEventListener("click", () => { renderShoppingList(); showScreen("shopping"); });
-  document.getElementById("backFromShoppingBtn").addEventListener("click", () => showScreen("hero"));
-  document.getElementById("clearShoppingBtn").addEventListener("click", clearShoppingList);
-  document.getElementById("addShoppingListBtn").addEventListener("click", addToShoppingList);
-
-  // LEKÁRSKA SPRÁVA EVENTY V PROFILE
-  document.getElementById("takeMedicalPhotoBtn").addEventListener("click", () => document.getElementById("medicalPhotoInput").click());
-  document.getElementById("medicalPhotoInput").addEventListener("change", handleMedicalFileSelected);
-  document.getElementById("applyMedicalProfileBtn").addEventListener("click", applyMedicalRecommendations);
-
-  // BARCODE SKENER EVENTY
-  document.getElementById("startBarcodeScannerBtn").addEventListener("click", startBarcodeScanner);
-  document.getElementById("stopBarcodeScannerBtn").addEventListener("click", stopBarcodeScanner);
-
-  // PROFIL EVENTY
-  document.getElementById("profileNavBtn").addEventListener("click", () => showScreen("profile"));
-  document.getElementById("backFromProfileBtn").addEventListener("click", () => showScreen("hero"));
-  document.getElementById("saveProfileBtn").addEventListener("click", saveUserProfile);
-  document.getElementById("changeAvatarBtn").addEventListener("click", () => document.getElementById("avatarFileInput").click());
-  document.getElementById("avatarFileInput").addEventListener("change", (e) => {
-    const file = e.target.files?.[0];
-    if(file){
-      const r = new FileReader();
-      r.onload = () => { document.getElementById("profileAvatarImg").src = r.result; };
-      r.readAsDataURL(file);
-    }
-  });
-
-  const portionInput = document.getElementById("lactose-portion-input");
-  if(portionInput) {
-    portionInput.addEventListener("input", () => {
-      aktualizujVypocetLaktazy(state.currentLactosePer100g);
-    });
-  }
-
-  document.querySelectorAll(".allergen-chip").forEach(chip => {
-    chip.addEventListener("click", () => {
-      chip.classList.toggle("active");
-      const val = chip.getAttribute("data-value");
-      if(chip.classList.contains("active")){
-        if(!state.allergens.includes(val)) state.allergens.push(val);
-      } else {
-        state.allergens = state.allergens.filter(a => a !== val);
-      }
-      if(state.selectedFile) processCurrentFile();
-    });
-  });
-
-  document.getElementById("langSelect").addEventListener("change", async (e) => {
-    state.lang = e.target.value;
-    updateUI();
-    if(state.selectedFile) processCurrentFile();
-    else if(state.currentProductKey) fetchReviews(state.currentProductKey);
-  });
-
-  document.getElementById("healthProfileSelect").addEventListener("change", (e) => {
-    state.profile = e.target.value;
-    if(state.selectedFile) processCurrentFile();
-  });
-
-  document.getElementById("toggleTableBtn").addEventListener("click", () => {
-    document.getElementById("compareTableWrap").classList.toggle("hidden");
-  });
-}
-
-function getShoppingList(){
-  try { return JSON.parse(localStorage.getItem("shoppingList") || "[]"); } catch(e){ return []; }
-}
-
-function saveShoppingList(list){
-  localStorage.setItem("shoppingList", JSON.stringify(list));
-}
-
-function addToShoppingList(){
-  if(!state.currentData || !state.currentData.product?.name) return;
-  let list = getShoppingList();
-  
-  const exists = list.some(item => item.name === state.currentData.product.name);
-  if(exists){
-    alert("Tento produkt už máš v nákupnom zozname!");
-    return;
-  }
-
-  const newItem = {
-    id: "item_" + Date.now(),
-    name: state.currentData.product.name,
-    category: state.currentData.product.category || "Potravina",
-    score: state.currentData.analysis?.verdict?.score || 0,
-    severity: state.currentData.analysis?.verdict?.severity || "orange",
-    checked: false
-  };
-
-  list.unshift(newItem);
-  saveShoppingList(list);
-  alert("Produkt bol pridaný do nákupného zoznamu!");
-}
-
-function toggleShoppingItem(id){
-  let list = getShoppingList();
-  list = list.map(item => item.id === id ? { ...item, checked: !item.checked } : item);
-  saveShoppingList(list);
-  renderShoppingList();
-}
-
-function deleteShoppingItem(id, e){
-  e.stopPropagation();
-  let list = getShoppingList();
-  list = list.filter(item => item.id !== id);
-  saveShoppingList(list);
-  renderShoppingList();
-}
-
-function clearShoppingList(){
-  if(confirm("Vymazať celý nákupný zoznam?")){
-    localStorage.removeItem("shoppingList");
-    renderShoppingList();
-  }
-}
-
-function renderShoppingList(){
-  const wrap = document.getElementById("shoppingListWrap");
-  const list = getShoppingList();
-
-  if(list.length === 0){
-    wrap.innerHTML = `<p class="muted" style="font-size:14px;text-align:center;padding:20px 0;">Váš nákupný zoznam je prázdny. Pridajte produkty tlačidlom ❤️ po naskenovaní.</p>`;
-    return;
-  }
-
-  wrap.innerHTML = list.map(item => {
-    const color = item.severity === "green" ? "#0f9f74" : item.severity === "red" ? "#df5252" : "#f29a2e";
-    const checkedClass = item.checked ? "checked" : "";
-
-    return `
-      <div class="shopping-item ${checkedClass}" onclick="toggleShoppingItem('${item.id}')">
-        <div class="row" style="gap:10px;">
-          <input type="checkbox" ${item.checked ? 'checked' : ''} style="width:18px;height:18px;accent-color:#0f9f74;" />
-          <div class="stack" style="gap:2px;">
-            <h4 style="font-size:15px;font-weight:700;margin:0;color:#fff;">${item.name}</h4>
-            <p class="muted" style="font-size:12px;margin:0;">${item.category}</p>
-          </div>
-        </div>
-        <div class="row" style="gap:10px;">
-          <span style="font-size:14px;font-weight:800;color:${color}">${item.score}/100</span>
-          <button onclick="deleteShoppingItem('${item.id}', event)" style="background:none;border:none;color:#df5252;cursor:pointer;padding:4px;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  if(window.lucide) lucide.createIcons();
-}
-
-async function handleMedicalFileSelected(e){
-  const file = e.target.files?.[0];
-  if(!file) return;
-
-  document.getElementById("medicalLoadingWrap").classList.remove("hidden");
-  document.getElementById("medicalResultWrap").classList.add("hidden");
-
-  const formData = new FormData();
-  formData.append("image", file);
-  formData.append("lang", state.lang);
-
-  try {
-    const res = await fetch("/api/scan-medical", { method: "POST", body: formData });
-    const data = await res.json();
-    state.lastMedicalData = data;
-    renderMedicalResult(data);
-  } catch(err) {
-    alert("Chyba pri analýze lekárskej správy.");
-  } finally {
-    document.getElementById("medicalLoadingWrap").classList.add("hidden");
-  }
-}
-
-function renderMedicalResult(data){
-  document.getElementById("medSummaryText").textContent = data.summary || "Správu sa nepodarilo prečítať.";
-
-  const diagWrap = document.getElementById("medDiagnosesList");
-  diagWrap.innerHTML = (data.diagnoses || []).map(d => `<li>${d}</li>`).join("") || "<li>Žiadne špecifické diagnózy neboli zistené.</li>";
-
-  const bloodWrap = document.getElementById("medBloodMarkersWrap");
-  bloodWrap.innerHTML = (data.blood_markers || []).map(m => {
-    const badgeColor = m.status === 'high' || m.status === 'low' ? '#df5252' : '#0f9f74';
-    return `
-      <div class="additive-item">
-        <div class="row-between">
-          <span style="font-weight:700;font-size:12px;color:#fff;">${m.name}: ${m.value}</span>
-          <span class="badge" style="background:${badgeColor}22;color:${badgeColor};font-size:10px;">${m.status.toUpperCase()}</span>
-        </div>
-        <p style="font-size:11px;margin:2px 0 0 0;" class="muted">${m.note || ""}</p>
-      </div>
-    `;
-  }).join("") || `<p class="muted" style="font-size:12px;">Žiadne namerané krvné parametre.</p>`;
-
-  const recsWrap = document.getElementById("medDietRecsList");
-  recsWrap.innerHTML = (data.dietary_recommendations || []).map(r => `<li>${r}</li>`).join("") || "<li>Bez špeciálnych stravovacích obmedzení.</li>";
-
-  document.getElementById("medicalResultWrap").classList.remove("hidden");
-  if(window.lucide) lucide.createIcons();
-}
-
-function applyMedicalRecommendations(){
-  if(!state.lastMedicalData) return;
-  const d = state.lastMedicalData;
-
-  if(d.suggested_profile){
-    state.profile = d.suggested_profile;
-    document.getElementById("healthProfileSelect").value = d.suggested_profile;
-  }
-
-  if(Array.isArray(d.suggested_allergens)){
-    d.suggested_allergens.forEach(alg => {
-      if(!state.allergens.includes(alg)) state.allergens.push(alg);
-      const chip = document.querySelector(`.allergen-chip[data-value="${alg}"]`);
-      if(chip) chip.classList.add("active");
-    });
-  }
-
-  alert("Odporúčania z lekárskej správy boli úspešne aplikované do tvojho zdravotného profilu!");
-  showScreen("hero");
-}
-
-function startBarcodeScanner() {
-  showScreen("barcode");
-  html5QrCode = new Html5Qrcode("barcode-scanner-container");
-  
-  html5QrCode.start(
-    { facingMode: "environment" },
-    { fps: 10, qrbox: { width: 250, height: 150 } },
-    (decodedText) => {
-      stopBarcodeScanner();
-      handleBarcodeDetected(decodedText);
+Vráť výsledok STRICTNE ako čistý JSON s touto štruktúrou:
+{
+  "product": { "name": "Názov produktu", "category": "Kategória", "portion": "Porcia (napr. 100g)" },
+  "lactose_g": 0.0,
+  "allergen_warnings": ["Zoznam varovaní ak produkt obsahuje vybrané zakázané zložky alebo alkohol"],
+  "ingredients_raw": "Prečítané zloženie z obalu",
+  "additives_detail": [ { "code": "E300", "name": "Názov", "origin": "Pôvod", "process": "Spôsob výroby", "risk": "Zdravotný vplyv" } ],
+  "energy_impact": { "type": "spike" | "moderate" | "steady", "title": "Názov efektu", "description": "Opis glukózového efektu", "duration": "~X min" },
+  "analysis": {
+    "verdict": { "score": 75, "label": "Skóre a hodnotenie", "severity": "green" | "orange" | "red" },
+    "recommendation": "Odporúčanie",
+    "scores": {
+      "sugar": { "value": "X g", "level": "Nízky/Vysoký", "severity": "green" },
+      "salt": { "value": "X g", "level": "Nízky/Vysoký", "severity": "green" },
+      "additives": { "value": "X aditív", "level": "Bez E-čiek", "severity": "green" },
+      "processing": { "value": "Stupeň spracovania", "level": "Nízky", "severity": "green" }
     },
-    (errorMessage) => {}
-  ).catch(err => {
-    alert("Chyba pri otváraní kamery pre čiarové kódy.");
-    showScreen("hero");
-  });
-}
-
-function stopBarcodeScanner() {
-  if (html5QrCode) {
-    html5QrCode.stop().then(() => {
-      html5QrCode.clear();
-      showScreen("hero");
-    }).catch(err => showScreen("hero"));
-  } else {
-    showScreen("hero");
-  }
-}
-
-async function handleBarcodeDetected(eanCode) {
-  try {
-    const res = await fetch(`https://world.openfoodfacts.org/api/v2/product/${eanCode}.json?lc=${state.lang}`);
-    const data = await res.json();
-    
-    if(data.status === 1) {
-      const p = data.product;
-      const name = p.product_name_sk || p.product_name || "Produkt";
-      const category = p.categories_sk || p.categories || "Potravina";
-      const rawIngredients = p.ingredients_text_sk || p.ingredients_text || "Zloženie z EAN databázy";
-      
-      const warnings = [];
-      const isAlcoholic = (p.categories_tags || []).some(t => t.includes("alcoholic") || t.includes("beer") || t.includes("pivo")) ||
-                          (p.nutriments?.alcohol || 0) > 0;
-      
-      if(isAlcoholic) warnings.push("Alkohol");
-      if(p.allergens_tags) p.allergens_tags.forEach(a => warnings.push(a.replace("en:", "")));
-
-      const formattedData = {
-        product: { name: name, category: category, portion: "100g" },
-        lactose_g: p.nutriments?.sugars_100g || 0,
-        allergen_warnings: warnings,
-        ingredients_raw: rawIngredients,
-        energy_impact: { type: isAlcoholic ? "spike" : "moderate", title: isAlcoholic ? "Záťaž organizmu" : "Dopad na energiu", description: isAlcoholic ? "Obsahuje alkohol — spomaľuje metabolizmus." : "Stabilná hladina glukózy.", duration: "~1 hodina" },
-        analysis: { 
-          verdict: { 
-            score: isAlcoholic ? 35 : 80, 
-            label: isAlcoholic ? "Alkoholický nápoj" : "Vhodné", 
-            severity: isAlcoholic ? "red" : "green" 
-          }, 
-          recommendation: "Analýza vytvorená na základe EAN kódu.", 
-          scores: {} 
-        }
-      };
-
-      renderResult(formattedData);
-      showScreen("result");
-    } else {
-      alert("Produkt s týmto EAN kódom sa nenašiel v databáze. Skús odfotiť celú etiketu.");
-    }
-  } catch(e) {
-    alert("Chyba pri načítavaní EAN kódu.");
-  }
-}
-
-function showScreen(name){ Object.entries(screens).forEach(([key, el]) => el.classList.toggle("active", key === name)); }
-
-async function handleFileSelected(e){
-  const file = e.target.files?.[0]; if(!file) return;
-  state.selectedFile = file;
-  state.previewDataUrl = await new Promise(res => { const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file); });
-  document.getElementById("previewImage").src = state.previewDataUrl;
-  document.getElementById("previewImage").classList.remove("hidden");
-  document.getElementById("placeholderText").classList.add("hidden");
-  showScreen("scan");
-}
-
-async function processCurrentFile(){
-  if(!state.selectedFile) return;
-  document.getElementById("scanLine").classList.remove("hidden");
-  
-  const formData = new FormData();
-  formData.append("image", state.selectedFile);
-  formData.append("lang", state.lang);
-  formData.append("profile", state.profile);
-  formData.append("allergens", JSON.stringify(state.allergens));
-
-  try {
-    const res = await fetch("/api/scan", { method:"POST", body:formData });
-    const data = await res.json();
-    state.currentData = data;
-    saveToLocalHistory(data);
-    renderResult(data);
-    document.getElementById("scanLine").classList.add("hidden");
-    showScreen("result");
-  } catch(e) {
-    alert("Chyba pri skenovaní.");
-    document.getElementById("scanLine").classList.add("hidden");
-  }
-}
-
-function getLocalHistory(){
-  try { return JSON.parse(localStorage.getItem("scanHistory") || "[]"); } catch(e){ return []; }
-}
-
-function saveToLocalHistory(data){
-  if(!data || !data.product?.name) return;
-  let history = getLocalHistory();
-  history = history.filter(item => item.product?.name !== data.product?.name);
-  history.unshift(data);
-  if(history.length > 20) history.pop();
-  localStorage.setItem("scanHistory", JSON.stringify(history));
-}
-
-function clearHistory(){
-  if(confirm("Vymazať históriu?")){
-    localStorage.removeItem("scanHistory");
-    renderHistoryList();
-  }
-}
-
-function renderHistoryList(){
-  const wrap = document.getElementById("historyListWrap");
-  const history = getLocalHistory();
-
-  if(history.length === 0){
-    wrap.innerHTML = `<p class="muted" style="font-size:14px;text-align:center;padding:20px 0;">Žiadne naskenované produkty.</p>`;
-    return;
-  }
-
-  wrap.innerHTML = history.map((item, idx) => {
-    const score = item.analysis?.verdict?.score || 0;
-    const sev = item.analysis?.verdict?.severity || "orange";
-    const color = sev === "green" ? "#0f9f74" : sev === "red" ? "#df5252" : "#f29a2e";
-
-    return `
-      <div class="history-item" onclick="openHistoryItem(${idx})">
-        <div class="stack" style="gap:2px;">
-          <h4 style="font-size:15px;font-weight:700;margin:0;color:#fff;">${item.product?.name || "Produkt"}</h4>
-          <p class="muted" style="font-size:12px;margin:0;">${item.product?.category || "Potravina"}</p>
-        </div>
-        <div class="row" style="gap:8px;">
-          <span style="font-size:16px;font-weight:800;color:${color}">${score}/100</span>
-          <i data-lucide="chevron-right" style="width:16px;height:16px;color:#a6a39b;"></i>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  if(window.lucide) lucide.createIcons();
-}
-
-function openHistoryItem(idx){
-  const history = getLocalHistory();
-  if(history[idx]){
-    state.currentData = history[idx];
-    renderResult(history[idx]);
-    showScreen("result");
-  }
-}
-
-function renderResult(data){
-  if(!data) return;
-  state.currentData = data;
-  const analysis = data.analysis || {};
-  const verdict = analysis.verdict || {};
-
-  const rawName = data.product_key || data.product?.name || "produkt";
-  state.currentProductKey = makeSafeKey(rawName);
-
-  const alertBanner = document.getElementById("allergenAlertBanner");
-  const alertText = document.getElementById("allergenAlertText");
-  const warnings = data.allergen_warnings || [];
-
-  if(warnings.length > 0) {
-    alertBanner.classList.remove("hidden");
-    alertText.textContent = `Tento produkt obsahuje: ${warnings.join(", ")}.`;
-  } else {
-    alertBanner.classList.add("hidden");
-  }
-
-  const lactoseCard = document.getElementById("lactose-calculator-card");
-  const hasLactose = warnings.some(w => w.toLowerCase().includes("laktóz") || w.toLowerCase().includes("mliek")) || state.allergens.includes("lactose");
-  
-  if (lactoseCard) {
-    if (hasLactose || data.lactose_g) {
-      lactoseCard.classList.remove("hidden");
-      state.currentLactosePer100g = data.lactose_g || 4.8;
-      aktualizujVypocetLaktazy(state.currentLactosePer100g);
-    } else {
-      lactoseCard.classList.add("hidden");
+    "healthierSwap": {
+      "enabled": true,
+      "improvement": "+15 bodov",
+      "summary": "Stručné zhrnutie prečo je lepšia",
+      "product": { "name": "Názov alternatívy", "score": 90, "sugar": "X g", "salt": "X g", "additives": "Bez E-čiek", "processing": "Minimálne" }
     }
   }
-
-  document.getElementById("verdictPercent").textContent = verdict.score || 0;
-  document.getElementById("verdictLabel").textContent = verdict.label || "—";
-  document.getElementById("productName").textContent = data.product?.name || "Produkt";
-  document.getElementById("productMeta").textContent = `${data.product?.category || ""} • ${data.product?.portion || ""}`;
-  document.getElementById("recommendationText").textContent = analysis.recommendation || "";
-
-  document.getElementById("ingredientsRawText").textContent = data.ingredients_raw || "Zloženie nebolo možné prečítať.";
-
-  renderEnergyImpact(data.energy_impact);
-  renderAdditivesDetail(data.additives_detail || []);
-  renderScores(analysis.scores);
-  renderHealthSwap(data);
-  updateBodyOrgans(analysis.scores);
-
-  fetchReviews(state.currentProductKey);
-
-  if(window.lucide) lucide.createIcons();
 }
+`;
 
-async function fetchReviews(key){
-  if(!key) return;
-  try {
-    const res = await fetch(`/api/reviews?key=${encodeURIComponent(key)}&lang=${state.lang}`);
-    if(!res.ok) return renderReviewsList([]);
-    const reviews = await res.json();
-    renderReviewsList(reviews);
-  } catch(e){ renderReviewsList([]); }
-}
-
-function renderReviewsList(reviews){
-  const wrap = document.getElementById("reviewsListWrap");
-  const badge = document.getElementById("reviewsCountBadge");
-
-  const list = Array.isArray(reviews) ? reviews : [];
-  badge.textContent = `${list.length} recenzií`;
-
-  if(list.length === 0){
-    wrap.innerHTML = `<p class="muted" style="font-size:12px;">Zatiaľ tu nie sú žiadne recenzie. Buď prvý!</p>`;
-    return;
-  }
-
-  wrap.innerHTML = list.map(r => `
-    <div class="review-card">
-      <div class="row-between">
-        <span style="font-size:12px;color:#f29a2e;">${'⭐'.repeat(r.rating || 5)}</span>
-        <span class="muted" style="font-size:10px;">${r.created_at ? new Date(r.created_at).toLocaleDateString() : ""}</span>
-      </div>
-      <p style="font-size:13px;margin:2px 0 0 0;color:#f1efe9;">${r.comment || "Bez komentára"}</p>
-    </div>
-  `).join("");
-}
-
-async function submitReview(){
-  if(!state.currentProductKey){
-    state.currentProductKey = "produkt_temp";
-  }
-  const rating = document.getElementById("reviewRatingSelect").value;
-  const comment = document.getElementById("reviewInputText").value;
-
-  if(!comment.trim()){
-    return alert("Napíš krátky komentár predtým, ako ho odošleš.");
-  }
-
-  try {
-    const res = await fetch("/api/reviews", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productKey: state.currentProductKey, rating, comment })
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: [{ type: "text", text: promptText }, { type: "image_url", image_url: { url: `data:${req.file.mimetype};base64,${imageBase64}` } }] }],
+      response_format: { type: "json_object" }
     });
-    
-    let data;
-    try {
-      data = await res.json();
-    } catch(err) {
-      return alert("Server vrátil neplatnú odpoveď.");
+
+    res.json(JSON.parse(response.choices[0].message.content));
+  } catch (error) {
+    res.status(500).json({ error: 'Chyba pri spracovaní obrázka.' });
+  }
+});
+
+// 2. ENDPOINT PRE SKENER LEKÁRSKYCH SPRÁV
+app.post('/api/scan-medical', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'Nebol odoslaný žiadny obrázok.' });
+
+    const lang = req.body.lang || 'sk';
+    const imageBase64 = req.file.buffer.toString('base64');
+
+    const promptText = `
+Analýzuj tento lekársky nález, lekársku správu alebo krvné testy.
+Výstup vráť STRICTNE ako čistý JSON v jazyku: ${lang}.
+
+Formát JSON odpovede:
+{
+  "summary": "Stručné a zrozumiteľné zhrnutie správy ľudskou rečou bez zložitej latinčiny.",
+  "diagnoses": ["Zoznam hlavných diagnóz alebo nálezov"],
+  "blood_markers": [ { "name": "Názov parametra", "value": "Hodnota", "status": "normal" | "high" | "low", "note": "Vysvetlenie" } ],
+  "dietary_recommendations": ["Odporúčania pre stravu"],
+  "suggested_profile": "general" | "heart" | "diabetes" | "clean",
+  "suggested_allergens": ["gluten", "lactose", "nuts", "palmoil"]
+}
+`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: [{ type: "text", text: promptText }, { type: "image_url", image_url: { url: `data:${req.file.mimetype};base64,${imageBase64}` } }] }],
+      response_format: { type: "json_object" }
+    });
+
+    res.json(JSON.parse(response.choices[0].message.content));
+  } catch (error) {
+    res.status(500).json({ error: 'Chyba pri spracovaní lekárskej správy.' });
+  }
+});
+
+// 3. ENDPOINT PRE AKČNÉ ZĽAVY V PREDAJNIACH
+app.post('/api/discounts', async (req, res) => {
+  try {
+    const { city, stores, shoppingList, lang } = req.body;
+    if (!city || !stores || stores.length === 0 || !shoppingList || shoppingList.length === 0) {
+      return res.status(400).json({ error: 'Chýbajú parametre pre kontrolu letákov.' });
     }
 
-    if(res.ok && data.ok){
-      document.getElementById("reviewInputText").value = "";
-      fetchReviews(state.currentProductKey);
-    } else {
-      alert("Chyba: " + (data.error || "Neznáma chyba pri ukladaní recenzie."));
+    const promptText = `
+Si nákupný asistent pre akčné ponuky na Slovensku.
+Mesto používateľa: ${city}
+Vybrané predajne: ${stores.join(', ')}
+Nákupný zoznam: ${JSON.stringify(shoppingList)}
+Jazyk: ${lang || 'sk'}
+
+Vráť STRICTNE čistý JSON:
+{
+  "city": "${city}",
+  "recommendations": ["Odporúčania kde čo kúpiť najvýhodnejšie"],
+  "discounted_items": [ { "product_name": "Položka zo zoznamu", "store": "Obchod", "discount_price": "1.29 €", "original_price": "1.89 €", "saving_percent": "-31%" } ]
+}
+`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: promptText }],
+      response_format: { type: "json_object" }
+    });
+
+    res.json(JSON.parse(response.choices[0].message.content));
+  } catch (error) {
+    res.status(500).json({ error: 'Chyba pri vyhľadávaní zliav.' });
+  }
+});
+
+// 4. ENDPOINT PRE DENNÉ MENU A REŠTAURÁCIE
+app.post('/api/daily-menu', async (req, res) => {
+  try {
+    const { city, profile, allergens, currentTime, medicalNotes, lang } = req.body;
+    const userCity = city || "Revúca";
+
+    const promptText = `
+Si gastro asistent pre denné menu a reštaurácie na Slovensku.
+Mesto: ${userCity}
+Aktuálny čas používateľa: ${currentTime || "12:00"}
+Zdravotný profil používateľa: ${profile || "general"}
+Zakázané alergény/zložky: ${(allergens || []).join(', ')}
+Poznámky z lekárskej správy: ${medicalNotes || "Žiadne špeciálne obmedzenia"}
+Jazyk: ${lang || 'sk'}
+
+Zisti/simuluj aktuálne reštaurácie a denné obedové menu pre dané mesto na Slovensku.
+Ak je čas medzi 10:30 a 14:30, zameraj sa na Denné obedové menu.
+Ak je mimo týchto hodín, zameraj sa na stálu ponuku a otváracie hodiny reštaurácií v okolí.
+
+Vráť STRICTNE čistý JSON:
+{
+  "mode": "lunch_menu" | "regular_menu",
+  "city": "${userCity}",
+  "time_info": "Text informujúci o aktuálnom režime (napr. Obedové menu 11:00 - 14:00)",
+  "restaurants": [
+    {
+      "name": "Názov reštaurácie",
+      "address": "Ulica / Lokalita",
+      "serving_hours": "11:00 - 13:30",
+      "menu_items": [
+        {
+          "title": "Názov jedla (napr. Grilované kuracie prsia s ryžou)",
+          "price": "6.50 €",
+          "is_suitable": true | false,
+          "warning": "Dôvod ak nie je vhodné (napr. Obsahuje laktózu)",
+          "health_score": "Výborná voľba / Mierne rizikové / Nevhodné"
+        }
+      ]
     }
-  } catch(e){
-    alert("Chyba pripojenia: " + e.message);
-  }
+  ]
 }
+`;
 
-function renderEnergyImpact(energy){
-  const titleEl = document.getElementById("energyTitle");
-  const descEl = document.getElementById("energyDesc");
-  const badgeEl = document.getElementById("energyDurationBadge");
-  const pathEl = document.getElementById("energyGraphPath");
-  const labelTitleEl = document.getElementById("ui-energyLabelTitle");
-  const iconEl = document.getElementById("energyIcon");
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: promptText }],
+      response_format: { type: "json_object" }
+    });
 
-  const type = energy?.type || "moderate";
-
-  titleEl.textContent = energy?.title || "Dopad na energiu";
-  descEl.textContent = energy?.description || "Stabilná hladina glukózy.";
-  badgeEl.textContent = energy?.duration || "~2 hodiny";
-
-  if(type === "spike"){
-    pathEl.setAttribute("d", "M10,40 Q50,0 100,38 T200,55 L290,42");
-    pathEl.setAttribute("stroke", "#df5252");
-    labelTitleEl.style.color = "#df5252";
-    if(iconEl) iconEl.style.color = "#df5252";
-  } else if(type === "moderate") {
-    pathEl.setAttribute("d", "M10,40 Q90,15 170,35 T290,40");
-    pathEl.setAttribute("stroke", "#f29a2e");
-    labelTitleEl.style.color = "#f29a2e";
-    if(iconEl) iconEl.style.color = "#f29a2e";
-  } else {
-    pathEl.setAttribute("d", "M10,40 Q150,22 290,38");
-    pathEl.setAttribute("stroke", "#0f9f74");
-    labelTitleEl.style.color = "#0f9f74";
-    if(iconEl) iconEl.style.color = "#0f9f74";
+    res.json(JSON.parse(response.choices[0].message.content));
+  } catch (error) {
+    console.error('Chyba pri hľadaní denného menu:', error);
+    res.status(500).json({ error: 'Chyba pri vyhľadávaní reštaurácií.' });
   }
-}
+});
 
-function renderAdditivesDetail(list){
-  const wrap = document.getElementById("additivesListWrap");
-  if(!list || list.length === 0){
-    wrap.innerHTML = `<p style="font-size:13px;" class="muted">Žiadne pridané rizikové E-čka neboli nájdené.</p>`;
-    return;
-  }
+// 5. ENDPOINTY PRE RECENZIE
+app.get('/api/reviews', (req, res) => {
+  const key = req.query.key || 'general';
+  res.json(reviewsDb[key] || []);
+});
 
-  wrap.innerHTML = list.map(item => `
-    <div class="additive-item">
-      <div class="row-between">
-        <span style="font-weight:700;color:#f29a2e;font-size:14px;">${item.code} - ${item.name}</span>
-        <span class="badge" style="background:rgba(242,154,46,0.15);color:#f29a2e;font-size:10px;">${item.origin}</span>
-      </div>
-      <p style="font-size:12px;margin:2px 0 0 0;color:#f1efe9;"><b>Výroba/Účel:</b> ${item.process}</p>
-      <p style="font-size:12px;margin:2px 0 0 0;color:#a6a39b;"><b>Vplyv:</b> ${item.risk}</p>
-    </div>
-  `).join("");
-}
+app.post('/api/reviews', (req, res) => {
+  const { productKey, rating, comment } = req.body;
+  if (!productKey || !comment) return res.status(400).json({ error: 'Chýbajú povinné údaje.' });
+  if (!reviewsDb[productKey]) reviewsDb[productKey] = [];
+  const newReview = { rating: parseInt(rating) || 5, comment, created_at: new Date().toISOString() };
+  reviewsDb[productKey].unshift(newReview);
+  res.json({ ok: true, review: newReview });
+});
 
-function renderScores(scores){
-  const grid = document.getElementById("scoresGrid");
-  const s = scores || {};
-  const dict = UI_TRANSLATIONS[state.lang] || UI_TRANSLATIONS.sk;
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
 
-  const items = [
-    { key:"sugar", title: dict.scoreSugar || "Cukor", icon:"candy", data: s.sugar },
-    { key:"salt", title: dict.scoreSalt || "Soľ", icon:"beaker", data: s.salt },
-    { key:"additives", title: dict.scoreAdditives || "Éčka / Aditíva", icon:"flask-conical", data: s.additives },
-    { key:"processing", title: dict.scoreProcessing || "Spracovanie", icon:"factory", data: s.processing }
-  ];
-
-  grid.innerHTML = items.map(item => {
-    const val = item.data?.value || "—";
-    const level = item.data?.level || "—";
-    const sev = item.data?.severity || "orange";
-    const color = sev === "green" ? "#0f9f74" : sev === "red" ? "#df5252" : "#f29a2e";
-
-    return `<div class="score-card">
-      <div class="row-between">
-        <div class="row" style="font-size:13px;font-weight:600;">
-          <i data-lucide="${item.icon}" style="width:16px;height:16px;color:${color};"></i>
-          <span>${item.title}</span>
-        </div>
-        <span class="badge" style="background:rgba(255,255,255,0.06);color:${color}">${level}</span>
-      </div>
-      <p style="font-size:14px;font-weight:700;margin:0;">${val}</p>
-    </div>`;
-  }).join("");
-}
-
-function renderHealthSwap(data){
-  const swap = data.analysis?.healthierSwap;
-  const section = document.getElementById("healthSwapSection");
-  if(!swap || !swap.enabled){ section.classList.add("hidden"); return; }
-
-  section.classList.remove("hidden");
-  document.getElementById("swapImprovement").textContent = swap.improvement || "+20 bodov";
-  document.getElementById("swapSummary").textContent = swap.summary || "";
-  document.getElementById("compareCurrentName").textContent = data.product?.name || "Skenovaný";
-  document.getElementById("compareSwapName").textContent = swap.product?.name || "Alternatíva";
-
-  const currentScore = data.analysis?.verdict?.score || 65;
-  const swapScore = swap.product?.score || 85;
-  const s = data.analysis?.scores || {};
-
-  document.getElementById("compareTableBody").innerHTML = `
-    <tr><td>Metrika</td><td>${currentScore}/100</td><td style="color:#4fbe99;">${swapScore}/100</td></tr>
-    <tr><td>Cukor</td><td>${s.sugar?.value || "0g"}</td><td style="color:#4fbe99;">${swap.product?.sugar || "0g"}</td></tr>
-    <tr><td>Soľ</td><td>${s.salt?.value || "2g"}</td><td style="color:#4fbe99;">${swap.product?.salt || "0.1g"}</td></tr>
-    <tr><td>Aditíva</td><td>${s.additives?.value || "2 aditíva"}</td><td style="color:#4fbe99;">${swap.product?.additives || "Bez E-čiek"}</td></tr>
-    <tr><td>Spracovanie</td><td>${s.processing?.value || "Spracovaná"}</td><td style="color:#4fbe99;">${swap.product?.processing || "Minimálne"}</td></tr>
-  `;
-}
-
-function updateBodyOrgans(scores){
-  const brain = document.getElementById("organ-brain");
-  const heart = document.getElementById("organ-heart");
-  const stomach = document.getElementById("organ-stomach");
-
-  let impacts = [];
-
-  if(scores?.salt?.severity === "red" || scores?.salt?.severity === "orange"){
-    heart.setAttribute("fill", "#df5252");
-    impacts.push("cievy a tlak");
-  } else {
-    heart.setAttribute("fill", "#0f9f74");
-  }
-
-  if(scores?.additives?.severity === "red" || scores?.additives?.severity === "orange"){
-    stomach.setAttribute("fill", "#f29a2e");
-    impacts.push("trávenie");
-  } else {
-    stomach.setAttribute("fill", "#0f9f74");
-  }
-
-  if(scores?.sugar?.severity === "red" || scores?.sugar?.severity === "orange"){
-    brain.setAttribute("fill", "#df5252");
-    impacts.push("mozog");
-  } else {
-    brain.setAttribute("fill", "#0f9f74");
-  }
-
-  const titleEl = document.getElementById("bodyImpactTitle");
-  const textEl = document.getElementById("bodyImpactText");
-
-  if(impacts.length > 0){
-    titleEl.textContent = `Zasahuje ${impacts.length} ${impacts.length === 1 ? 'oblasť' : 'oblasti'}`;
-    textEl.textContent = `Zistená zvýšená záťaž na: ${impacts.join(", ")}.`;
-  } else {
-    titleEl.textContent = "Výborný dopad na telo";
-    textEl.textContent = "Produkt je šetrný k orgánom a nezaťažuje trávenie ani cievny systém.";
-  }
-}
-
-function vypocitajLaktazu(laktozaNa100g, porciaGramy, silaTabletky = 4500) {
-  if (!laktozaNa100g || laktozaNa100g <= 0 || !porciaGramy || porciaGramy <= 0) {
-    return { gLaktozy: 0, fcc: 0, tabletky: 0 };
-  }
-  
-  const gLaktozy = (laktozaNa100g / 100) * porciaGramy;
-  const fcc = Math.round(gLaktozy * 1250);
-  const tabletky = Math.ceil(fcc / silaTabletky);
-
-  return {
-    gLaktozy: gLaktozy.toFixed(1),
-    fcc: fcc,
-    tabletky: tabletky
-  };
-}
-
-function aktualizujVypocetLaktazy(laktozaNa100g) {
-  const porciaInput = document.getElementById('lactose-portion-input');
-  const vysledokTabletky = document.getElementById('lactose-result-tablets');
-  const vysledokDetails = document.getElementById('lactose-result-details');
-  
-  if (!porciaInput) return;
-  
-  const porcia = parseFloat(porciaInput.value) || 0;
-  const res = vypocitajLaktazu(laktozaNa100g, porcia);
-  
-  if (vysledokTabletky) {
-    vysledokTabletky.innerText = res.tabletky + (res.tabletky === 1 ? ' tabletka' : ' tabletky');
-  }
-  if (vysledokDetails) {
-    vysledokDetails.innerText = `(${res.gLaktozy} g laktózy • ${res.fcc} FCC)`;
-  }
-}
-
-function updateUI() {
-  const dict = UI_TRANSLATIONS[state.lang] || UI_TRANSLATIONS.sk;
-  const el = (id) => document.getElementById(id);
-
-  if(el("ui-subHeader")) el("ui-subHeader").textContent = dict.subHeader;
-  if(el("ui-btnProfile")) el("ui-btnProfile").textContent = dict.btnProfile || "Profil";
-  if(el("ui-btnHistory")) el("ui-btnHistory").textContent = dict.btnHistory;
-  if(el("ui-myProfileLabel")) el("ui-myProfileLabel").textContent = dict.myProfileLabel;
-  if(el("ui-profGeneral")) el("ui-profGeneral").textContent = dict.profGeneral;
-  if(el("ui-profHeart")) el("ui-profHeart").textContent = dict.profHeart;
-  if(el("ui-profDiabetes")) el("ui-profDiabetes").textContent = dict.profDiabetes;
-  if(el("ui-profClean")) el("ui-profClean").textContent = dict.profClean;
-  if(el("ui-allergensLabel")) el("ui-allergensLabel").textContent = dict.allergensLabel;
-  if(el("ui-algGluten")) el("ui-algGluten").textContent = dict.algGluten;
-  if(el("ui-algLactose")) el("ui-algLactose").textContent = dict.algLactose;
-  if(el("ui-algNuts")) el("ui-algNuts").textContent = dict.algNuts;
-  if(el("ui-algPalmoil")) el("ui-algPalmoil").textContent = dict.algPalmoil;
-  if(el("ui-alertBannerTitle")) el("ui-alertBannerTitle").textContent = dict.alertBannerTitle;
-  if(el("ui-heroBadge")) el("ui-heroBadge").textContent = dict.heroBadge;
-  if(el("ui-heroTitle")) el("ui-heroTitle").innerHTML = dict.heroTitle;
-  if(el("ui-heroDesc")) el("ui-heroDesc").textContent = dict.heroDesc;
-  if(el("ui-btnScanEan")) el("ui-btnScanEan").textContent = dict.btnScanEan || "Skenovať EAN";
-  if(el("ui-btnCamera")) el("ui-btnCamera").textContent = dict.btnCamera;
-  if(el("ui-btnBack1")) el("ui-btnBack1").textContent = dict.btnBack1;
-  if(el("ui-btnBack2")) el("ui-btnBack2").textContent = dict.btnBack2;
-  if(el("ui-btnBackProfile")) el("ui-btnBackProfile").textContent = dict.btnBackProfile || dict.btnBack1;
-  if(el("ui-btnBackEan")) el("ui-btnBackEan").textContent = dict.btnBackEan || dict.btnBack1;
-  if(el("ui-badgeProfile")) el("ui-badgeProfile").textContent = dict.badgeProfile || "Môj Profil";
-  if(el("ui-profileSub")) el("ui-profileSub").textContent = dict.profileSub;
-  if(el("ui-lblName")) el("ui-lblName").textContent = dict.lblName;
-  if(el("ui-lblInfo")) el("ui-lblInfo").textContent = dict.lblInfo;
-  if(el("ui-btnSaveProfile")) el("ui-btnSaveProfile").textContent = dict.btnSaveProfile;
-  if(el("ui-eanTitle")) el("ui-eanTitle").textContent = dict.eanTitle;
-  if(el("ui-eanSub")) el("ui-eanSub").textContent = dict.eanSub;
-  if(el("ui-btnStartScan")) el("ui-btnStartScan").textContent = dict.btnStartScan;
-  if(el("ui-btnClearHistory")) el("ui-btnClearHistory").textContent = dict.btnClearHistory;
-  if(el("ui-historyTitle")) el("ui-historyTitle").textContent = dict.historyTitle;
-  if(el("ui-historySub")) el("ui-historySub").textContent = dict.historySub;
-  if(el("ui-btnScanAgain")) el("ui-btnScanAgain").textContent = dict.btnScanAgain;
-  if(el("ui-energyLabelTitle")) el("ui-energyLabelTitle").textContent = dict.energyLabelTitle;
-  if(el("ui-bodyTitle")) el("ui-bodyTitle").textContent = dict.bodyTitle;
-  if(el("ui-ingredientsTitle")) el("ui-ingredientsTitle").textContent = dict.ingredientsTitle;
-  if(el("ui-additivesTitle")) el("ui-additivesTitle").textContent = dict.additivesTitle;
-  if(el("ui-lactTitle")) el("ui-lactTitle").textContent = dict.lactTitle;
-  if(el("ui-lactLabel")) el("ui-lactLabel").textContent = dict.lactLabel;
-  if(el("ui-lactRec")) el("ui-lactRec").textContent = dict.lactRec;
-  if(el("ui-swapHeader")) el("ui-swapHeader").textContent = dict.swapHeader;
-  if(el("ui-scannedLabel")) el("ui-scannedLabel").textContent = dict.scannedLabel;
-  if(el("ui-recommendLabel")) el("ui-recommendLabel").textContent = dict.recommendLabel;
-  if(el("ui-btnToggleTable")) el("ui-btnToggleTable").textContent = dict.btnToggleTable;
-  if(el("ui-thMetric")) el("ui-thMetric").textContent = dict.thMetric;
-  if(el("ui-thProduct")) el("ui-thProduct").textContent = dict.thProduct;
-  if(el("ui-thAlt")) el("ui-thAlt").textContent = dict.thAlt;
-  if(el("ui-reviewsTitle")) el("ui-reviewsTitle").textContent = dict.reviewsTitle;
-  if(el("ui-addRatingLabel")) el("ui-addRatingLabel").textContent = dict.addRatingLabel;
-  if(el("reviewInputText")) el("reviewInputText").placeholder = dict.reviewPlaceholder;
-  if(el("ui-btnSendReview")) el("ui-btnSendReview").textContent = dict.btnSendReview;
-  if(el("ui-btnNewScan")) el("ui-btnNewScan").textContent = dict.btnNewScan;
-
-  if(state.currentData) renderScores(state.currentData.analysis?.scores);
-}
-
-init();
-</script>
-</body>
-</html>
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server beží na porte ${PORT}`));
