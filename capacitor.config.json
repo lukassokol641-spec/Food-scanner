@@ -1,0 +1,10 @@
+{
+  "appId": "sk.lukassokol.nutripulse",
+  "appName": "NutriPulse AI",
+  "webDir": ".",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://nutripulse-ai.onrender.com",
+    "cleartext": true
+  }
+}
