@@ -131,7 +131,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <button onclick="window.print()" class="toggle-pill" style="padding:4px 8px;font-size:12px;color:#10b981;border-color:rgba(16,185,129,0.3);"><i data-lucide="printer" style="width:12px;height:12px;"></i> PDF</button>
         <select id="langSelect" class="toggle-pill" style="padding:4px 6px;font-size:12px;">
           <option value="sk">🇸🇰 SK</option>
-          <option value="cz">🇨ℤ CZ</option>
+          <option value="cz">🇨🇿 CZ</option>
           <option value="pl">🇵🇱 PL</option>
           <option value="hu">🇭🇺 HU</option>
           <option value="en">🇬🇧 EN</option>
@@ -174,14 +174,19 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </select>
     </div>
 
-    <!-- 🚫 AKTUÁLNE ALERGÉNY A FILTRE -->
+    <!-- 🚫 ROZŠÍRENÉ INTOLERANCIE A ALERGÉNY -->
     <div class="stack" style="gap:4px;">
-      <span class="title-xs" style="color:#ef4444;font-size:10px;" id="ui-allergensLabel">Vyhnúť sa (Alergény / Zložky):</span>
+      <span class="title-xs" style="color:#ef4444;font-size:10px;" id="ui-allergensLabel">Vyhnúť sa (Intolerancie & Alergény):</span>
       <div style="display:flex;flex-wrap:wrap;gap:6px;" id="allergensWrap">
-        <div class="allergen-chip" data-value="gluten">🌾 <span id="ui-algGluten">Lepok</span></div>
-        <div class="allergen-chip" data-value="lactose">🥛 <span id="ui-algLactose">Laktóza</span></div>
-        <div class="allergen-chip" data-value="nuts">🥜 <span id="ui-algNuts">Orechy</span></div>
-        <div class="allergen-chip" data-value="palmoil">🌴 <span id="ui-algPalmoil">Palmový olej</span></div>
+        <div class="allergen-chip" data-value="gluten">🌾 Lepok</div>
+        <div class="allergen-chip" data-value="lactose">🥛 Laktóza</div>
+        <div class="allergen-chip" data-value="histamine">🍅 Histamín</div>
+        <div class="allergen-chip" data-value="fructose">🍎 Fruktóza</div>
+        <div class="allergen-chip" data-value="nuts">🥜 Orechy</div>
+        <div class="allergen-chip" data-value="soy">🌱 Sója</div>
+        <div class="allergen-chip" data-value="eggs">🥚 Vajcia</div>
+        <div class="allergen-chip" data-value="palmoil">🌴 Palmový olej</div>
+        <div class="allergen-chip" data-value="sugar">🍬 Pridaný cukor</div>
       </div>
     </div>
   </header>
@@ -442,7 +447,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN PROFIL S PODPOROU A HLÁSENÍM CHÝB -->
+    <!-- SCREEN PROFIL -->
     <section id="screen-profile" class="screen">
       <div class="row-between">
         <button id="backFromProfileBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBackProfile">Späť</span></button>
@@ -470,7 +475,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </div>
       </div>
 
-      <!-- KARTA: PODPORA & NAHLÁSENIE CHYBY -->
       <div class="card" style="border-color:rgba(239,68,68,0.3);">
         <div class="row" style="gap:10px;">
           <div style="width:36px;height:36px;border-radius:12px;background:rgba(239,68,68,0.15);color:#ef4444;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -799,8 +803,7 @@ const UI_TRANSLATIONS = {
   sk: {
     subHeader: "AI čítanie etikiet", btnProfile: "Profil", btnHistory: "História", myProfileLabel: "Môj Profil:",
     profGeneral: "👤 Všeobecný", profHeart: "🩺 Srdce & Tlak (Prísna soľ)", profDiabetes: "🩸 Cukor & Glukóza (Prísny cukor)", profClean: "🌿 Bez E-čiek (Čistá strava)",
-    allergensLabel: "Vyhnúť sa (Alergény / Zložky):", algGluten: "Lepok", algLactose: "Laktóza", algNuts: "Orechy", algPalmoil: "Palmový olej",
-    alertBannerTitle: "POZOR: Zistená zakázaná zložka!",
+    allergensLabel: "Vyhnúť sa (Intolerancie & Alergény):",
     heroBadge: "Rýchla kontrola potravín", heroTitle: 'Odfoť etiketu alebo <span style="color:#10b981;">naskenuj EAN kód</span>.', heroDesc: "Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.", btnScanEan: "Skenovať čiarový kód (EAN)", btnCamera: "Odfotiť celú etiketu",
     btnBack1: "Späť", btnBack2: "Späť", btnBackProfile: "Späť", btnBackEan: "Späť", badgeProfile: "Môj Profil", profileSub: "Osobné nastavenia v zariadení", lblName: "Meno a Priezvisko:", lblInfo: "Info / Poznámka (napr. Intolerancia):", btnSaveProfile: "Uložiť profil",
     eanTitle: "Namier kameru na čiarový kód", eanSub: "Kód sa automaticky rozozná",
@@ -2045,11 +2048,6 @@ function updateUI() {
   if(el("ui-profDiabetes")) el("ui-profDiabetes").textContent = dict.profDiabetes;
   if(el("ui-profClean")) el("ui-profClean").textContent = dict.profClean;
   if(el("ui-allergensLabel")) el("ui-allergensLabel").textContent = dict.allergensLabel;
-  if(el("ui-algGluten")) el("ui-algGluten").textContent = dict.algGluten;
-  if(el("ui-algLactose")) el("ui-algLactose").textContent = dict.algLactose;
-  if(el("ui-algNuts")) el("ui-algNuts").textContent = dict.algNuts;
-  if(el("ui-algPalmoil")) el("ui-algPalmoil").textContent = dict.algPalmoil;
-  if(el("ui-alertBannerTitle")) el("ui-alertBannerTitle").textContent = dict.alertBannerTitle;
   if(el("ui-heroBadge")) el("ui-heroBadge").textContent = dict.heroBadge;
   if(el("ui-heroTitle")) el("ui-heroTitle").innerHTML = dict.heroTitle;
   if(el("ui-heroDesc")) el("ui-heroDesc").textContent = dict.heroDesc;
@@ -2058,7 +2056,6 @@ function updateUI() {
   if(el("ui-btnBack1")) el("ui-btnBack1").textContent = dict.btnBack1;
   if(el("ui-btnBack2")) el("ui-btnBack2").textContent = dict.btnBack2;
   if(el("ui-btnBackProfile")) el("ui-btnBackProfile").textContent = dict.btnBackProfile || dict.btnBack1;
-  if(el("ui-btnBackEan")) el("ui-btnBackEan").textContent = dict.btnBackEan || dict.btnBack1;
   if(el("ui-badgeProfile")) el("ui-badgeProfile").textContent = dict.badgeProfile || "Môj Profil";
   if(el("ui-profileSub")) el("ui-profileSub").textContent = dict.profileSub;
   if(el("ui-lblName")) el("ui-lblName").textContent = dict.lblName;
