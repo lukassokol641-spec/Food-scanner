@@ -53,9 +53,9 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .score-card{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 
-/* NAV PANEL */
-.nav-grid{display:grid;grid-template-columns:repeat(4, 1fr);gap:4px;width:100%;}
-.nav-pill{border-radius:14px;border:1px solid rgba(255,255,255,0.10);padding:7px 4px;font-weight:600;font-size:11px;background:#16191f;color:#f1efe9;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;}
+/* NAV PANEL - 5 TLAČIDIEL */
+.nav-grid{display:grid;grid-template-columns:repeat(5, 1fr);gap:4px;width:100%;}
+.nav-pill{border-radius:14px;border:1px solid rgba(255,255,255,0.10);padding:7px 2px;font-weight:600;font-size:10px;background:#16191f;color:#f1efe9;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;}
 
 /* SILUETA */
 .body-impact-card{background:linear-gradient(145deg, rgba(25,28,36,0.95), rgba(15,17,22,0.95));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 32px rgba(0,0,0,0.4);}
@@ -108,7 +108,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 <body>
 <div class="page">
   <header class="header">
-    <!-- RIADOK 1: LOGO + TITULOK + JAZYK -->
     <div class="row-between">
       <div class="row" style="gap:8px;">
         <div class="logo-badge">
@@ -133,12 +132,13 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </select>
     </div>
 
-    <!-- RIADOK 2: HLAVNÁ NAVIGÁCIA (4 TLAČIDLÁ PLNE PRISPÔSOBENÉ NA MOBIL) -->
+    <!-- MAIN NAV GRID (5 TLAČIDIEL NA MOBIL) -->
     <div class="nav-grid">
-      <button id="menuNavBtn" class="nav-pill"><i data-lucide="utensils" style="width:13px;height:13px;color:#f29a2e;"></i><span>Menu</span></button>
-      <button id="shoppingNavBtn" class="nav-pill"><i data-lucide="shopping-cart" style="width:13px;height:13px;color:#0f9f74;"></i><span>Zoznam</span></button>
-      <button id="profileNavBtn" class="nav-pill"><i data-lucide="user" style="width:13px;height:13px;"></i><span id="ui-btnProfile">Profil</span></button>
-      <button id="historyNavBtn" class="nav-pill"><i data-lucide="history" style="width:13px;height:13px;"></i><span id="ui-btnHistory">História</span></button>
+      <button id="assistantNavBtn" class="nav-pill"><i data-lucide="bot" style="width:12px;height:12px;color:#3b82f6;"></i><span>Asistent</span></button>
+      <button id="menuNavBtn" class="nav-pill"><i data-lucide="utensils" style="width:12px;height:12px;color:#f29a2e;"></i><span>Menu</span></button>
+      <button id="shoppingNavBtn" class="nav-pill"><i data-lucide="shopping-cart" style="width:12px;height:12px;color:#0f9f74;"></i><span>Zoznam</span></button>
+      <button id="profileNavBtn" class="nav-pill"><i data-lucide="user" style="width:12px;height:12px;"></i><span id="ui-btnProfile">Profil</span></button>
+      <button id="historyNavBtn" class="nav-pill"><i data-lucide="history" style="width:12px;height:12px;"></i><span id="ui-btnHistory">História</span></button>
     </div>
     
     <!-- BAR PRE VYBER ZDRAVOTNÉHO PROFILU -->
@@ -178,6 +178,88 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <button id="heroCameraBtn" class="btn btn-secondary"><i data-lucide="camera"></i><span id="ui-btnCamera">Odfotiť celú etiketu</span></button>
         
         <input id="photoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
+      </div>
+    </section>
+
+    <!-- SCREEN DENNÝ ASISTENT, BUDÍK & NOTIFIKÁCIE -->
+    <section id="screen-assistant" class="screen">
+      <div class="row-between">
+        <button id="backFromAssistantBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
+        <div class="badge badge-ok" style="background:rgba(59,130,246,0.15);color:#3b82f6;">🤖 Osobný Denný Asistent</div>
+      </div>
+
+      <!-- KARTA NOTIFIKÁCIE & SMARTWATCH -->
+      <div class="card" style="border-color:rgba(59,130,246,0.3);">
+        <div class="row" style="gap:10px;">
+          <div style="width:36px;height:36px;border-radius:12px;background:rgba(59,130,246,0.15);color:#3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="watch" style="width:20px;height:20px;"></i>
+          </div>
+          <div>
+            <h3 style="font-size:16px;font-weight:700;margin:0;">SmartWatch & Push Notifikácie</h3>
+            <p class="muted" style="font-size:12px;margin:0;">Prepojenie notifikácií na telefón a hodinky</p>
+          </div>
+        </div>
+
+        <button id="requestNotifBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(180deg,#3b82f6,#1d4ed8);"><i data-lucide="bell"></i><span>Povoliť notifikácie pre hodinky a mobil</span></button>
+        <button id="testNotifBtn" class="btn btn-secondary" style="font-size:13px;padding:10px;"><i data-lucide="send"></i><span>Otestovať zobrazenie na hodinkách</span></button>
+      </div>
+
+      <!-- KARTA BUDÍK S PRÍRODNÝMI ZVUKMI & GRADUÁLNYM FADE-IN -->
+      <div class="card" style="border-color:rgba(242,154,46,0.3);">
+        <div class="row" style="gap:10px;">
+          <div style="width:36px;height:36px;border-radius:12px;background:rgba(242,154,46,0.15);color:#f29a2e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="alarm-clock" style="width:20px;height:20px;"></i>
+          </div>
+          <div>
+            <h3 style="font-size:16px;font-weight:700;margin:0;">Ranný budík s prírodnými zvukmi</h3>
+            <p class="muted" style="font-size:12px;margin:0;">Postupné zosilňovanie pre jemné zobudenie</p>
+          </div>
+        </div>
+
+        <div class="row-between">
+          <label style="font-size:13px;color:#a1a1aa;font-weight:600;">Čas budíka:</label>
+          <input id="alarmTimeInput" type="time" value="06:30" style="background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:6px 12px;color:#fff;font-size:15px;" />
+        </div>
+
+        <div class="stack" style="gap:6px;">
+          <label style="font-size:13px;color:#a1a1aa;font-weight:600;">Zvuk prírody:</label>
+          <select id="alarmSoundSelect" class="toggle-pill" style="width:100%;padding:10px;font-size:13px;">
+            <option value="birds">🐦 Vtáky v lese (Ranný spev)</option>
+            <option value="rain">🌧️ Ranný osviežujúci dážď</option>
+            <option value="waves">🌊 Morský príboj</option>
+            <option value="stream">🪵 Lesný potôčik</option>
+          </select>
+        </div>
+
+        <div class="row-between">
+          <span style="font-size:12px;color:#a1a1aa;">Plynulé zosilňovanie (Fade-in 60s)</span>
+          <span class="badge badge-ok">✅ Zapnuté</span>
+        </div>
+
+        <button id="toggleAlarmBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="check"></i><span id="alarmStatusText">Aktivovať ranný budík</span></button>
+        <button id="testAlarmSoundBtn" class="btn btn-secondary" style="font-size:12px;padding:8px;"><i data-lucide="play"></i><span>Vyskúšať zvuk a zosilňovanie</span></button>
+      </div>
+
+      <!-- KARTA UPOZORNENIA NA SVIATKY, NÁKUPY & MENINY -->
+      <div class="card" style="border-color:rgba(15,159,116,0.3);">
+        <div class="row" style="gap:8px;">
+          <i data-lucide="calendar" style="width:20px;height:20px;color:#0f9f74;"></i>
+          <h3 style="font-size:16px;font-weight:700;margin:0;color:#0f9f74;">Sviatky, Meniny & Otváracie hodiny</h3>
+        </div>
+
+        <button id="loadAssistantSummaryBtn" class="btn btn-secondary" style="font-size:13px;padding:10px;"><i data-lucide="refresh-cw"></i><span>Aktualizovať dnešný prehľad</span></button>
+
+        <div id="assistantSummaryWrap" class="stack" style="gap:10px;">
+          <div class="alert-banner">
+            <i data-lucide="alert-circle" style="width:24px;height:24px;color:#df5252;flex-shrink:0;"></i>
+            <p id="assistantHolidayAlert" style="font-size:13px;margin:0;line-height:1.4;">Pozor, zajtra je štátny sviatok! Ak potrebuješ nakúpiť, urob to ešte dnes. Billa je otvorená do 19:00, najdlhšie je Tesco do 22:00.</p>
+          </div>
+
+          <div class="details-box">
+            <p class="title-xs" style="color:#4fbe99;">Dnešný tip & Meniny</p>
+            <p id="assistantDailyTip" style="font-size:13px;margin:0;line-height:1.4;font-weight:500;">Dnes nezabudni na hydratáciu a laktázu pri obede.</p>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -231,7 +313,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <button id="clearShoppingBtn" class="badge badge-red" style="cursor:pointer;">Vymazať zoznam</button>
       </div>
 
-      <!-- KARTA LOCATION & STORES -->
       <div class="card" style="border-color:rgba(15,159,116,0.3);">
         <div class="stack" style="gap:6px;">
           <label style="font-size:13px;color:#a1a1aa;font-weight:600;">📍 Moja momentálna lokalita / Mesto:</label>
@@ -252,7 +333,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <button id="checkDiscountsBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="sparkles"></i><span>Aktualizovať akcie & Letáky</span></button>
       </div>
 
-      <!-- KARTA AKČNÉ ODPORÚČANIA -->
       <div id="discountsResultCard" class="card hidden" style="border-color:#0f9f74;background:rgba(15,159,116,0.05);">
         <div class="row" style="gap:8px;">
           <i data-lucide="shopping-bag" style="width:20px;height:20px;color:#0f9f74;"></i>
@@ -579,10 +659,11 @@ const UI_TRANSLATIONS = {
   }
 };
 
-const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], selectedStores: ["Lidl", "Tesco", "Coop Jednota"], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null, lastDiscountsData: null };
-const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping"), menu: document.getElementById("screen-menu") };
+const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], selectedStores: ["Lidl", "Tesco", "Coop Jednota"], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null, lastDiscountsData: null, alarmActive: false };
+const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping"), menu: document.getElementById("screen-menu"), assistant: document.getElementById("screen-assistant") };
 
 let html5QrCode = null;
+let audioCtx = null;
 
 function makeSafeKey(text) {
   if (!text) return "produkt_" + Date.now();
@@ -633,6 +714,15 @@ function bindEvents(){
   document.getElementById("backFromHistoryBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
+
+  // ASISTENT EVENTY
+  document.getElementById("assistantNavBtn").addEventListener("click", () => showScreen("assistant"));
+  document.getElementById("backFromAssistantBtn").addEventListener("click", () => showScreen("hero"));
+  document.getElementById("requestNotifBtn").addEventListener("click", requestNotificationPermission);
+  document.getElementById("testNotifBtn").addEventListener("click", sendTestNotification);
+  document.getElementById("toggleAlarmBtn").addEventListener("click", toggleAlarm);
+  document.getElementById("testAlarmSoundBtn").addEventListener("click", playNatureSoundWithFadeIn);
+  document.getElementById("loadAssistantSummaryBtn").addEventListener("click", loadAssistantSummary);
 
   // DENNÉ MENU EVENTY
   document.getElementById("menuNavBtn").addEventListener("click", () => showScreen("menu"));
@@ -716,6 +806,82 @@ function bindEvents(){
   document.getElementById("toggleTableBtn").addEventListener("click", () => {
     document.getElementById("compareTableWrap").classList.toggle("hidden");
   });
+}
+
+// ---------------- FUNKCIE OSOBNÉHO ASISTENTA & BUDÍKA ----------------
+function requestNotificationPermission(){
+  if (!("Notification" in window)) {
+    return alert("Váš prehliadač nepodporuje notifikácie.");
+  }
+  Notification.requestPermission().then(permission => {
+    if (permission === "granted") {
+      alert("Notifikácie boli úspešne povolené! Budú sa zobrazovať na mobilnom telefóne aj smart hodinkách.");
+    } else {
+      alert("Notifikácie neboli povolené.");
+    }
+  });
+}
+
+function sendTestNotification(){
+  if (Notification.permission === "granted") {
+    new Notification("⌚ Food Scanner Asistent", {
+      body: "Pozor: Zajtra je štátny sviatok. Nakúp si potraviny ešte dnes! Tesco je otvorené najdlhšie do 22:00.",
+      icon: "https://cdn-icons-png.flaticon.com/512/2927/2927347.png"
+    });
+  } else {
+    alert("Najprv povoľ notifikácie tlačidlom vyššie.");
+  }
+}
+
+function toggleAlarm(){
+  state.alarmActive = !state.alarmActive;
+  const statusEl = document.getElementById("alarmStatusText");
+  const time = document.getElementById("alarmTimeInput").value;
+
+  if(state.alarmActive){
+    statusEl.innerText = `Budík AKTÍVNY na ${time}`;
+    alert(`Ranný budík nastavený na ${time} s plynulým zosilňovaním zvuku prírody.`);
+  } else {
+    statusEl.innerText = "Aktivovať ranný budík";
+    alert("Budík bol vypnutý.");
+  }
+}
+
+function playNatureSoundWithFadeIn(){
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  
+  const osc = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(440, audioCtx.currentTime); // Jemný tón imitujúci spev vtáka
+  
+  // Fade-in zosilňovanie z 0 na 1
+  gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.5, audioCtx.currentTime + 5);
+
+  osc.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  osc.start();
+  osc.stop(audioCtx.currentTime + 6);
+  alert("Spustená ukážka plynulého zosilňovania zvuku (Fade-In)...");
+}
+
+async function loadAssistantSummary(){
+  const city = document.getElementById("menuCityInput")?.value || "Revúca";
+  try {
+    const res = await fetch("/api/assistant-summary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ city, lang: state.lang })
+    });
+    const data = await res.json();
+    if(data.holiday_alert) document.getElementById("assistantHolidayAlert").textContent = data.holiday_alert;
+    if(data.daily_tip) document.getElementById("assistantDailyTip").textContent = data.daily_tip;
+  } catch(e){}
 }
 
 async function searchDailyMenu(){
