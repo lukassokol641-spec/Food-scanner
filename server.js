@@ -20,9 +20,31 @@ const openai = new OpenAI({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 
-// Pamäť pre recenzie a cloudové zálohy
+// Pamäť pre recenzie, cloudové zálohy a trhovisko
 const reviewsDb = {};
 const cloudBackupDb = {};
+const marketplaceDb = [
+  {
+    id: "item_1",
+    title: "Čerstvé domáce vajíčka z voľného chovu",
+    category: "Vajíčka",
+    price: "2.50 € / 10ks",
+    city: "Revúca",
+    description: "Čerstvé vajíčka od sliepok kŕmených čistým obilím a trávou.",
+    contact: "0901 234 567",
+    created_at: new Date().toISOString()
+  },
+  {
+    id: "item_2",
+    title: "Poctivý lesný med z vlastnej včelnice",
+    category: "Med & Džemy",
+    price: "8.00 € / 1kg",
+    city: "Revúca",
+    description: "Kvalitný májový med priamo od včelára bez pridaného cukru.",
+    contact: "vcelar.revuca@gmail.com",
+    created_at: new Date().toISOString()
+  }
+];
 
 // 1. ENDPOINT PRE SKENOVANIE POTRAVÍN
 app.post('/api/scan', upload.single('image'), async (req, res) => {
@@ -156,14 +178,7 @@ app.post('/api/daily-menu', async (req, res) => {
     const userCity = city || "Revúca";
 
     const promptText = `
-Si gastro asistent pre denné menu a reštaurácie na Slovensku.
-Mesto: ${userCity}
-Aktuálny čas: ${currentTime || "12:00"}
-Zdravotný profil: ${profile || "general"}
-Zakázané alergény: ${(allergens || []).join(', ')}
-Lekárska správa: ${medicalNotes || "Žiadne obmedzenia"}
-Jazyk: ${lang || 'sk'}
-
+Si gastro asistent pre denné menu a reštaurácie na Slovensku. Mesto: ${userCity}. Čas: ${currentTime}.
 Vráť STRICTNE čistý JSON:
 {
   "mode": "lunch_menu" | "regular_menu",
@@ -175,13 +190,7 @@ Vráť STRICTNE čistý JSON:
       "address": "Ulica",
       "serving_hours": "11:00 - 13:30",
       "menu_items": [
-        {
-          "title": "Názov jedla",
-          "price": "6.50 €",
-          "is_suitable": true | false,
-          "warning": "Dôvod ak nie je vhodné",
-          "health_score": "Skóre"
-        }
+        { "title": "Názov jedla", "price": "6.50 €", "is_suitable": true | false, "warning": "Dôvod ak nie je vhodné", "health_score": "Skóre" }
       ]
     }
   ]
@@ -228,28 +237,49 @@ Vráť STRICTNE čistý JSON v jazyku ${lang || 'sk'}:
   }
 });
 
-// 6. ENDPOINTY PRE CLOUDOVÚ SYNCHRONIZÁCIU A ZÁLOHU
+// 6. ENDPOINTY PRE KOMUNITNÉ TRHOVISKO
+app.get('/api/marketplace', (req, res) => {
+  const city = (req.query.city || "Revúca").toLowerCase();
+  const filtered = marketplaceDb.filter(item => item.city.toLowerCase().includes(city) || city.includes(item.city.toLowerCase()));
+  res.json(filtered.length > 0 ? filtered : marketplaceDb);
+});
+
+app.post('/api/marketplace', (req, res) => {
+  const { title, category, price, city, description, contact } = req.body;
+  if (!title || !price || !contact) {
+    return res.status(400).json({ error: 'Chýbajú povinné údaje inzerátu.' });
+  }
+
+  const newItem = {
+    id: "item_" + Date.now(),
+    title,
+    category: category || "Všeobecné",
+    price,
+    city: city || "Revúca",
+    description: description || "Domáci produkt od člena komunity.",
+    contact,
+    created_at: new Date().toISOString()
+  };
+
+  marketplaceDb.unshift(newItem);
+  res.json({ ok: true, item: newItem });
+});
+
+// 7. ENDPOINTY PRE CLOUDOVÚ SYNCHRONIZÁCIU
 app.post('/api/cloud/save', (req, res) => {
   const { syncKey, data } = req.body;
-  if (!syncKey || !data) {
-    return res.status(400).json({ error: 'Chýba kľúč synchronizácie alebo dáta.' });
-  }
-  cloudBackupDb[syncKey] = {
-    updated_at: new Date().toISOString(),
-    content: data
-  };
+  if (!syncKey || !data) return res.status(400).json({ error: 'Chýba kľúč alebo dáta.' });
+  cloudBackupDb[syncKey] = { updated_at: new Date().toISOString(), content: data };
   res.json({ ok: true, message: 'Záloha bola úspešne uložená na cloud server.' });
 });
 
 app.get('/api/cloud/load', (req, res) => {
   const syncKey = req.query.syncKey;
-  if (!syncKey || !cloudBackupDb[syncKey]) {
-    return res.status(404).json({ error: 'Žiadna záloha nebola pre tento kľúč nájdená.' });
-  }
+  if (!syncKey || !cloudBackupDb[syncKey]) return res.status(404).json({ error: 'Záloha nebola nájdená.' });
   res.json({ ok: true, data: cloudBackupDb[syncKey].content });
 });
 
-// 7. ENDPOINTY PRE RECENZIE
+// 8. ENDPOINTY PRE RECENZIE
 app.get('/api/reviews', (req, res) => {
   const key = req.query.key || 'general';
   res.json(reviewsDb[key] || []);
