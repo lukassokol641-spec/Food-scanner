@@ -57,7 +57,9 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 .nav-grid{display:grid;grid-template-columns:repeat(6, 1fr);gap:3px;width:100%;}
 .nav-pill{border-radius:12px;border:1px solid rgba(255,255,255,0.10);padding:6px 2px;font-weight:600;font-size:9px;background:#16191f;color:#f1efe9;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;}
 
-/* SILUETA */
+/* WATCH MODE DESIGN */
+.watch-card{border-radius:999px;border:2px solid #0f9f74;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#000;min-height:280px;width:280px;margin:0 auto;}
+
 .body-impact-card{background:linear-gradient(145deg, rgba(25,28,36,0.95), rgba(15,17,22,0.95));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 32px rgba(0,0,0,0.4);}
 .body-svg-container{width:110px;height:180px;flex-shrink:0;position:relative;}
 .organ-glow{transition:all 0.5s ease;filter:drop-shadow(0 0 10px currentColor);}
@@ -100,12 +102,16 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 .allergen-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:12px;cursor:pointer;user-select:none;transition:all 0.2s;}
 .allergen-chip.active{background:rgba(223,82,82,0.2);border-color:#df5252;color:#df5252;font-weight:700;}
 
-/* WATCH MODE DESIGN */
-.watch-card{border-radius:999px;border:2px solid #0f9f74;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#000;min-height:280px;width:280px;margin:0 auto;}
-
-/* ALERT BANNER */
 .alert-banner{background:linear-gradient(135deg, rgba(223,82,82,0.25), rgba(160,30,30,0.3));border:1px solid #df5252;border-radius:20px;padding:16px;display:flex;align-items:center;gap:12px;color:#fff;}
 #barcode-scanner-container video{border-radius:20px;width:100% !important;object-fit:cover;}
+
+/* STYLES PRE TLAČ / PDF EXPORT */
+@media print {
+  body { background: #fff !important; color: #000 !important; }
+  .header, .nav-grid, button, select, input { display: none !important; }
+  .card { border: 1px solid #ccc !important; background: #fff !important; color: #000 !important; }
+  .screen { display: block !important; }
+}
 </style>
 </head>
 <body>
@@ -122,20 +128,23 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </div>
       </div>
       
-      <select id="langSelect" class="toggle-pill" style="padding:4px 6px;font-size:12px;">
-        <option value="sk">🇸🇰 SK</option>
-        <option value="cz">🇨🇿 CZ</option>
-        <option value="pl">🇵🇱 PL</option>
-        <option value="hu">🇭🇺 HU</option>
-        <option value="en">🇬🇧 EN</option>
-        <option value="de">🇩🇪 DE</option>
-        <option value="it">🇮🇹 IT</option>
-        <option value="fr">🇫🇷 FR</option>
-        <option value="es">🇪🇸 ES</option>
-      </select>
+      <div class="row" style="gap:4px;">
+        <button onclick="window.print()" class="toggle-pill" style="padding:4px 8px;font-size:12px;color:#0f9f74;"><i data-lucide="printer" style="width:12px;height:12px;"></i> PDF</button>
+        <select id="langSelect" class="toggle-pill" style="padding:4px 6px;font-size:12px;">
+          <option value="sk">🇸🇰 SK</option>
+          <option value="cz">🇨ℤ CZ</option>
+          <option value="pl">🇵🇱 PL</option>
+          <option value="hu">🇭🇺 HU</option>
+          <option value="en">🇬🇧 EN</option>
+          <option value="de">🇩🇪 DE</option>
+          <option value="it">🇮🇹 IT</option>
+          <option value="fr">🇫🇷 FR</option>
+          <option value="es">🇪🇸 ES</option>
+        </select>
+      </div>
     </div>
 
-    <!-- MAIN NAV GRID (6 TLAČIDIEL VKLOČANE WATCH) -->
+    <!-- MAIN NAV GRID -->
     <div class="nav-grid">
       <button id="watchNavBtn" class="nav-pill" style="border-color:#0f9f74;color:#0f9f74;"><i data-lucide="watch" style="width:11px;height:11px;"></i><span>Watch</span></button>
       <button id="assistantNavBtn" class="nav-pill"><i data-lucide="bot" style="width:11px;height:11px;color:#3b82f6;"></i><span>Asistent</span></button>
@@ -185,7 +194,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN WATCH (SMARTWATCH KOMPAKTNÝ REŽIM) -->
+    <!-- SCREEN WATCH -->
     <section id="screen-watch" class="screen">
       <div class="row-between">
         <button id="backFromWatchBtn" class="btn btn-secondary" style="width:auto;padding:8px 12px;font-size:12px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
@@ -210,14 +219,13 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </div>
       </div>
 
-      <!-- WATCH SHOPPING QUICK LIST -->
       <div class="card" style="padding:14px;border-radius:24px;">
         <h4 style="font-size:13px;font-weight:700;margin:0 0 6px 0;color:#a1a1aa;">🛒 Nákupný zoznam</h4>
         <div id="watchShoppingListWrap" class="stack" style="gap:6px;"></div>
       </div>
     </section>
 
-    <!-- SCREEN DENNÝ ASISTENT, BUDÍK & NOTIFIKÁCIE -->
+    <!-- SCREEN DENNÝ ASISTENT -->
     <section id="screen-assistant" class="screen">
       <div class="row-between">
         <button id="backFromAssistantBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
@@ -383,7 +391,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN PROFIL (LOKÁLNY + SKENER SPRÁV) -->
+    <!-- SCREEN PROFIL (LOKÁLNY + CLOUDOVÁ SYNCHRONIZÁCIA + SKENER SPRÁV) -->
     <section id="screen-profile" class="screen">
       <div class="row-between">
         <button id="backFromProfileBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBackProfile">Späť</span></button>
@@ -411,6 +419,30 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </div>
       </div>
 
+      <!-- SEKCIA CLOUDOVÁ SYNCHRONIZÁCIA A ZÁLOHA -->
+      <div class="card" style="border-color:rgba(59,130,246,0.3);">
+        <div class="row" style="gap:10px;">
+          <div style="width:36px;height:36px;border-radius:12px;background:rgba(59,130,246,0.15);color:#3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="cloud" style="width:20px;height:20px;"></i>
+          </div>
+          <div>
+            <h3 style="font-size:16px;font-weight:700;margin:0;">Cloudová synchronizácia & Záloha</h3>
+            <p class="muted" style="font-size:12px;margin:0;">Prenos údajov do iného telefónu</p>
+          </div>
+        </div>
+
+        <div style="width:100%;text-align:left;" class="stack">
+          <label style="font-size:12px;color:#a1a1aa;">Môj Sync Kľúč (alebo e-mail):</label>
+          <input id="cloudSyncKeyInput" type="text" placeholder="napr. mojezlozenie123" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:8px 12px;color:#fff;font-size:14px;outline:none;" />
+
+          <div class="grid-2" style="margin-top:6px;">
+            <button id="cloudSaveBtn" class="btn btn-primary" style="padding:10px;font-size:13px;background:linear-gradient(180deg,#3b82f6,#1d4ed8);"><i data-lucide="upload-cloud"></i><span>Uložiť na cloud</span></button>
+            <button id="cloudLoadBtn" class="btn btn-secondary" style="padding:10px;font-size:13px;"><i data-lucide="download-cloud"></i><span>Obnoviť z cloudu</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEKCIA SKENER LEKÁRSKYCH SPRÁV V PROFILE -->
       <div class="card" style="border-color:rgba(79,190,153,0.3);">
         <div class="row" style="gap:10px;">
           <div style="width:36px;height:36px;border-radius:12px;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -747,6 +779,10 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
 
+  // CLOUD SYNCHRONIZÁCIA
+  document.getElementById("cloudSaveBtn").addEventListener("click", saveToCloud);
+  document.getElementById("cloudLoadBtn").addEventListener("click", loadFromCloud);
+
   // WATCH MODE EVENTY
   document.getElementById("watchNavBtn").addEventListener("click", () => { renderWatchShoppingList(); showScreen("watch"); });
   document.getElementById("backFromWatchBtn").addEventListener("click", () => showScreen("hero"));
@@ -846,6 +882,59 @@ function bindEvents(){
   });
 }
 
+// ---------------- CLOUDOVÁ SYNCHRONIZÁCIA FUNKCIE ----------------
+async function saveToCloud(){
+  const syncKey = document.getElementById("cloudSyncKeyInput").value.trim();
+  if(!syncKey){
+    return alert("Zadaj tvoj Sync Kľúč (napr. tvoj e-mail)!");
+  }
+
+  const payload = {
+    userProfile: localStorage.getItem("userProfile"),
+    shoppingList: localStorage.getItem("shoppingList"),
+    scanHistory: localStorage.getItem("scanHistory")
+  };
+
+  try {
+    const res = await fetch("/api/cloud/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ syncKey, data: payload })
+    });
+    const result = await res.json();
+    alert(result.message || "Uložené!");
+  } catch(e){
+    alert("Chyba pri ukladaní na cloud server.");
+  }
+}
+
+async function loadFromCloud(){
+  const syncKey = document.getElementById("cloudSyncKeyInput").value.trim();
+  if(!syncKey){
+    return alert("Zadaj tvoj Sync Kľúč pre obnovu dát!");
+  }
+
+  try {
+    const res = await fetch(`/api/cloud/load?syncKey=${encodeURIComponent(syncKey)}`);
+    const result = await res.json();
+    
+    if(res.ok && result.data){
+      if(result.data.userProfile) localStorage.setItem("userProfile", result.data.userProfile);
+      if(result.data.shoppingList) localStorage.setItem("shoppingList", result.data.shoppingList);
+      if(result.data.scanHistory) localStorage.setItem("scanHistory", result.data.scanHistory);
+
+      loadUserProfile();
+      renderShoppingList();
+      renderHistoryList();
+      alert("Údaje z cloudu boli úspešne načítané do tvojho zariadenia!");
+    } else {
+      alert(result.error || "Záloha sa nenašla.");
+    }
+  } catch(e){
+    alert("Chyba pri načítavaní z cloudu.");
+  }
+}
+
 // ---------------- WATCH REŽIM FUNKCIE ----------------
 function updateWatchLactase(delta){
   state.watchPortionGrams = Math.max(25, state.watchPortionGrams + delta);
@@ -872,7 +961,7 @@ function renderWatchShoppingList(){
   `).join("");
 }
 
-// ---------------- FUNKCIE OSOBNÉHO ASISTENTA & BUDÍKA ----------------
+// ---------------- FUNKCIE ASISTENTA & BUDÍKA ----------------
 function requestNotificationPermission(){
   if (!("Notification" in window)) {
     return alert("Váš prehliadač nepodporuje notifikácie.");
