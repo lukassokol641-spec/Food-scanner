@@ -1,15 +1,15 @@
-const CACHE_NAME = 'food-scanner-v1';
-
-self.addEventListener('install', (event) => {
-  self.skipWaiting();
+self.addEventListener('install', (e) => {
+  e.waitUntil(
+    caches.open('nutripulse-store-v1').then((cache) => {
+      return cache.addAll(['/', '/index.html']);
+    })
+  );
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim());
-});
-
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+self.addEventListener('fetch', (e) => {
+  e.respondWith(
+    caches.match(e.request).then((response) => {
+      return response || fetch(e.request);
+    })
   );
 });
