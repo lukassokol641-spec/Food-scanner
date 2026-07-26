@@ -23,6 +23,7 @@ app.use(express.static(__dirname));
 // Pamäť aplikácie
 const reviewsDb = {};
 const cloudBackupDb = {};
+const supportTicketsDb = [];
 let totalRegisteredUsers = 1248;
 const activeSessions = new Map();
 
@@ -69,7 +70,7 @@ app.post('/api/heartbeat', (req, res) => {
   });
 });
 
-// 1. ENDPOINT PRE SKENOVANIE POTRAVÍN (S PODPOROU PRE KM A PÔVOD TOVARU)
+// 1. ENDPOINT PRE SKENOVANIE POTRAVÍN
 app.post('/api/scan', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Nebol odoslaný žiadny obrázok.' });
@@ -288,7 +289,25 @@ app.post('/api/marketplace', (req, res) => {
   res.json({ ok: true, item: newItem });
 });
 
-// 7. CLOUDOVÁ SYNCHRONIZÁCIA
+// 7. ENDPOINT PRE PODPORU A HLÁSENIE CHÝB
+app.post('/api/support', (req, res) => {
+  const { message, deviceInfo, userContact } = req.body;
+  if (!message) return res.status(400).json({ error: 'Správa nemôže byť prázdna.' });
+
+  const ticket = {
+    id: "ticket_" + Date.now(),
+    message,
+    deviceInfo: deviceInfo || "Neznáme zariadenie",
+    userContact: userContact || "Anonym",
+    created_at: new Date().toISOString()
+  };
+
+  supportTicketsDb.unshift(ticket);
+  console.log("Nové hlásenie podpory:", ticket);
+  res.json({ ok: true, message: 'Hlásenie bolo úspešne odoslané podpore. Ďakujeme!' });
+});
+
+// 8. CLOUDOVÁ SYNCHRONIZÁCIA
 app.post('/api/cloud/save', (req, res) => {
   const { syncKey, data } = req.body;
   if (!syncKey || !data) return res.status(400).json({ error: 'Chýba kľúč alebo dáta.' });
@@ -302,7 +321,7 @@ app.get('/api/cloud/load', (req, res) => {
   res.json({ ok: true, data: cloudBackupDb[syncKey].content });
 });
 
-// 8. RECENZIE
+// 9. RECENZIE
 app.get('/api/reviews', (req, res) => {
   const key = req.query.key || 'general';
   res.json(reviewsDb[key] || []);
