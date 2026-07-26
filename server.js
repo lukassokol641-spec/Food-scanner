@@ -23,7 +23,7 @@ app.use(express.static(__dirname));
 // Pamäť aplikácie
 const reviewsDb = {};
 const cloudBackupDb = {};
-let totalRegisteredUsers = 1248; // Zákadný počet komunity
+let totalRegisteredUsers = 1248;
 const activeSessions = new Map();
 
 const marketplaceDb = [
@@ -49,14 +49,13 @@ const marketplaceDb = [
   }
 ];
 
-// HEARTBEAT / STATISTIKY ONLINE HRÁČOV
+// HEARTBEAT / STATISTIKY ONLINE
 app.post('/api/heartbeat', (req, res) => {
   const { sessionId } = req.body;
   if (sessionId) {
     activeSessions.set(sessionId, Date.now());
   }
 
-  // Vyčistiť staré relácie (neaktívne dlhšie ako 30 sekúnd)
   const now = Date.now();
   for (const [id, lastPing] of activeSessions.entries()) {
     if (now - lastPing > 30000) {
@@ -70,7 +69,7 @@ app.post('/api/heartbeat', (req, res) => {
   });
 });
 
-// 1. ENDPOINT PRE SKENOVANIE POTRAVÍN
+// 1. ENDPOINT PRE SKENOVANIE POTRAVÍN (S PODPOROU PRE KM A PÔVOD TOVARU)
 app.post('/api/scan', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Nebol odoslaný žiadny obrázok.' });
@@ -89,6 +88,13 @@ Zakázané alergény/zložky pre používateľa: ${allergens.join(', ')}
 Vráť výsledok STRICTNE ako čistý JSON s touto štruktúrou:
 {
   "product": { "name": "Názov produktu", "category": "Kategória", "portion": "Porcia (napr. 100g)" },
+  "origin_info": {
+    "country": "Krajina pôvodu (napr. Slovensko, Španielsko, Čile)",
+    "distance_km": "~150 km",
+    "eco_level": "local" | "regional" | "distant",
+    "eco_label": "🌿 Lokálny produkt / 🚚 Stredná trasa / ✈️ Dlhý dovoz",
+    "eco_note": "Krátke vysvetlenie uhlíkovej stopy prepravy k zákazníkovi na stôl"
+  },
   "lactose_g": 0.0,
   "allergen_warnings": ["Zoznam varovaní ak produkt obsahuje vybrané zakázané zložky alebo alkohol"],
   "ingredients_raw": "Prečítané zloženie z obalu",
