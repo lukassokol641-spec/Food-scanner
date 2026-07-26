@@ -20,7 +20,6 @@ const openai = new OpenAI({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.static(__dirname));
 
-// Pamäť aplikácie
 const reviewsDb = {};
 const cloudBackupDb = {};
 const supportTicketsDb = [];
@@ -50,7 +49,6 @@ const marketplaceDb = [
   }
 ];
 
-// HEARTBEAT / STATISTIKY ONLINE
 app.post('/api/heartbeat', (req, res) => {
   const { sessionId } = req.body;
   if (sessionId) {
@@ -70,7 +68,6 @@ app.post('/api/heartbeat', (req, res) => {
   });
 });
 
-// 1. ENDPOINT PRE SKENOVANIE POTRAVÍN
 app.post('/api/scan', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Nebol odoslaný žiadny obrázok.' });
@@ -132,7 +129,6 @@ Vráť výsledok STRICTNE ako čistý JSON s touto štruktúrou:
   }
 });
 
-// 2. ENDPOINT PRE SKENER LEKÁRSKYCH SPRÁV
 app.post('/api/scan-medical', upload.single('image'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: 'Nebol odoslaný žiadny obrázok.' });
@@ -167,7 +163,6 @@ Formát JSON odpovede:
   }
 });
 
-// 3. ENDPOINT PRE AKČNÉ ZĽAVY
 app.post('/api/discounts', async (req, res) => {
   try {
     const { city, stores, shoppingList, lang } = req.body;
@@ -197,7 +192,6 @@ Vráť STRICTNE čistý JSON:
   }
 });
 
-// 4. ENDPOINT PRE DENNÉ MENU A REŠTAURÁCIE
 app.post('/api/daily-menu', async (req, res) => {
   try {
     const { city, profile, allergens, currentTime, medicalNotes, lang } = req.body;
@@ -235,7 +229,6 @@ Vráť STRICTNE čistý JSON:
   }
 });
 
-// 5. ENDPOINT PRE DENNÝ SÚHRN ASISTENTA
 app.post('/api/assistant-summary', async (req, res) => {
   try {
     const { city, lang } = req.body;
@@ -263,7 +256,6 @@ Vráť STRICTNE čistý JSON v jazyku ${lang || 'sk'}:
   }
 });
 
-// 6. ENDPOINTY PRE KOMUNITNÉ TRHOVISKO
 app.get('/api/marketplace', (req, res) => {
   const city = (req.query.city || "Revúca").toLowerCase();
   const filtered = marketplaceDb.filter(item => item.city.toLowerCase().includes(city) || city.includes(item.city.toLowerCase()));
@@ -289,7 +281,6 @@ app.post('/api/marketplace', (req, res) => {
   res.json({ ok: true, item: newItem });
 });
 
-// 7. ENDPOINT PRE PODPORU A HLÁSENIE CHÝB
 app.post('/api/support', (req, res) => {
   const { message, deviceInfo, userContact } = req.body;
   if (!message) return res.status(400).json({ error: 'Správa nemôže byť prázdna.' });
@@ -303,11 +294,9 @@ app.post('/api/support', (req, res) => {
   };
 
   supportTicketsDb.unshift(ticket);
-  console.log("Nové hlásenie podpory:", ticket);
   res.json({ ok: true, message: 'Hlásenie bolo úspešne odoslané podpore. Ďakujeme!' });
 });
 
-// 8. CLOUDOVÁ SYNCHRONIZÁCIA
 app.post('/api/cloud/save', (req, res) => {
   const { syncKey, data } = req.body;
   if (!syncKey || !data) return res.status(400).json({ error: 'Chýba kľúč alebo dáta.' });
@@ -321,7 +310,6 @@ app.get('/api/cloud/load', (req, res) => {
   res.json({ ok: true, data: cloudBackupDb[syncKey].content });
 });
 
-// 9. RECENZIE
 app.get('/api/reviews', (req, res) => {
   const key = req.query.key || 'general';
   res.json(reviewsDb[key] || []);
