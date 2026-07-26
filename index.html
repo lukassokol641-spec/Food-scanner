@@ -53,7 +53,7 @@ body{background:#0b0f17;color:#f1efe9;font-family:'Plus Jakarta Sans',ui-sans-se
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .score-card{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 
-/* NAV PANEL - FUTURISTICKÝ DESISGN */
+/* NAV PANEL */
 .nav-grid{display:grid;grid-template-columns:repeat(7, 1fr);gap:3px;width:100%;}
 .nav-pill{border-radius:12px;border:1px solid rgba(255,255,255,0.10);padding:7px 1px;font-weight:600;font-size:8px;background:rgba(255,255,255,0.04);color:#f1efe9;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;transition:all 0.2s;}
 .nav-pill:active{transform:scale(0.95);}
@@ -119,7 +119,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     <div class="row-between">
       <div class="row" style="gap:10px;">
         <div class="logo-badge">
-          <!-- FUTURISTICKÉ LOGO NUTRIPULSE AI -->
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="#10b981" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 2"/></svg>
         </div>
         <div>
@@ -144,7 +143,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </div>
 
-    <!-- ŽIVÉ STATUS BANNER: ONLINE POUŽÍVATELIA -->
+    <!-- ONLINE POUŽÍVATELIA -->
     <div class="row-between" style="background:rgba(0,0,0,0.3);padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);font-size:10px;">
       <div class="row" style="gap:6px;">
         <span style="width:7px;height:7px;border-radius:999px;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
@@ -153,7 +152,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       <span class="muted">Komunita: <b id="totalUsersCount" style="color:#fff;">1 248</b> členov</span>
     </div>
 
-    <!-- MAIN NAV GRID (7 TLAČIDIEL NA MOBIL) -->
+    <!-- MAIN NAV GRID -->
     <div class="nav-grid">
       <button id="marketNavBtn" class="nav-pill" style="border-color:#eab308;color:#eab308;"><i data-lucide="store" style="width:10px;height:10px;"></i><span>Trh</span></button>
       <button id="watchNavBtn" class="nav-pill" style="border-color:#10b981;color:#10b981;"><i data-lucide="watch" style="width:10px;height:10px;"></i><span>Watch</span></button>
@@ -568,7 +567,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN RESULT -->
+    <!-- SCREEN RESULT S PÔVODOM POTRAVINY A KM -->
     <section id="screen-result" class="screen">
       <div class="row-between">
         <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnScanAgain">Sken</span></button>
@@ -591,6 +590,24 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
             <h2 id="productName" style="font-size:22px;font-weight:800;margin:0;">—</h2>
             <p id="productMeta" class="muted" style="font-size:14px;margin:0;"></p>
           </div>
+        </div>
+
+        <!-- KARTA PÔVODU A UHLÍKOVEJ STOPY (KM TOVARU) -->
+        <div id="originImpactCard" class="details-box" style="border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.05);">
+          <div class="row-between">
+            <div class="row" style="gap:8px;">
+              <i data-lucide="globe" style="width:18px;height:18px;color:#10b981;"></i>
+              <span class="title-xs" style="color:#10b981;">Pôvod & Uhlíková stopa</span>
+            </div>
+            <span id="originEcoBadge" class="badge badge-ok">🌿 Lokálny produkt</span>
+          </div>
+
+          <div class="row-between" style="margin-top:4px;">
+            <span style="font-size:13px;color:#a1a1aa;">Krajina pôvodu: <b id="originCountryText" style="color:#fff;">Slovensko</b></span>
+            <span style="font-size:13px;color:#a1a1aa;">Prešiel: <b id="originDistanceText" style="color:#10b981;">~120 km</b></span>
+          </div>
+
+          <p id="originEcoNoteText" style="font-size:12px;margin:4px 0 0 0;" class="muted">Tento produkt má nízku prepravnú záťaž a šetrí životné prostredie.</p>
         </div>
 
         <div id="lactose-calculator-card" style="background: #0b0f17; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 16px;">
@@ -747,7 +764,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     </section>
   </main>
 
-  <!-- PÄTKA A AUTORSTVO -->
   <footer style="text-align:center;padding:16px 0;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);font-size:12px;" class="muted">
     <p style="margin:0;">NutriPulse AI v3.0 • Vytvoril s 💚 <b style="color:#10b981;">Lukáš Sokol</b> • Revúca</p>
   </footer>
@@ -834,7 +850,7 @@ function init(){
   renderShoppingList();
   updateUI(); 
   sendHeartbeat();
-  setInterval(sendHeartbeat, 15000); // Heartbeat každých 15 sekúnd
+  setInterval(sendHeartbeat, 15000);
   if(window.lucide) lucide.createIcons(); 
 }
 
@@ -961,7 +977,7 @@ function bindEvents(){
   });
 }
 
-// MARKETPLACE FUNKCIE
+// MARKETPLACE
 async function loadMarketplaceItems(){
   const city = document.getElementById("userCityInput")?.value || "Revúca";
   try {
@@ -1030,7 +1046,7 @@ async function submitMarketplaceItem(){
   }
 }
 
-// CLOUDOVÁ SYNCHRONIZÁCIA
+// CLOUD SYNCHRONIZÁCIA
 async function saveToCloud(){
   const syncKey = document.getElementById("cloudSyncKeyInput").value.trim();
   if(!syncKey){
@@ -1524,6 +1540,13 @@ async function handleBarcodeDetected(eanCode) {
 
       const formattedData = {
         product: { name: name, category: category, portion: "100g" },
+        origin_info: {
+          country: p.countries || "Slovensko / EÚ",
+          distance_km: "~180 km",
+          eco_level: "local",
+          eco_label: "🌿 Lokálny / Regionálny produkt",
+          eco_note: "Nízka prepravná záťaž."
+        },
         lactose_g: p.nutriments?.sugars_100g || 0,
         allergen_warnings: warnings,
         ingredients_raw: rawIngredients,
@@ -1663,6 +1686,24 @@ function renderResult(data){
     alertText.textContent = `Tento produkt obsahuje: ${warnings.join(", ")}.`;
   } else {
     alertBanner.classList.add("hidden");
+  }
+
+  // REPOZÍCIA A RENDERING PÔVODU POTRAVINY & KM
+  const origin = data.origin_info;
+  if(origin){
+    document.getElementById("originCountryText").textContent = origin.country || "Neuvedené";
+    document.getElementById("originDistanceText").textContent = origin.distance_km || "~100 km";
+    document.getElementById("originEcoBadge").textContent = origin.eco_label || "🌿 Lokálny produkt";
+    document.getElementById("originEcoNoteText").textContent = origin.eco_note || "";
+
+    const ecoBadge = document.getElementById("originEcoBadge");
+    if(origin.eco_level === "distant"){
+      ecoBadge.className = "badge badge-red";
+    } else if(origin.eco_level === "regional"){
+      ecoBadge.className = "badge badge-demo";
+    } else {
+      ecoBadge.className = "badge badge-ok";
+    }
   }
 
   const lactoseCard = document.getElementById("lactose-calculator-card");
