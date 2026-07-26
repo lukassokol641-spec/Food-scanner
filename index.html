@@ -53,9 +53,9 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .score-card{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 
-/* NAV PANEL - 5 TLAČIDIEL */
-.nav-grid{display:grid;grid-template-columns:repeat(5, 1fr);gap:4px;width:100%;}
-.nav-pill{border-radius:14px;border:1px solid rgba(255,255,255,0.10);padding:7px 2px;font-weight:600;font-size:10px;background:#16191f;color:#f1efe9;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:3px;white-space:nowrap;}
+/* NAV PANEL - 6 TLAČIDIEL NA MOBIL */
+.nav-grid{display:grid;grid-template-columns:repeat(6, 1fr);gap:3px;width:100%;}
+.nav-pill{border-radius:12px;border:1px solid rgba(255,255,255,0.10);padding:6px 2px;font-weight:600;font-size:9px;background:#16191f;color:#f1efe9;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;}
 
 /* SILUETA */
 .body-impact-card{background:linear-gradient(145deg, rgba(25,28,36,0.95), rgba(15,17,22,0.95));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 32px rgba(0,0,0,0.4);}
@@ -100,6 +100,9 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 .allergen-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:12px;cursor:pointer;user-select:none;transition:all 0.2s;}
 .allergen-chip.active{background:rgba(223,82,82,0.2);border-color:#df5252;color:#df5252;font-weight:700;}
 
+/* WATCH MODE DESIGN */
+.watch-card{border-radius:999px;border:2px solid #0f9f74;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#000;min-height:280px;width:280px;margin:0 auto;}
+
 /* ALERT BANNER */
 .alert-banner{background:linear-gradient(135deg, rgba(223,82,82,0.25), rgba(160,30,30,0.3));border:1px solid #df5252;border-radius:20px;padding:16px;display:flex;align-items:center;gap:12px;color:#fff;}
 #barcode-scanner-container video{border-radius:20px;width:100% !important;object-fit:cover;}
@@ -132,13 +135,14 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </select>
     </div>
 
-    <!-- MAIN NAV GRID (5 TLAČIDIEL NA MOBIL) -->
+    <!-- MAIN NAV GRID (6 TLAČIDIEL VKLOČANE WATCH) -->
     <div class="nav-grid">
-      <button id="assistantNavBtn" class="nav-pill"><i data-lucide="bot" style="width:12px;height:12px;color:#3b82f6;"></i><span>Asistent</span></button>
-      <button id="menuNavBtn" class="nav-pill"><i data-lucide="utensils" style="width:12px;height:12px;color:#f29a2e;"></i><span>Menu</span></button>
-      <button id="shoppingNavBtn" class="nav-pill"><i data-lucide="shopping-cart" style="width:12px;height:12px;color:#0f9f74;"></i><span>Zoznam</span></button>
-      <button id="profileNavBtn" class="nav-pill"><i data-lucide="user" style="width:12px;height:12px;"></i><span id="ui-btnProfile">Profil</span></button>
-      <button id="historyNavBtn" class="nav-pill"><i data-lucide="history" style="width:12px;height:12px;"></i><span id="ui-btnHistory">História</span></button>
+      <button id="watchNavBtn" class="nav-pill" style="border-color:#0f9f74;color:#0f9f74;"><i data-lucide="watch" style="width:11px;height:11px;"></i><span>Watch</span></button>
+      <button id="assistantNavBtn" class="nav-pill"><i data-lucide="bot" style="width:11px;height:11px;color:#3b82f6;"></i><span>Asistent</span></button>
+      <button id="menuNavBtn" class="nav-pill"><i data-lucide="utensils" style="width:11px;height:11px;color:#f29a2e;"></i><span>Menu</span></button>
+      <button id="shoppingNavBtn" class="nav-pill"><i data-lucide="shopping-cart" style="width:11px;height:11px;color:#0f9f74;"></i><span>Zoznam</span></button>
+      <button id="profileNavBtn" class="nav-pill"><i data-lucide="user" style="width:11px;height:11px;"></i><span id="ui-btnProfile">Profil</span></button>
+      <button id="historyNavBtn" class="nav-pill"><i data-lucide="history" style="width:11px;height:11px;"></i><span id="ui-btnHistory">História</span></button>
     </div>
     
     <!-- BAR PRE VYBER ZDRAVOTNÉHO PROFILU -->
@@ -181,6 +185,38 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
+    <!-- SCREEN WATCH (SMARTWATCH KOMPAKTNÝ REŽIM) -->
+    <section id="screen-watch" class="screen">
+      <div class="row-between">
+        <button id="backFromWatchBtn" class="btn btn-secondary" style="width:auto;padding:8px 12px;font-size:12px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
+        <div class="badge badge-ok" style="background:rgba(15,159,116,0.2);color:#0f9f74;">⌚ SmartWatch View</div>
+      </div>
+
+      <div class="watch-card">
+        <p style="font-size:11px;color:#a1a1aa;margin:0;text-transform:uppercase;">💊 Laktáza na zápästí</p>
+        
+        <div class="row" style="gap:12px;align-items:center;">
+          <button id="watchMinusBtn" style="width:40px;height:40px;border-radius:999px;background:#16191f;border:1px solid #0f9f74;color:#fff;font-size:20px;font-weight:800;">−</button>
+          <div>
+            <span id="watchPortionGrams" style="font-size:24px;font-weight:800;color:#fff;">150</span>
+            <span style="font-size:12px;color:#a1a1aa;">g</span>
+          </div>
+          <button id="watchPlusBtn" style="width:40px;height:40px;border-radius:999px;background:#16191f;border:1px solid #0f9f74;color:#fff;font-size:20px;font-weight:800;">+</button>
+        </div>
+
+        <div style="background:rgba(15,159,116,0.2);border:1px solid #0f9f74;border-radius:18px;padding:8px 16px;width:100%;">
+          <p style="font-size:10px;color:#a1a1aa;margin:0;">Dávka:</p>
+          <h3 id="watchResultTablets" style="font-size:22px;font-weight:800;color:#0f9f74;margin:0;">2 tabletky</h3>
+        </div>
+      </div>
+
+      <!-- WATCH SHOPPING QUICK LIST -->
+      <div class="card" style="padding:14px;border-radius:24px;">
+        <h4 style="font-size:13px;font-weight:700;margin:0 0 6px 0;color:#a1a1aa;">🛒 Nákupný zoznam</h4>
+        <div id="watchShoppingListWrap" class="stack" style="gap:6px;"></div>
+      </div>
+    </section>
+
     <!-- SCREEN DENNÝ ASISTENT, BUDÍK & NOTIFIKÁCIE -->
     <section id="screen-assistant" class="screen">
       <div class="row-between">
@@ -188,7 +224,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <div class="badge badge-ok" style="background:rgba(59,130,246,0.15);color:#3b82f6;">🤖 Osobný Denný Asistent</div>
       </div>
 
-      <!-- KARTA NOTIFIKÁCIE & SMARTWATCH -->
       <div class="card" style="border-color:rgba(59,130,246,0.3);">
         <div class="row" style="gap:10px;">
           <div style="width:36px;height:36px;border-radius:12px;background:rgba(59,130,246,0.15);color:#3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -204,7 +239,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <button id="testNotifBtn" class="btn btn-secondary" style="font-size:13px;padding:10px;"><i data-lucide="send"></i><span>Otestovať zobrazenie na hodinkách</span></button>
       </div>
 
-      <!-- KARTA BUDÍK S PRÍRODNÝMI ZVUKMI & GRADUÁLNYM FADE-IN -->
       <div class="card" style="border-color:rgba(242,154,46,0.3);">
         <div class="row" style="gap:10px;">
           <div style="width:36px;height:36px;border-radius:12px;background:rgba(242,154,46,0.15);color:#f29a2e;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -240,7 +274,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <button id="testAlarmSoundBtn" class="btn btn-secondary" style="font-size:12px;padding:8px;"><i data-lucide="play"></i><span>Vyskúšať zvuk a zosilňovanie</span></button>
       </div>
 
-      <!-- KARTA UPOZORNENIA NA SVIATKY, NÁKUPY & MENINY -->
       <div class="card" style="border-color:rgba(15,159,116,0.3);">
         <div class="row" style="gap:8px;">
           <i data-lucide="calendar" style="width:20px;height:20px;color:#0f9f74;"></i>
@@ -378,7 +411,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </div>
       </div>
 
-      <!-- SEKCIA SKENER LEKÁRSKYCH SPRÁV V PROFILE -->
       <div class="card" style="border-color:rgba(79,190,153,0.3);">
         <div class="row" style="gap:10px;">
           <div style="width:36px;height:36px;border-radius:12px;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -659,8 +691,8 @@ const UI_TRANSLATIONS = {
   }
 };
 
-const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], selectedStores: ["Lidl", "Tesco", "Coop Jednota"], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null, lastDiscountsData: null, alarmActive: false };
-const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping"), menu: document.getElementById("screen-menu"), assistant: document.getElementById("screen-assistant") };
+const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], selectedStores: ["Lidl", "Tesco", "Coop Jednota"], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null, lastDiscountsData: null, alarmActive: false, watchPortionGrams: 150 };
+const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping"), menu: document.getElementById("screen-menu"), assistant: document.getElementById("screen-assistant"), watch: document.getElementById("screen-watch") };
 
 let html5QrCode = null;
 let audioCtx = null;
@@ -714,6 +746,12 @@ function bindEvents(){
   document.getElementById("backFromHistoryBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
+
+  // WATCH MODE EVENTY
+  document.getElementById("watchNavBtn").addEventListener("click", () => { renderWatchShoppingList(); showScreen("watch"); });
+  document.getElementById("backFromWatchBtn").addEventListener("click", () => showScreen("hero"));
+  document.getElementById("watchMinusBtn").addEventListener("click", () => updateWatchLactase(-25));
+  document.getElementById("watchPlusBtn").addEventListener("click", () => updateWatchLactase(25));
 
   // ASISTENT EVENTY
   document.getElementById("assistantNavBtn").addEventListener("click", () => showScreen("assistant"));
@@ -808,6 +846,32 @@ function bindEvents(){
   });
 }
 
+// ---------------- WATCH REŽIM FUNKCIE ----------------
+function updateWatchLactase(delta){
+  state.watchPortionGrams = Math.max(25, state.watchPortionGrams + delta);
+  document.getElementById("watchPortionGrams").innerText = state.watchPortionGrams;
+  
+  const res = vypocitajLaktazu(state.currentLactosePer100g || 4.8, state.watchPortionGrams);
+  document.getElementById("watchResultTablets").innerText = `${res.tabletky} tabletky`;
+}
+
+function renderWatchShoppingList(){
+  const wrap = document.getElementById("watchShoppingListWrap");
+  const list = getShoppingList();
+
+  if(list.length === 0){
+    wrap.innerHTML = `<p class="muted" style="font-size:11px;text-align:center;">Prázdny zoznam</p>`;
+    return;
+  }
+
+  wrap.innerHTML = list.slice(0, 5).map(item => `
+    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-size:12px;color:#fff;font-weight:600;">${item.name}</span>
+      <span style="font-size:11px;color:#0f9f74;font-weight:700;">${item.score}/100</span>
+    </div>
+  `).join("");
+}
+
 // ---------------- FUNKCIE OSOBNÉHO ASISTENTA & BUDÍKA ----------------
 function requestNotificationPermission(){
   if (!("Notification" in window)) {
@@ -856,9 +920,8 @@ function playNatureSoundWithFadeIn(){
   const gainNode = audioCtx.createGain();
 
   osc.type = 'sine';
-  osc.frequency.setValueAtTime(440, audioCtx.currentTime); // Jemný tón imitujúci spev vtáka
+  osc.frequency.setValueAtTime(440, audioCtx.currentTime);
   
-  // Fade-in zosilňovanie z 0 na 1
   gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
   gainNode.gain.exponentialRampToValueAtTime(0.5, audioCtx.currentTime + 5);
 
