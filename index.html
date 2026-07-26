@@ -53,9 +53,9 @@ body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .score-card{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 
-/* NAV PANEL - 6 TLAČIDIEL NA MOBIL */
-.nav-grid{display:grid;grid-template-columns:repeat(6, 1fr);gap:3px;width:100%;}
-.nav-pill{border-radius:12px;border:1px solid rgba(255,255,255,0.10);padding:6px 2px;font-weight:600;font-size:9px;background:#16191f;color:#f1efe9;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;}
+/* NAV PANEL - 7 TLAČIDIEL NA MOBIL */
+.nav-grid{display:grid;grid-template-columns:repeat(7, 1fr);gap:2px;width:100%;}
+.nav-pill{border-radius:10px;border:1px solid rgba(255,255,255,0.10);padding:6px 1px;font-weight:600;font-size:8px;background:#16191f;color:#f1efe9;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;}
 
 /* WATCH MODE DESIGN */
 .watch-card{border-radius:999px;border:2px solid #0f9f74;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#000;min-height:280px;width:280px;margin:0 auto;}
@@ -98,14 +98,12 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
 .review-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;}
 
-/* ALERGEN CHIPS */
 .allergen-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:12px;cursor:pointer;user-select:none;transition:all 0.2s;}
 .allergen-chip.active{background:rgba(223,82,82,0.2);border-color:#df5252;color:#df5252;font-weight:700;}
 
 .alert-banner{background:linear-gradient(135deg, rgba(223,82,82,0.25), rgba(160,30,30,0.3));border:1px solid #df5252;border-radius:20px;padding:16px;display:flex;align-items:center;gap:12px;color:#fff;}
 #barcode-scanner-container video{border-radius:20px;width:100% !important;object-fit:cover;}
 
-/* STYLES PRE TLAČ / PDF EXPORT */
 @media print {
   body { background: #fff !important; color: #000 !important; }
   .header, .nav-grid, button, select, input { display: none !important; }
@@ -144,14 +142,15 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </div>
 
-    <!-- MAIN NAV GRID -->
+    <!-- MAIN NAV GRID (7 TLAČIDIEL VKLOČANE TRHOVISKA) -->
     <div class="nav-grid">
-      <button id="watchNavBtn" class="nav-pill" style="border-color:#0f9f74;color:#0f9f74;"><i data-lucide="watch" style="width:11px;height:11px;"></i><span>Watch</span></button>
-      <button id="assistantNavBtn" class="nav-pill"><i data-lucide="bot" style="width:11px;height:11px;color:#3b82f6;"></i><span>Asistent</span></button>
-      <button id="menuNavBtn" class="nav-pill"><i data-lucide="utensils" style="width:11px;height:11px;color:#f29a2e;"></i><span>Menu</span></button>
-      <button id="shoppingNavBtn" class="nav-pill"><i data-lucide="shopping-cart" style="width:11px;height:11px;color:#0f9f74;"></i><span>Zoznam</span></button>
-      <button id="profileNavBtn" class="nav-pill"><i data-lucide="user" style="width:11px;height:11px;"></i><span id="ui-btnProfile">Profil</span></button>
-      <button id="historyNavBtn" class="nav-pill"><i data-lucide="history" style="width:11px;height:11px;"></i><span id="ui-btnHistory">História</span></button>
+      <button id="marketNavBtn" class="nav-pill" style="border-color:#eab308;color:#eab308;"><i data-lucide="store" style="width:10px;height:10px;"></i><span>Trh</span></button>
+      <button id="watchNavBtn" class="nav-pill" style="border-color:#0f9f74;color:#0f9f74;"><i data-lucide="watch" style="width:10px;height:10px;"></i><span>Watch</span></button>
+      <button id="assistantNavBtn" class="nav-pill"><i data-lucide="bot" style="width:10px;height:10px;color:#3b82f6;"></i><span>Asistent</span></button>
+      <button id="menuNavBtn" class="nav-pill"><i data-lucide="utensils" style="width:10px;height:10px;color:#f29a2e;"></i><span>Menu</span></button>
+      <button id="shoppingNavBtn" class="nav-pill"><i data-lucide="shopping-cart" style="width:10px;height:10px;color:#0f9f74;"></i><span>Zoznam</span></button>
+      <button id="profileNavBtn" class="nav-pill"><i data-lucide="user" style="width:10px;height:10px;"></i><span id="ui-btnProfile">Profil</span></button>
+      <button id="historyNavBtn" class="nav-pill"><i data-lucide="history" style="width:10px;height:10px;"></i><span id="ui-btnHistory">História</span></button>
     </div>
     
     <!-- BAR PRE VYBER ZDRAVOTNÉHO PROFILU -->
@@ -192,6 +191,48 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         
         <input id="photoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
       </div>
+    </section>
+
+    <!-- SCREEN MARKETPLACE (KOMUNITNÉ TRHOVISKO) -->
+    <section id="screen-marketplace" class="screen">
+      <div class="row-between">
+        <button id="backFromMarketBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
+        <div class="badge badge-ok" style="background:rgba(234,179,8,0.15);color:#eab308;">🌾 Komunitné trhovisko</div>
+      </div>
+
+      <div class="card" style="border-color:rgba(234,179,8,0.3);">
+        <div class="row-between">
+          <div>
+            <h3 style="font-size:16px;font-weight:700;margin:0;color:#eab308;">Domáce potraviny z okolia</h3>
+            <p class="muted" style="font-size:12px;margin:2px 0 0 0;">Kupuj a predávaj čerstvé domáce výrobky</p>
+          </div>
+          <button id="toggleAddMarketModalBtn" class="btn btn-primary" style="width:auto;padding:8px 12px;font-size:12px;background:#eab308;color:#000;"><i data-lucide="plus"></i><span>Pridať inzerát</span></button>
+        </div>
+
+        <div id="addMarketFormWrap" class="stack hidden" style="background:rgba(0,0,0,0.2);padding:14px;border-radius:18px;margin-top:8px;">
+          <h4 style="font-size:14px;font-weight:700;margin:0;color:#fff;">Nový domáci inzerát</h4>
+          
+          <input id="marketTitleInput" type="text" placeholder="Názov (napr. Čerstvé vajíčka, Med, Džem...)" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
+          
+          <div class="grid-2">
+            <select id="marketCategorySelect" class="toggle-pill" style="padding:8px;font-size:12px;">
+              <option value="Vajíčka">🥚 Vajíčka</option>
+              <option value="Zelenina & Ovocie">🥬 Zelenina / Ovocie</option>
+              <option value="Med & Džemy">🍯 Med & Džemy</option>
+              <option value="Pečivo">🍞 Pečivo</option>
+              <option value="Iné">📦 Iné</option>
+            </select>
+            <input id="marketPriceInput" type="text" placeholder="Cena (napr. 3 € / 1kg)" style="background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
+          </div>
+
+          <input id="marketContactInput" type="text" placeholder="Kontakt (Telefón / E-mail / Telegram)" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
+          <input id="marketDescInput" type="text" placeholder="Stručný popis produktu..." style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
+
+          <button id="submitMarketItemBtn" class="btn btn-primary" style="padding:10px;font-size:13px;background:#eab308;color:#000;margin-top:4px;"><i data-lucide="check"></i><span>Zverejniť inzerát na trhu</span></button>
+        </div>
+      </div>
+
+      <div id="marketListWrap" class="stack" style="gap:12px;"></div>
     </section>
 
     <!-- SCREEN WATCH -->
@@ -419,7 +460,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </div>
       </div>
 
-      <!-- SEKCIA CLOUDOVÁ SYNCHRONIZÁCIA A ZÁLOHA -->
       <div class="card" style="border-color:rgba(59,130,246,0.3);">
         <div class="row" style="gap:10px;">
           <div style="width:36px;height:36px;border-radius:12px;background:rgba(59,130,246,0.15);color:#3b82f6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -442,7 +482,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </div>
       </div>
 
-      <!-- SEKCIA SKENER LEKÁRSKYCH SPRÁV V PROFILE -->
       <div class="card" style="border-color:rgba(79,190,153,0.3);">
         <div class="row" style="gap:10px;">
           <div style="width:36px;height:36px;border-radius:12px;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -724,7 +763,7 @@ const UI_TRANSLATIONS = {
 };
 
 const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], selectedStores: ["Lidl", "Tesco", "Coop Jednota"], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null, lastDiscountsData: null, alarmActive: false, watchPortionGrams: 150 };
-const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping"), menu: document.getElementById("screen-menu"), assistant: document.getElementById("screen-assistant"), watch: document.getElementById("screen-watch") };
+const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping"), menu: document.getElementById("screen-menu"), assistant: document.getElementById("screen-assistant"), watch: document.getElementById("screen-watch"), marketplace: document.getElementById("screen-marketplace") };
 
 let html5QrCode = null;
 let audioCtx = null;
@@ -778,6 +817,14 @@ function bindEvents(){
   document.getElementById("backFromHistoryBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
+
+  // MARKETPLACE EVENTY
+  document.getElementById("marketNavBtn").addEventListener("click", () => { loadMarketplaceItems(); showScreen("marketplace"); });
+  document.getElementById("backFromMarketBtn").addEventListener("click", () => showScreen("hero"));
+  document.getElementById("toggleAddMarketModalBtn").addEventListener("click", () => {
+    document.getElementById("addMarketFormWrap").classList.toggle("hidden");
+  });
+  document.getElementById("submitMarketItemBtn").addEventListener("click", submitMarketplaceItem);
 
   // CLOUD SYNCHRONIZÁCIA
   document.getElementById("cloudSaveBtn").addEventListener("click", saveToCloud);
@@ -880,6 +927,75 @@ function bindEvents(){
   document.getElementById("toggleTableBtn").addEventListener("click", () => {
     document.getElementById("compareTableWrap").classList.toggle("hidden");
   });
+}
+
+// ---------------- MARKETPLACE FUNKCIE ----------------
+async function loadMarketplaceItems(){
+  const city = document.getElementById("userCityInput")?.value || "Revúca";
+  try {
+    const res = await fetch(`/api/marketplace?city=${encodeURIComponent(city)}`);
+    const list = await res.json();
+    renderMarketplaceList(list);
+  } catch(e){
+    alert("Chyba pri načítavaní trhoviska.");
+  }
+}
+
+function renderMarketplaceList(list){
+  const wrap = document.getElementById("marketListWrap");
+  if(!list || list.length === 0){
+    wrap.innerHTML = `<p class="muted" style="font-size:13px;text-align:center;padding:20px 0;">V tvojom meste zatiaľ nie sú žiadne inzeráty. Buď prvý!</p>`;
+    return;
+  }
+
+  wrap.innerHTML = list.map(item => `
+    <div class="card" style="padding:14px;border-color:rgba(234,179,8,0.2);">
+      <div class="row-between">
+        <span class="badge" style="background:rgba(234,179,8,0.2);color:#eab308;">${item.category}</span>
+        <span style="font-size:15px;font-weight:800;color:#0f9f74;">${item.price}</span>
+      </div>
+      <h4 style="font-size:16px;font-weight:700;margin:6px 0 0 0;color:#fff;">${item.title}</h4>
+      <p style="font-size:12px;margin:2px 0 0 0;color:#a1a1aa;">${item.description}</p>
+      
+      <div class="row-between" style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px;">
+        <span class="badge badge-ok" style="font-size:10px;">🌿 100% Bio & Domáce</span>
+        <a href="tel:${item.contact}" class="badge" style="background:rgba(59,130,246,0.2);color:#3b82f6;text-decoration:none;">📞 ${item.contact}</a>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function submitMarketplaceItem(){
+  const title = document.getElementById("marketTitleInput").value.trim();
+  const category = document.getElementById("marketCategorySelect").value;
+  const price = document.getElementById("marketPriceInput").value.trim();
+  const contact = document.getElementById("marketContactInput").value.trim();
+  const description = document.getElementById("marketDescInput").value.trim();
+  const city = document.getElementById("userCityInput")?.value || "Revúca";
+
+  if(!title || !price || !contact){
+    return alert("Zadaj prosím Názov, Cenu a Kontakt pre inzerát!");
+  }
+
+  try {
+    const res = await fetch("/api/marketplace", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ title, category, price, contact, description, city })
+    });
+
+    if(res.ok){
+      alert("Inzerát bol úspešne pridaný na komunitné trhovisko!");
+      document.getElementById("addMarketFormWrap").classList.add("hidden");
+      document.getElementById("marketTitleInput").value = "";
+      document.getElementById("marketPriceInput").value = "";
+      document.getElementById("marketContactInput").value = "";
+      document.getElementById("marketDescInput").value = "";
+      loadMarketplaceItems();
+    }
+  } catch(e){
+    alert("Chyba pri ukladaní inzerátu.");
+  }
 }
 
 // ---------------- CLOUDOVÁ SYNCHRONIZÁCIA FUNKCIE ----------------
