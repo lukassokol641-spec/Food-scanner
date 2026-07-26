@@ -81,8 +81,11 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 .file-hidden{display:none;}
 .history-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.2s;}
 
-.shopping-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:14px;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s;}
+.shopping-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all 0.2s;}
 .shopping-item.checked{opacity:0.5;text-decoration:line-through;}
+
+.store-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:12px;cursor:pointer;user-select:none;transition:all 0.2s;}
+.store-chip.active{background:rgba(15,159,116,0.2);border-color:#0f9f74;color:#0f9f74;font-weight:700;}
 
 .review-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;}
 
@@ -179,16 +182,47 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN NÁKUPNÝ ZOZNAM -->
+    <!-- SCREEN NÁKUPNÝ ZOZNAM & AKČNÉ LETÁKY -->
     <section id="screen-shopping" class="screen">
       <div class="row-between">
         <button id="backFromShoppingBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
         <button id="clearShoppingBtn" class="badge badge-red" style="cursor:pointer;">Vymazať zoznam</button>
       </div>
+
+      <!-- KARTA LOCATION & STORES -->
+      <div class="card" style="border-color:rgba(15,159,116,0.3);">
+        <div class="stack" style="gap:6px;">
+          <label style="font-size:13px;color:#a1a1aa;font-weight:600;">📍 Moja momentálna lokalita / Mesto:</label>
+          <input id="userCityInput" type="text" placeholder="napr. Revúca" value="Revúca" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
+        </div>
+
+        <div class="stack" style="gap:6px;">
+          <label style="font-size:13px;color:#a1a1aa;font-weight:600;">🏪 Obľúbené obchody (označ napr. 3):</label>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;" id="storesWrap">
+            <div class="store-chip active" data-store="Lidl">🛒 Lidl</div>
+            <div class="store-chip active" data-store="Tesco">🛒 Tesco</div>
+            <div class="store-chip active" data-store="Coop Jednota">🛒 Coop Jednota</div>
+            <div class="store-chip" data-store="Billa">🛒 Billa</div>
+            <div class="store-chip" data-store="Kaufland">🛒 Kaufland</div>
+          </div>
+        </div>
+
+        <button id="checkDiscountsBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="sparkles"></i><span>Aktualizovať akcie & Letáky</span></button>
+      </div>
+
+      <!-- KARTA AKČNÉ ODPORÚČANIA -->
+      <div id="discountsResultCard" class="card hidden" style="border-color:#0f9f74;background:rgba(15,159,116,0.05);">
+        <div class="row" style="gap:8px;">
+          <i data-lucide="shopping-bag" style="width:20px;height:20px;color:#0f9f74;"></i>
+          <h3 style="font-size:16px;font-weight:700;margin:0;color:#0f9f74;">AI Nákupný plán pre <span id="discountsCityName">Revúca</span></h3>
+        </div>
+        <ul id="discountsRecsList" style="margin:0;padding-left:18px;font-size:13px;line-height:1.5;" class="stack" style="gap:4px;"></ul>
+      </div>
+
       <div class="card">
         <div class="stack" style="gap:4px;">
           <h2 style="font-size:20px;font-weight:700;margin:0;">🛒 Nákupný zoznam</h2>
-          <p class="muted" style="font-size:13px;margin:0;">Uložené obľúbené produkty na nákup.</p>
+          <p class="muted" style="font-size:13px;margin:0;">Uložené obľúbené produkty s kontrolou zliav.</p>
         </div>
         <div id="shoppingListWrap" class="stack" style="gap:10px;margin-top:8px;"></div>
       </div>
@@ -504,7 +538,7 @@ const UI_TRANSLATIONS = {
   }
 };
 
-const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null };
+const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], selectedStores: ["Lidl", "Tesco", "Coop Jednota"], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null, lastDiscountsData: null };
 const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping") };
 
 let html5QrCode = null;
@@ -565,11 +599,24 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
 
-  // NÁKUPNÝ ZOZNAM EVENTY
+  // NÁKUPNÝ ZOZNAM & OBCHODY EVENTY
   document.getElementById("shoppingNavBtn").addEventListener("click", () => { renderShoppingList(); showScreen("shopping"); });
   document.getElementById("backFromShoppingBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("clearShoppingBtn").addEventListener("click", clearShoppingList);
   document.getElementById("addShoppingListBtn").addEventListener("click", addToShoppingList);
+  document.getElementById("checkDiscountsBtn").addEventListener("click", checkDiscountsForCity);
+
+  document.querySelectorAll(".store-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      chip.classList.toggle("active");
+      const storeName = chip.getAttribute("data-store");
+      if(chip.classList.contains("active")){
+        if(!state.selectedStores.includes(storeName)) state.selectedStores.push(storeName);
+      } else {
+        state.selectedStores = state.selectedStores.filter(s => s !== storeName);
+      }
+    });
+  });
 
   // LEKÁRSKA SPRÁVA EVENTY V PROFILE
   document.getElementById("takeMedicalPhotoBtn").addEventListener("click", () => document.getElementById("medicalPhotoInput").click());
@@ -681,8 +728,54 @@ function deleteShoppingItem(id, e){
 function clearShoppingList(){
   if(confirm("Vymazať celý nákupný zoznam?")){
     localStorage.removeItem("shoppingList");
+    state.lastDiscountsData = null;
+    document.getElementById("discountsResultCard").classList.add("hidden");
     renderShoppingList();
   }
+}
+
+async function checkDiscountsForCity(){
+  const city = document.getElementById("userCityInput").value || "Revúca";
+  const list = getShoppingList();
+
+  if(list.length === 0){
+    return alert("Tvoj nákupný zoznam je prázdny. Najprv pridaj produkty!");
+  }
+
+  if(state.selectedStores.length === 0){
+    return alert("Označ aspoň jeden obľúbený obchod!");
+  }
+
+  const btn = document.getElementById("checkDiscountsBtn");
+  btn.innerText = "Overujem letáky...";
+
+  try {
+    const res = await fetch("/api/discounts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ city, stores: state.selectedStores, shoppingList: list, lang: state.lang })
+    });
+
+    const data = await res.json();
+    state.lastDiscountsData = data;
+    renderDiscountsResult(data);
+    renderShoppingList();
+  } catch(e){
+    alert("Chyba pri overovaní akčných letákov.");
+  } finally {
+    btn.innerHTML = `<i data-lucide="sparkles"></i><span>Aktualizovať akcie & Letáky</span>`;
+    if(window.lucide) lucide.createIcons();
+  }
+}
+
+function renderDiscountsResult(data){
+  const card = document.getElementById("discountsResultCard");
+  document.getElementById("discountsCityName").textContent = data.city || "Revúca";
+
+  const recsWrap = document.getElementById("discountsRecsList");
+  recsWrap.innerHTML = (data.recommendations || []).map(r => `<li>${r}</li>`).join("") || "<li>Žiadne špeciálne akcie neboli zistené.</li>";
+
+  card.classList.remove("hidden");
 }
 
 function renderShoppingList(){
@@ -694,23 +787,38 @@ function renderShoppingList(){
     return;
   }
 
+  const discounts = state.lastDiscountsData?.discounted_items || [];
+
   wrap.innerHTML = list.map(item => {
     const color = item.severity === "green" ? "#0f9f74" : item.severity === "red" ? "#df5252" : "#f29a2e";
     const checkedClass = item.checked ? "checked" : "";
 
+    const discInfo = discounts.find(d => d.product_name?.toLowerCase().includes(item.name.toLowerCase()) || item.name.toLowerCase().includes(d.product_name?.toLowerCase()));
+
+    const discountBadge = discInfo ? `
+      <div class="row" style="gap:6px;margin-top:4px;">
+        <span class="badge" style="background:rgba(15,159,116,0.2);color:#0f9f74;border:1px solid #0f9f74;font-size:11px;">
+          🔥 AKCIA (${discInfo.store}): ${discInfo.discount_price} <s style="opacity:0.6">${discInfo.original_price}</s>
+        </span>
+      </div>
+    ` : "";
+
     return `
       <div class="shopping-item ${checkedClass}" onclick="toggleShoppingItem('${item.id}')">
-        <div class="row" style="gap:10px;">
-          <input type="checkbox" ${item.checked ? 'checked' : ''} style="width:18px;height:18px;accent-color:#0f9f74;" />
-          <div class="stack" style="gap:2px;">
-            <h4 style="font-size:15px;font-weight:700;margin:0;color:#fff;">${item.name}</h4>
-            <p class="muted" style="font-size:12px;margin:0;">${item.category}</p>
+        <div class="row-between">
+          <div class="row" style="gap:10px;">
+            <input type="checkbox" ${item.checked ? 'checked' : ''} style="width:18px;height:18px;accent-color:#0f9f74;" />
+            <div class="stack" style="gap:2px;">
+              <h4 style="font-size:15px;font-weight:700;margin:0;color:#fff;">${item.name}</h4>
+              <p class="muted" style="font-size:12px;margin:0;">${item.category}</p>
+            </div>
+          </div>
+          <div class="row" style="gap:10px;">
+            <span style="font-size:14px;font-weight:800;color:${color}">${item.score}/100</span>
+            <button onclick="deleteShoppingItem('${item.id}', event)" style="background:none;border:none;color:#df5252;cursor:pointer;padding:4px;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
           </div>
         </div>
-        <div class="row" style="gap:10px;">
-          <span style="font-size:14px;font-weight:800;color:${color}">${item.score}/100</span>
-          <button onclick="deleteShoppingItem('${item.id}', event)" style="background:none;border:none;color:#df5252;cursor:pointer;padding:4px;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
-        </div>
+        ${discountBadge}
       </div>
     `;
   }).join("");
