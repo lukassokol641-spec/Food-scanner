@@ -3,74 +3,75 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Food Scanner</title>
+<title>NutriPulse AI — Inteligentný Zdravotný Asistent</title>
 
 <!-- PWA METADÁTA A IKONKY -->
 <link rel="manifest" href="/manifest.json" />
-<meta name="theme-color" content="#0e1013" />
+<meta name="theme-color" content="#0b0f17" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Food Scanner" />
+<meta name="apple-mobile-web-app-title" content="NutriPulse AI" />
 <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2927/2927347.png" />
 <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2927/2927347.png" />
 
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 <!-- SKENOVANIE ČIAROVÝCH KÓDOV -->
 <script src="https://unpkg.com/html5-qrcode"></script>
 <style>
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;min-height:100%;overflow-x:hidden;}
-body{background:#0e1013;color:#f1efe9;font-family:Inter,ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+body{background:#0b0f17;color:#f1efe9;font-family:'Plus Jakarta Sans',ui-sans-serif,system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
 .page{display:flex;flex-direction:column;width:100%;max-width:480px;margin:0 auto;padding:12px 12px 32px 12px;gap:14px;}
 .stack{display:flex;flex-direction:column;gap:12px;}
 .stack-lg{display:flex;flex-direction:column;gap:20px;}
 .row{display:flex;align-items:center;gap:10px;}
 .row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;}
-.header{position:relative;z-index:20;background:rgba(22,25,31,0.95);border:1px solid rgba(255,255,255,0.10);border-radius:24px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.header{position:relative;z-index:20;background:rgba(18,24,38,0.85);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.12);border-radius:24px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;box-shadow:0 12px 32px rgba(0,0,0,0.5);}
 .screen{display:none;flex-direction:column;gap:16px;}
 .screen.active{display:flex;}
-.card{background:#16191f;border:1px solid rgba(255,255,255,0.10);border-radius:28px;padding:18px;display:flex;flex-direction:column;gap:18px;}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:24px;padding:16px 20px;font-weight:600;font-size:16px;border:none;cursor:pointer;text-align:center;}
-.btn-primary{background:linear-gradient(180deg,#0f9f74,#0a7f5b);color:#fff;box-shadow:0 12px 24px rgba(15,159,116,0.22);}
-.btn-secondary{background:#16191f;color:#f1efe9;border:1px solid rgba(255,255,255,0.10);}
+.card{background:rgba(22,30,46,0.7);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.10);border-radius:28px;padding:18px;display:flex;flex-direction:column;gap:18px;}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:24px;padding:16px 20px;font-weight:600;font-size:16px;border:none;cursor:pointer;text-align:center;transition:all 0.2s;}
+.btn-primary{background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 0 20px rgba(16,185,129,0.3);}
+.btn-secondary{background:#161e2e;color:#f1efe9;border:1px solid rgba(255,255,255,0.12);}
 .badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:600;white-space:nowrap;}
 .badge-demo{background:rgba(218,113,1,0.12);color:#da7101;}
-.badge-ok{background:rgba(15,159,116,0.12);color:#0f9f74;}
-.badge-red{background:rgba(200,59,59,0.12);color:#c83b3b;}
+.badge-ok{background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);}
+.badge-red{background:rgba(239,68,68,0.15);color:#ef4444;}
 .risk-dot{width:12px;height:12px;border-radius:999px;display:inline-block;flex-shrink:0;}
 .risk-orange{background:#f29a2e;}
 
 .camera-frame{position:relative;width:100%;min-height:300px;border-radius:28px;overflow:hidden;border:1px solid rgba(255,255,255,0.10);background:#121418;display:flex;align-items:center;justify-content:center;}
 .camera-frame img.product-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
-.scan-line{position:absolute;left:8%;right:8%;top:18%;height:2px;background:linear-gradient(90deg,transparent,#0f9f74,transparent);box-shadow:0 0 18px #0f9f74;animation:scanMove 2.2s ease-in-out infinite;z-index:4;}
+.scan-line{position:absolute;left:8%;right:8%;top:18%;height:2px;background:linear-gradient(90deg,transparent,#10b981,transparent);box-shadow:0 0 18px #10b981;animation:scanMove 2.2s ease-in-out infinite;z-index:4;}
 @keyframes scanMove{0%{top:18%;}50%{top:74%;}100%{top:18%;}}
 .hidden{display:none !important;}
 
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .score-card{border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px;}
 
-/* NAV PANEL - 7 TLAČIDIEL NA MOBIL */
-.nav-grid{display:grid;grid-template-columns:repeat(7, 1fr);gap:2px;width:100%;}
-.nav-pill{border-radius:10px;border:1px solid rgba(255,255,255,0.10);padding:6px 1px;font-weight:600;font-size:8px;background:#16191f;color:#f1efe9;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;}
+/* NAV PANEL - FUTURISTICKÝ DESISGN */
+.nav-grid{display:grid;grid-template-columns:repeat(7, 1fr);gap:3px;width:100%;}
+.nav-pill{border-radius:12px;border:1px solid rgba(255,255,255,0.10);padding:7px 1px;font-weight:600;font-size:8px;background:rgba(255,255,255,0.04);color:#f1efe9;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:2px;white-space:nowrap;transition:all 0.2s;}
+.nav-pill:active{transform:scale(0.95);}
 
 /* WATCH MODE DESIGN */
-.watch-card{border-radius:999px;border:2px solid #0f9f74;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#000;min-height:280px;width:280px;margin:0 auto;}
+.watch-card{border-radius:999px;border:2px solid #10b981;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;background:#000;min-height:280px;width:280px;margin:0 auto;box-shadow:0 0 30px rgba(16,185,129,0.2);}
 
-.body-impact-card{background:linear-gradient(145deg, rgba(25,28,36,0.95), rgba(15,17,22,0.95));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 32px rgba(0,0,0,0.4);}
+.body-impact-card{background:linear-gradient(145deg, rgba(25,35,52,0.95), rgba(15,20,30,0.95));border:1px solid rgba(255,255,255,0.12);border-radius:28px;padding:20px;display:flex;align-items:center;gap:16px;box-shadow:0 12px 32px rgba(0,0,0,0.4);}
 .body-svg-container{width:110px;height:180px;flex-shrink:0;position:relative;}
 .organ-glow{transition:all 0.5s ease;filter:drop-shadow(0 0 10px currentColor);}
 .organ-pulse{animation:pulse 2s infinite;}
 @keyframes pulse{0%{r:6px;opacity:0.8;}50%{r:9px;opacity:1;}100%{r:6px;opacity:0.8;}}
 
-.energy-card{background:linear-gradient(145deg, rgba(20,24,32,0.95), rgba(14,16,20,0.95));border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:12px;}
+.energy-card{background:linear-gradient(145deg, rgba(20,28,42,0.95), rgba(14,18,26,0.95));border:1px solid rgba(255,255,255,0.1);border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:12px;}
 .details-box{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;}
 .additive-item{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;}
 
-.swap-card{border:1px solid rgba(79,190,153,0.3);background:rgba(79,190,153,0.08);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:16px;}
+.swap-card{border:1px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.08);border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:16px;}
 .compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .compare-box{background:rgba(255,255,255,0.06);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px;}
 
@@ -81,7 +82,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 .verdict-ring{position:relative;width:96px;height:96px;flex-shrink:0;border-radius:999px;background:conic-gradient(var(--verdict-color,#f29a2e) 0 68%, rgba(127,127,127,0.14) 68% 100%);display:flex;align-items:center;justify-content:center;}
 .verdict-ring-inner{position:absolute;inset:12px;border-radius:999px;background:#16191f;display:flex;flex-direction:column;align-items:center;justify-content:center;}
 .toggle-pill{border-radius:16px;border:1px solid rgba(255,255,255,0.10);padding:8px 12px;font-weight:600;font-size:13px;background:#16191f;color:#f1efe9;cursor:pointer;}
-.logo-badge{width:40px;height:40px;border-radius:14px;flex-shrink:0;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;}
+.logo-badge{width:42px;height:42px;border-radius:16px;flex-shrink:0;background:linear-gradient(135deg,rgba(16,185,129,0.2),rgba(59,130,246,0.2));border:1px solid rgba(16,185,129,0.4);color:#10b981;display:flex;align-items:center;justify-content:center;box-shadow:0 0 15px rgba(16,185,129,0.2);}
 .muted{color:#a6a39b;}
 .title-xs{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.14em;color:#a6a39b;}
 .file-hidden{display:none;}
@@ -94,14 +95,14 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 .menu-item-row{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;}
 
 .store-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:12px;cursor:pointer;user-select:none;transition:all 0.2s;}
-.store-chip.active{background:rgba(15,159,116,0.2);border-color:#0f9f74;color:#0f9f74;font-weight:700;}
+.store-chip.active{background:rgba(16,185,129,0.2);border-color:#10b981;color:#10b981;font-weight:700;}
 
 .review-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;}
 
 .allergen-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:12px;cursor:pointer;user-select:none;transition:all 0.2s;}
-.allergen-chip.active{background:rgba(223,82,82,0.2);border-color:#df5252;color:#df5252;font-weight:700;}
+.allergen-chip.active{background:rgba(239,68,68,0.2);border-color:#ef4444;color:#ef4444;font-weight:700;}
 
-.alert-banner{background:linear-gradient(135deg, rgba(223,82,82,0.25), rgba(160,30,30,0.3));border:1px solid #df5252;border-radius:20px;padding:16px;display:flex;align-items:center;gap:12px;color:#fff;}
+.alert-banner{background:linear-gradient(135deg, rgba(239,68,68,0.25), rgba(160,30,30,0.3));border:1px solid #ef4444;border-radius:20px;padding:16px;display:flex;align-items:center;gap:12px;color:#fff;}
 #barcode-scanner-container video{border-radius:20px;width:100% !important;object-fit:cover;}
 
 @media print {
@@ -116,18 +117,19 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 <div class="page">
   <header class="header">
     <div class="row-between">
-      <div class="row" style="gap:8px;">
+      <div class="row" style="gap:10px;">
         <div class="logo-badge">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12C5 7.029 9.029 3 14 3c2.685 0 5.095 1.176 6.744 3.042" stroke="currentColor" stroke-width="1.8"/><path d="M19 12c0 4.971-4.029 9-9 9-2.685 0-5.095-1.176-6.744-3.042" stroke="currentColor" stroke-width="1.8"/><circle cx="10" cy="12" r="2.5" fill="currentColor"/></svg>
+          <!-- FUTURISTICKÉ LOGO NUTRIPULSE AI -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" stroke="#10b981" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="12" r="9" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="4 2"/></svg>
         </div>
         <div>
-          <p class="title-xs" style="font-size:9px;">FOOD SCANNER</p>
-          <h1 id="ui-subHeader" style="font-size:15px;font-weight:700;margin:0;">AI čítanie etikiet</h1>
+          <p class="title-xs" style="font-size:9px;color:#10b981;">NUTRIPULSE AI</p>
+          <h1 id="ui-subHeader" style="font-size:15px;font-weight:800;margin:0;background:linear-gradient(90deg,#fff,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Inteligentný Asistent</h1>
         </div>
       </div>
       
       <div class="row" style="gap:4px;">
-        <button onclick="window.print()" class="toggle-pill" style="padding:4px 8px;font-size:12px;color:#0f9f74;"><i data-lucide="printer" style="width:12px;height:12px;"></i> PDF</button>
+        <button onclick="window.print()" class="toggle-pill" style="padding:4px 8px;font-size:12px;color:#10b981;border-color:rgba(16,185,129,0.3);"><i data-lucide="printer" style="width:12px;height:12px;"></i> PDF</button>
         <select id="langSelect" class="toggle-pill" style="padding:4px 6px;font-size:12px;">
           <option value="sk">🇸🇰 SK</option>
           <option value="cz">🇨ℤ CZ</option>
@@ -142,21 +144,30 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </div>
 
-    <!-- MAIN NAV GRID (7 TLAČIDIEL VKLOČANE TRHOVISKA) -->
+    <!-- ŽIVÉ STATUS BANNER: ONLINE POUŽÍVATELIA -->
+    <div class="row-between" style="background:rgba(0,0,0,0.3);padding:4px 10px;border-radius:12px;border:1px solid rgba(255,255,255,0.05);font-size:10px;">
+      <div class="row" style="gap:6px;">
+        <span style="width:7px;height:7px;border-radius:999px;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
+        <span style="color:#10b981;font-weight:700;">Online: <span id="liveOnlineCount">1</span></span>
+      </div>
+      <span class="muted">Komunita: <b id="totalUsersCount" style="color:#fff;">1 248</b> členov</span>
+    </div>
+
+    <!-- MAIN NAV GRID (7 TLAČIDIEL NA MOBIL) -->
     <div class="nav-grid">
       <button id="marketNavBtn" class="nav-pill" style="border-color:#eab308;color:#eab308;"><i data-lucide="store" style="width:10px;height:10px;"></i><span>Trh</span></button>
-      <button id="watchNavBtn" class="nav-pill" style="border-color:#0f9f74;color:#0f9f74;"><i data-lucide="watch" style="width:10px;height:10px;"></i><span>Watch</span></button>
+      <button id="watchNavBtn" class="nav-pill" style="border-color:#10b981;color:#10b981;"><i data-lucide="watch" style="width:10px;height:10px;"></i><span>Watch</span></button>
       <button id="assistantNavBtn" class="nav-pill"><i data-lucide="bot" style="width:10px;height:10px;color:#3b82f6;"></i><span>Asistent</span></button>
       <button id="menuNavBtn" class="nav-pill"><i data-lucide="utensils" style="width:10px;height:10px;color:#f29a2e;"></i><span>Menu</span></button>
-      <button id="shoppingNavBtn" class="nav-pill"><i data-lucide="shopping-cart" style="width:10px;height:10px;color:#0f9f74;"></i><span>Zoznam</span></button>
+      <button id="shoppingNavBtn" class="nav-pill"><i data-lucide="shopping-cart" style="width:10px;height:10px;color:#10b981;"></i><span>Zoznam</span></button>
       <button id="profileNavBtn" class="nav-pill"><i data-lucide="user" style="width:10px;height:10px;"></i><span id="ui-btnProfile">Profil</span></button>
       <button id="historyNavBtn" class="nav-pill"><i data-lucide="history" style="width:10px;height:10px;"></i><span id="ui-btnHistory">História</span></button>
     </div>
     
     <!-- BAR PRE VYBER ZDRAVOTNÉHO PROFILU -->
     <div class="row-between" style="background:rgba(0,0,0,0.2);padding:6px 10px;border-radius:14px;">
-      <span class="title-xs" style="color:#4fbe99;font-size:10px;" id="ui-myProfileLabel">Môj Profil:</span>
-      <select id="healthProfileSelect" class="toggle-pill" style="padding:3px 6px;font-size:11px;border-color:rgba(79,190,153,0.3);">
+      <span class="title-xs" style="color:#10b981;font-size:10px;" id="ui-myProfileLabel">Môj Profil:</span>
+      <select id="healthProfileSelect" class="toggle-pill" style="padding:3px 6px;font-size:11px;border-color:rgba(16,185,129,0.3);">
         <option value="general" id="ui-profGeneral">👤 Všeobecný</option>
         <option value="heart" id="ui-profHeart">🩺 Srdce & Tlak (Prísna soľ)</option>
         <option value="diabetes" id="ui-profDiabetes">🩸 Cukor & Glukóza (Prísny cukor)</option>
@@ -166,7 +177,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
     <!-- 🚫 AKTUÁLNE ALERGÉNY A FILTRE -->
     <div class="stack" style="gap:4px;">
-      <span class="title-xs" style="color:#df5252;font-size:10px;" id="ui-allergensLabel">Vyhnúť sa (Alergény / Zložky):</span>
+      <span class="title-xs" style="color:#ef4444;font-size:10px;" id="ui-allergensLabel">Vyhnúť sa (Alergény / Zložky):</span>
       <div style="display:flex;flex-wrap:wrap;gap:6px;" id="allergensWrap">
         <div class="allergen-chip" data-value="gluten">🌾 <span id="ui-algGluten">Lepok</span></div>
         <div class="allergen-chip" data-value="lactose">🥛 <span id="ui-algLactose">Laktóza</span></div>
@@ -182,18 +193,18 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       <div class="card">
         <div class="badge badge-ok"><span id="ui-heroBadge">Rýchla kontrola potravín</span></div>
         <div class="stack" style="gap:10px;">
-          <h2 id="ui-heroTitle" style="font-size:26px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu alebo <span style="color:#0f9f74;">naskenuj EAN kód</span>.</h2>
+          <h2 id="ui-heroTitle" style="font-size:26px;font-weight:800;line-height:1.2;margin:0;">Odfoť etiketu alebo <span style="color:#10b981;">naskenuj EAN kód</span>.</h2>
           <p id="ui-heroDesc" class="muted" style="font-size:13px;line-height:1.5;margin:0;">Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.</p>
         </div>
         
-        <button id="startBarcodeScannerBtn" class="btn btn-primary" style="background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="scan-barcode"></i><span id="ui-btnScanEan">Skenovať čiarový kód (EAN)</span></button>
+        <button id="startBarcodeScannerBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#10b981,#059669);"><i data-lucide="scan-barcode"></i><span id="ui-btnScanEan">Skenovať čiarový kód (EAN)</span></button>
         <button id="heroCameraBtn" class="btn btn-secondary"><i data-lucide="camera"></i><span id="ui-btnCamera">Odfotiť celú etiketu</span></button>
         
         <input id="photoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
       </div>
     </section>
 
-    <!-- SCREEN MARKETPLACE (KOMUNITNÉ TRHOVISKO) -->
+    <!-- SCREEN MARKETPLACE -->
     <section id="screen-marketplace" class="screen">
       <div class="row-between">
         <button id="backFromMarketBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
@@ -212,7 +223,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <div id="addMarketFormWrap" class="stack hidden" style="background:rgba(0,0,0,0.2);padding:14px;border-radius:18px;margin-top:8px;">
           <h4 style="font-size:14px;font-weight:700;margin:0;color:#fff;">Nový domáci inzerát</h4>
           
-          <input id="marketTitleInput" type="text" placeholder="Názov (napr. Čerstvé vajíčka, Med, Džem...)" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
+          <input id="marketTitleInput" type="text" placeholder="Názov (napr. Čerstvé vajíčka, Med, Džem...)" style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
           
           <div class="grid-2">
             <select id="marketCategorySelect" class="toggle-pill" style="padding:8px;font-size:12px;">
@@ -222,11 +233,11 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
               <option value="Pečivo">🍞 Pečivo</option>
               <option value="Iné">📦 Iné</option>
             </select>
-            <input id="marketPriceInput" type="text" placeholder="Cena (napr. 3 € / 1kg)" style="background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
+            <input id="marketPriceInput" type="text" placeholder="Cena (napr. 3 € / 1kg)" style="background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
           </div>
 
-          <input id="marketContactInput" type="text" placeholder="Kontakt (Telefón / E-mail / Telegram)" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
-          <input id="marketDescInput" type="text" placeholder="Stručný popis produktu..." style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
+          <input id="marketContactInput" type="text" placeholder="Kontakt (Telefón / E-mail / Telegram)" style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
+          <input id="marketDescInput" type="text" placeholder="Stručný popis produktu..." style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:8px 12px;color:#fff;font-size:13px;" />
 
           <button id="submitMarketItemBtn" class="btn btn-primary" style="padding:10px;font-size:13px;background:#eab308;color:#000;margin-top:4px;"><i data-lucide="check"></i><span>Zverejniť inzerát na trhu</span></button>
         </div>
@@ -239,24 +250,24 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     <section id="screen-watch" class="screen">
       <div class="row-between">
         <button id="backFromWatchBtn" class="btn btn-secondary" style="width:auto;padding:8px 12px;font-size:12px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
-        <div class="badge badge-ok" style="background:rgba(15,159,116,0.2);color:#0f9f74;">⌚ SmartWatch View</div>
+        <div class="badge badge-ok" style="background:rgba(16,185,129,0.2);color:#10b981;">⌚ SmartWatch View</div>
       </div>
 
       <div class="watch-card">
         <p style="font-size:11px;color:#a1a1aa;margin:0;text-transform:uppercase;">💊 Laktáza na zápästí</p>
         
         <div class="row" style="gap:12px;align-items:center;">
-          <button id="watchMinusBtn" style="width:40px;height:40px;border-radius:999px;background:#16191f;border:1px solid #0f9f74;color:#fff;font-size:20px;font-weight:800;">−</button>
+          <button id="watchMinusBtn" style="width:40px;height:40px;border-radius:999px;background:#161e2e;border:1px solid #10b981;color:#fff;font-size:20px;font-weight:800;">−</button>
           <div>
             <span id="watchPortionGrams" style="font-size:24px;font-weight:800;color:#fff;">150</span>
             <span style="font-size:12px;color:#a1a1aa;">g</span>
           </div>
-          <button id="watchPlusBtn" style="width:40px;height:40px;border-radius:999px;background:#16191f;border:1px solid #0f9f74;color:#fff;font-size:20px;font-weight:800;">+</button>
+          <button id="watchPlusBtn" style="width:40px;height:40px;border-radius:999px;background:#161e2e;border:1px solid #10b981;color:#fff;font-size:20px;font-weight:800;">+</button>
         </div>
 
-        <div style="background:rgba(15,159,116,0.2);border:1px solid #0f9f74;border-radius:18px;padding:8px 16px;width:100%;">
+        <div style="background:rgba(16,185,129,0.2);border:1px solid #10b981;border-radius:18px;padding:8px 16px;width:100%;">
           <p style="font-size:10px;color:#a1a1aa;margin:0;">Dávka:</p>
-          <h3 id="watchResultTablets" style="font-size:22px;font-weight:800;color:#0f9f74;margin:0;">2 tabletky</h3>
+          <h3 id="watchResultTablets" style="font-size:22px;font-weight:800;color:#10b981;margin:0;">2 tabletky</h3>
         </div>
       </div>
 
@@ -284,7 +295,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <button id="requestNotifBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(180deg,#3b82f6,#1d4ed8);"><i data-lucide="bell"></i><span>Povoliť notifikácie pre hodinky a mobil</span></button>
+        <button id="requestNotifBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);"><i data-lucide="bell"></i><span>Povoliť notifikácie pre hodinky a mobil</span></button>
         <button id="testNotifBtn" class="btn btn-secondary" style="font-size:13px;padding:10px;"><i data-lucide="send"></i><span>Otestovať zobrazenie na hodinkách</span></button>
       </div>
 
@@ -301,7 +312,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
         <div class="row-between">
           <label style="font-size:13px;color:#a1a1aa;font-weight:600;">Čas budíka:</label>
-          <input id="alarmTimeInput" type="time" value="06:30" style="background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:6px 12px;color:#fff;font-size:15px;" />
+          <input id="alarmTimeInput" type="time" value="06:30" style="background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:6px 12px;color:#fff;font-size:15px;" />
         </div>
 
         <div class="stack" style="gap:6px;">
@@ -319,26 +330,26 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <span class="badge badge-ok">✅ Zapnuté</span>
         </div>
 
-        <button id="toggleAlarmBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="check"></i><span id="alarmStatusText">Aktivovať ranný budík</span></button>
+        <button id="toggleAlarmBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(135deg,#10b981,#059669);"><i data-lucide="check"></i><span id="alarmStatusText">Aktivovať ranný budík</span></button>
         <button id="testAlarmSoundBtn" class="btn btn-secondary" style="font-size:12px;padding:8px;"><i data-lucide="play"></i><span>Vyskúšať zvuk a zosilňovanie</span></button>
       </div>
 
-      <div class="card" style="border-color:rgba(15,159,116,0.3);">
+      <div class="card" style="border-color:rgba(16,185,129,0.3);">
         <div class="row" style="gap:8px;">
-          <i data-lucide="calendar" style="width:20px;height:20px;color:#0f9f74;"></i>
-          <h3 style="font-size:16px;font-weight:700;margin:0;color:#0f9f74;">Sviatky, Meniny & Otváracie hodiny</h3>
+          <i data-lucide="calendar" style="width:20px;height:20px;color:#10b981;"></i>
+          <h3 style="font-size:16px;font-weight:700;margin:0;color:#10b981;">Sviatky, Meniny & Otváracie hodiny</h3>
         </div>
 
         <button id="loadAssistantSummaryBtn" class="btn btn-secondary" style="font-size:13px;padding:10px;"><i data-lucide="refresh-cw"></i><span>Aktualizovať dnešný prehľad</span></button>
 
         <div id="assistantSummaryWrap" class="stack" style="gap:10px;">
           <div class="alert-banner">
-            <i data-lucide="alert-circle" style="width:24px;height:24px;color:#df5252;flex-shrink:0;"></i>
+            <i data-lucide="alert-circle" style="width:24px;height:24px;color:#ef4444;flex-shrink:0;"></i>
             <p id="assistantHolidayAlert" style="font-size:13px;margin:0;line-height:1.4;">Pozor, zajtra je štátny sviatok! Ak potrebuješ nakúpiť, urob to ešte dnes. Billa je otvorená do 19:00, najdlhšie je Tesco do 22:00.</p>
           </div>
 
           <div class="details-box">
-            <p class="title-xs" style="color:#4fbe99;">Dnešný tip & Meniny</p>
+            <p class="title-xs" style="color:#10b981;">Dnešný tip & Meniny</p>
             <p id="assistantDailyTip" style="font-size:13px;margin:0;line-height:1.4;font-weight:500;">Dnes nezabudni na hydratáciu a laktázu pri obede.</p>
           </div>
         </div>
@@ -368,10 +379,10 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       <div class="card" style="border-color:rgba(242,154,46,0.3);">
         <div class="stack" style="gap:6px;">
           <label style="font-size:13px;color:#a1a1aa;font-weight:600;">📍 Moja momentálna lokalita / Mesto:</label>
-          <input id="menuCityInput" type="text" placeholder="napr. Revúca" value="Revúca" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
+          <input id="menuCityInput" type="text" placeholder="napr. Revúca" value="Revúca" style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
         </div>
 
-        <button id="searchMenuBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(180deg,#f29a2e,#da7101);"><i data-lucide="search"></i><span>Vyhľadať vhodné menu v meste</span></button>
+        <button id="searchMenuBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(135deg,#f29a2e,#da7101);"><i data-lucide="search"></i><span>Vyhľadať vhodné menu v meste</span></button>
       </div>
 
       <div id="menuLoadingWrap" class="stack hidden" style="text-align:center;padding:20px 0;">
@@ -395,10 +406,10 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <button id="clearShoppingBtn" class="badge badge-red" style="cursor:pointer;">Vymazať zoznam</button>
       </div>
 
-      <div class="card" style="border-color:rgba(15,159,116,0.3);">
+      <div class="card" style="border-color:rgba(16,185,129,0.3);">
         <div class="stack" style="gap:6px;">
           <label style="font-size:13px;color:#a1a1aa;font-weight:600;">📍 Moja momentálna lokalita / Mesto:</label>
-          <input id="userCityInput" type="text" placeholder="napr. Revúca" value="Revúca" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
+          <input id="userCityInput" type="text" placeholder="napr. Revúca" value="Revúca" style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
         </div>
 
         <div class="stack" style="gap:6px;">
@@ -412,13 +423,13 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <button id="checkDiscountsBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(180deg,#0f9f74,#0a7f5b);"><i data-lucide="sparkles"></i><span>Aktualizovať akcie & Letáky</span></button>
+        <button id="checkDiscountsBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(135deg,#10b981,#059669);"><i data-lucide="sparkles"></i><span>Aktualizovať akcie & Letáky</span></button>
       </div>
 
-      <div id="discountsResultCard" class="card hidden" style="border-color:#0f9f74;background:rgba(15,159,116,0.05);">
+      <div id="discountsResultCard" class="card hidden" style="border-color:#10b981;background:rgba(16,185,129,0.05);">
         <div class="row" style="gap:8px;">
-          <i data-lucide="shopping-bag" style="width:20px;height:20px;color:#0f9f74;"></i>
-          <h3 style="font-size:16px;font-weight:700;margin:0;color:#0f9f74;">AI Nákupný plán pre <span id="discountsCityName">Revúca</span></h3>
+          <i data-lucide="shopping-bag" style="width:20px;height:20px;color:#10b981;"></i>
+          <h3 style="font-size:16px;font-weight:700;margin:0;color:#10b981;">AI Nákupný plán pre <span id="discountsCityName">Revúca</span></h3>
         </div>
         <ul id="discountsRecsList" style="margin:0;padding-left:18px;font-size:13px;line-height:1.5;" class="stack" style="gap:4px;"></ul>
       </div>
@@ -432,7 +443,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN PROFIL (LOKÁLNY + CLOUDOVÁ SYNCHRONIZÁCIA + SKENER SPRÁV) -->
+    <!-- SCREEN PROFIL -->
     <section id="screen-profile" class="screen">
       <div class="row-between">
         <button id="backFromProfileBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBackProfile">Späť</span></button>
@@ -441,8 +452,8 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
       <div class="card" style="align-items:center;text-align:center;">
         <div style="position:relative;width:100px;height:100px;margin:0 auto;">
-          <img id="profileAvatarImg" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" style="width:100px;height:100px;border-radius:999px;object-fit:cover;border:2px solid #0f9f74;" />
-          <button id="changeAvatarBtn" style="position:absolute;bottom:0;right:0;background:#0f9f74;border:none;border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;"><i data-lucide="camera" style="width:16px;height:16px;"></i></button>
+          <img id="profileAvatarImg" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150" style="width:100px;height:100px;border-radius:999px;object-fit:cover;border:2px solid #10b981;" />
+          <button id="changeAvatarBtn" style="position:absolute;bottom:0;right:0;background:#10b981;border:none;border-radius:999px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;"><i data-lucide="camera" style="width:16px;height:16px;"></i></button>
           <input id="avatarFileInput" type="file" accept="image/*" class="file-hidden" />
         </div>
         
@@ -451,10 +462,10 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
         <div style="width:100%;text-align:left;margin-top:10px;" class="stack">
           <label style="font-size:13px;color:#a1a1aa;" id="ui-lblName">Meno a Priezvisko:</label>
-          <input id="profileNameInput" type="text" placeholder="Tvoje meno..." style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
+          <input id="profileNameInput" type="text" placeholder="Tvoje meno..." style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
 
           <label style="font-size:13px;color:#a1a1aa;margin-top:6px;" id="ui-lblInfo">Info / Poznámka (napr. Intolerancia):</label>
-          <input id="profileInfoInput" type="text" placeholder="napr. Silná alergia na laktózu, bez alkoholu" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
+          <input id="profileInfoInput" type="text" placeholder="napr. Silná alergia na laktózu, bez alkoholu" style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
 
           <button id="saveProfileBtn" class="btn btn-primary" style="margin-top:12px;" id="ui-btnSaveProfile">Uložiť profil</button>
         </div>
@@ -473,18 +484,18 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
         <div style="width:100%;text-align:left;" class="stack">
           <label style="font-size:12px;color:#a1a1aa;">Môj Sync Kľúč (alebo e-mail):</label>
-          <input id="cloudSyncKeyInput" type="text" placeholder="napr. mojezlozenie123" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:8px 12px;color:#fff;font-size:14px;outline:none;" />
+          <input id="cloudSyncKeyInput" type="text" placeholder="napr. mojezlozenie123" style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:8px 12px;color:#fff;font-size:14px;outline:none;" />
 
           <div class="grid-2" style="margin-top:6px;">
-            <button id="cloudSaveBtn" class="btn btn-primary" style="padding:10px;font-size:13px;background:linear-gradient(180deg,#3b82f6,#1d4ed8);"><i data-lucide="upload-cloud"></i><span>Uložiť na cloud</span></button>
+            <button id="cloudSaveBtn" class="btn btn-primary" style="padding:10px;font-size:13px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);"><i data-lucide="upload-cloud"></i><span>Uložiť na cloud</span></button>
             <button id="cloudLoadBtn" class="btn btn-secondary" style="padding:10px;font-size:13px;"><i data-lucide="download-cloud"></i><span>Obnoviť z cloudu</span></button>
           </div>
         </div>
       </div>
 
-      <div class="card" style="border-color:rgba(79,190,153,0.3);">
+      <div class="card" style="border-color:rgba(16,185,129,0.3);">
         <div class="row" style="gap:10px;">
-          <div style="width:36px;height:36px;border-radius:12px;background:rgba(79,190,153,0.15);color:#4fbe99;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <div style="width:36px;height:36px;border-radius:12px;background:rgba(16,185,129,0.15);color:#10b981;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
             <i data-lucide="stethoscope" style="width:20px;height:20px;"></i>
           </div>
           <div>
@@ -493,16 +504,16 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <button id="takeMedicalPhotoBtn" class="btn btn-secondary" style="background:rgba(255,255,255,0.05);border-color:rgba(79,190,153,0.3);color:#4fbe99;"><i data-lucide="file-text"></i><span>Odfotiť / Nahrať lekársku správu</span></button>
+        <button id="takeMedicalPhotoBtn" class="btn btn-secondary" style="background:rgba(255,255,255,0.05);border-color:rgba(16,185,129,0.3);color:#10b981;"><i data-lucide="file-text"></i><span>Odfotiť / Nahrať lekársku správu</span></button>
         <input id="medicalPhotoInput" type="file" accept="image/*" capture="environment" class="file-hidden" />
 
         <div id="medicalLoadingWrap" class="stack hidden" style="text-align:center;padding:12px 0;">
-          <p style="font-size:13px;font-weight:600;color:#4fbe99;margin:0;">Prebieha AI analýza lekárskeho nálezu...</p>
+          <p style="font-size:13px;font-weight:600;color:#10b981;margin:0;">Prebieha AI analýza lekárskeho nálezu...</p>
         </div>
 
         <div id="medicalResultWrap" class="stack hidden" style="gap:12px;margin-top:8px;">
-          <div class="details-box" style="border-color:rgba(79,190,153,0.3);background:rgba(79,190,153,0.05);">
-            <p class="title-xs" style="color:#4fbe99;">Zrozumiteľné zhrnutie nálezu</p>
+          <div class="details-box" style="border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.05);">
+            <p class="title-xs" style="color:#10b981;">Zrozumiteľné zhrnutie nálezu</p>
             <p id="medSummaryText" style="font-size:13px;line-height:1.5;margin:0;font-weight:500;"></p>
           </div>
 
@@ -512,16 +523,16 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
 
           <div class="details-box">
-            <p class="title-xs" style="color:#4fbe99;">Sledované krvné parametre</p>
+            <p class="title-xs" style="color:#10b981;">Sledované krvné parametre</p>
             <div id="medBloodMarkersWrap" class="stack" style="gap:6px;margin-top:4px;"></div>
           </div>
 
           <div class="details-box">
-            <p class="title-xs" style="color:#0f9f74;">Diétne odporúčania z nálezu</p>
+            <p class="title-xs" style="color:#10b981;">Diétne odporúčania z nálezu</p>
             <ul id="medDietRecsList" style="margin:0;padding-left:18px;font-size:12px;line-height:1.5;" class="stack" style="gap:4px;"></ul>
           </div>
 
-          <button id="applyMedicalProfileBtn" class="btn btn-primary" style="background:linear-gradient(180deg,#0f9f74,#0a7f5b);padding:12px 16px;font-size:14px;"><i data-lucide="check-circle"></i><span>Aplikovať odporúčania do diétneho profilu</span></button>
+          <button id="applyMedicalProfileBtn" class="btn btn-primary" style="background:linear-gradient(135deg,#10b981,#059669);padding:12px 16px;font-size:14px;"><i data-lucide="check-circle"></i><span>Aplikovať odporúčania do diétneho profilu</span></button>
         </div>
       </div>
     </section>
@@ -561,13 +572,13 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
     <section id="screen-result" class="screen">
       <div class="row-between">
         <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnScanAgain">Sken</span></button>
-        <button id="addShoppingListBtn" class="badge badge-ok" style="cursor:pointer;background:rgba(15,159,116,0.2);color:#0f9f74;font-size:13px;padding:8px 12px;border:1px solid #0f9f74;">❤️ Do zoznamu</button>
+        <button id="addShoppingListBtn" class="badge badge-ok" style="cursor:pointer;background:rgba(16,185,129,0.2);color:#10b981;font-size:13px;padding:8px 12px;border:1px solid #10b981;">❤️ Do zoznamu</button>
       </div>
 
       <div id="allergenAlertBanner" class="alert-banner hidden">
-        <i data-lucide="alert-triangle" style="width:28px;height:28px;color:#df5252;flex-shrink:0;"></i>
+        <i data-lucide="alert-triangle" style="width:28px;height:28px;color:#ef4444;flex-shrink:0;"></i>
         <div class="stack" style="gap:2px;">
-          <h4 style="font-size:15px;font-weight:800;margin:0;color:#df5252;" id="ui-alertBannerTitle">POZOR: Zistená zakázaná zložka!</h4>
+          <h4 style="font-size:15px;font-weight:800;margin:0;color:#ef4444;" id="ui-alertBannerTitle">POZOR: Zistená zakázaná zložka!</h4>
           <p id="allergenAlertText" style="font-size:13px;margin:0;line-height:1.3;"></p>
         </div>
       </div>
@@ -582,7 +593,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <div id="lactose-calculator-card" style="background: #0e1013; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 16px;">
+        <div id="lactose-calculator-card" style="background: #0b0f17; border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 16px;">
           <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
             <span style="font-size: 20px;">💊</span>
             <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #f1efe9;" id="ui-lactTitle">Kalkulačka dávkovania laktázy</h3>
@@ -597,12 +608,12 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
             id="lactose-portion-input" 
             value="150" 
             placeholder="napr. 150"
-            style="width: 100%; background: #16191f; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 10px 14px; color: #fff; font-size: 16px; outline: none;"
+            style="width: 100%; background: #161e2e; border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 10px 14px; color: #fff; font-size: 16px; outline: none;"
           />
 
-          <div style="margin-top: 14px; background: rgba(15, 159, 116, 0.15); border: 1px solid #0f9f74; border-radius: 14px; padding: 12px; text-align: center;">
+          <div style="margin-top: 14px; background: rgba(16, 185, 129, 0.15); border: 1px solid #10b981; border-radius: 14px; padding: 12px; text-align: center;">
             <div style="font-size: 13px; color: #a1a1aa;" id="ui-lactRec">Odporúčaná dávka:</div>
-            <div id="lactose-result-tablets" style="font-size: 22px; font-weight: 700; color: #0f9f74; margin: 4px 0;">
+            <div id="lactose-result-tablets" style="font-size: 22px; font-weight: 700; color: #10b981; margin: 4px 0;">
               0 tabletiek
             </div>
             <div id="lactose-result-details" style="font-size: 12px; color: #a1a1aa;">
@@ -625,7 +636,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <div style="width:100%;height:60px;margin:4px 0;">
             <svg viewBox="0 0 300 60" width="100%" height="100%">
               <line x1="10" y1="40" x2="290" y2="40" stroke="rgba(255,255,255,0.15)" stroke-dasharray="4,4"/>
-              <path id="energyGraphPath" d="M10,40 Q60,5 120,40 T290,55" fill="none" stroke="#df5252" stroke-width="3.5" stroke-linecap="round"/>
+              <path id="energyGraphPath" d="M10,40 Q60,5 120,40 T290,55" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round"/>
             </svg>
           </div>
 
@@ -637,7 +648,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
             <svg viewBox="0 0 100 200" width="100%" height="100%">
               <defs>
                 <linearGradient id="bodyGlowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stop-color="#4fbe99" stop-opacity="0.3"/>
+                  <stop offset="0%" stop-color="#10b981" stop-opacity="0.3"/>
                   <stop offset="100%" stop-color="#ffffff" stop-opacity="0.05"/>
                 </linearGradient>
               </defs>
@@ -649,14 +660,14 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
             </svg>
           </div>
           <div class="stack" style="gap:6px;flex:1;">
-            <p class="title-xs" style="color:#4fbe99;" id="ui-bodyTitle">Vizuálny dopad na telo</p>
+            <p class="title-xs" style="color:#10b981;" id="ui-bodyTitle">Vizuálny dopad na telo</p>
             <h3 id="bodyImpactTitle" style="font-size:16px;font-weight:700;margin:0;">Analýza orgánov...</h3>
             <p id="bodyImpactText" class="muted" style="font-size:13px;line-height:1.4;margin:0;"></p>
           </div>
         </div>
 
         <div class="details-box">
-          <p class="title-xs" style="color:#4fbe99;" id="ui-ingredientsTitle">Surovinové Zloženie</p>
+          <p class="title-xs" style="color:#10b981;" id="ui-ingredientsTitle">Surovinové Zloženie</p>
           <p id="ingredientsRawText" style="font-size:14px;line-height:1.5;margin:0;font-weight:500;">Načítavam suroviny...</p>
         </div>
 
@@ -671,12 +682,12 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <div id="healthSwapSection" class="swap-card">
           <div class="row-between">
             <div class="stack" style="gap:2px;">
-              <p class="title-xs" style="color:#4fbe99;">Health Swap</p>
+              <p class="title-xs" style="color:#10b981;">Health Swap</p>
               <h3 style="font-size:17px;font-weight:700;margin:0;" id="ui-swapHeader">Zdravšia alternatíva</h3>
             </div>
             <span id="swapImprovement" class="badge badge-ok">+20 bodov</span>
           </div>
-          <p id="swapSummary" style="font-size:13px;color:#4fbe99;margin:0;"></p>
+          <p id="swapSummary" style="font-size:13px;color:#10b981;margin:0;"></p>
 
           <div class="compare-grid">
             <div class="compare-box">
@@ -684,8 +695,8 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
               <p id="compareCurrentName" style="font-size:13px;font-weight:600;margin:0;">—</p>
             </div>
             <div class="compare-box">
-              <span class="title-xs" style="color:#4fbe99;" id="ui-recommendLabel">Odporúčanie</span>
-              <p id="compareSwapName" style="font-size:13px;font-weight:600;color:#4fbe99;margin:0;">—</p>
+              <span class="title-xs" style="color:#10b981;" id="ui-recommendLabel">Odporúčanie</span>
+              <p id="compareSwapName" style="font-size:13px;font-weight:600;color:#10b981;margin:0;">—</p>
             </div>
           </div>
 
@@ -697,7 +708,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
                 <tr style="background:rgba(255,255,255,0.04);">
                   <th id="ui-thMetric">Metrika</th>
                   <th id="ui-thProduct">Produkt</th>
-                  <th style="color:#4fbe99;" id="ui-thAlt">Alternatíva</th>
+                  <th style="color:#10b981;" id="ui-thAlt">Alternatíva</th>
                 </tr>
               </thead>
               <tbody id="compareTableBody"></tbody>
@@ -707,7 +718,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 
         <div class="details-box">
           <div class="row-between">
-            <p class="title-xs" style="color:#4fbe99;" id="ui-reviewsTitle">Komunitné recenzie</p>
+            <p class="title-xs" style="color:#10b981;" id="ui-reviewsTitle">Komunitné recenzie</p>
             <span id="reviewsCountBadge" class="badge" style="background:rgba(255,255,255,0.06);color:#a6a39b;">0 recenzií</span>
           </div>
 
@@ -735,6 +746,11 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
   </main>
+
+  <!-- PÄTKA A AUTORSTVO -->
+  <footer style="text-align:center;padding:16px 0;margin-top:10px;border-top:1px solid rgba(255,255,255,0.06);font-size:12px;" class="muted">
+    <p style="margin:0;">NutriPulse AI v3.0 • Vytvoril s 💚 <b style="color:#10b981;">Lukáš Sokol</b> • Revúca</p>
+  </footer>
 </div>
 
 <script>
@@ -750,7 +766,7 @@ const UI_TRANSLATIONS = {
     profGeneral: "👤 Všeobecný", profHeart: "🩺 Srdce & Tlak (Prísna soľ)", profDiabetes: "🩸 Cukor & Glukóza (Prísny cukor)", profClean: "🌿 Bez E-čiek (Čistá strava)",
     allergensLabel: "Vyhnúť sa (Alergény / Zložky):", algGluten: "Lepok", algLactose: "Laktóza", algNuts: "Orechy", algPalmoil: "Palmový olej",
     alertBannerTitle: "POZOR: Zistená zakázaná zložka!",
-    heroBadge: "Rýchla kontrola potravín", heroTitle: 'Odfoť etiketu alebo <span style="color:#0f9f74;">naskenuj EAN kód</span>.', heroDesc: "Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.", btnScanEan: "Skenovať čiarový kód (EAN)", btnCamera: "Odfotiť celú etiketu",
+    heroBadge: "Rýchla kontrola potravín", heroTitle: 'Odfoť etiketu alebo <span style="color:#10b981;">naskenuj EAN kód</span>.', heroDesc: "Okamžitá AI analýza zloženia, energetickej krivky a vizuálny dopad na telo.", btnScanEan: "Skenovať čiarový kód (EAN)", btnCamera: "Odfotiť celú etiketu",
     btnBack1: "Späť", btnBack2: "Späť", btnBackProfile: "Späť", btnBackEan: "Späť", badgeProfile: "Môj Profil", profileSub: "Osobné nastavenia v zariadení", lblName: "Meno a Priezvisko:", lblInfo: "Info / Poznámka (napr. Intolerancia):", btnSaveProfile: "Uložiť profil",
     eanTitle: "Namier kameru na čiarový kód", eanSub: "Kód sa automaticky rozozná",
     btnStartScan: "Spustiť AI analýzu", btnClearHistory: "Vymazať históriu", historyTitle: "Moje naskenované produkty", historySub: "Uložené lokálne v tomto zariadení.",
@@ -762,11 +778,25 @@ const UI_TRANSLATIONS = {
   }
 };
 
-const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], selectedStores: ["Lidl", "Tesco", "Coop Jednota"], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null, lastDiscountsData: null, alarmActive: false, watchPortionGrams: 150 };
+const state = { sessionId: "sess_" + Math.random().toString(36).substr(2, 9), selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], selectedStores: ["Lidl", "Tesco", "Coop Jednota"], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null, lastDiscountsData: null, alarmActive: false, watchPortionGrams: 150 };
 const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping"), menu: document.getElementById("screen-menu"), assistant: document.getElementById("screen-assistant"), watch: document.getElementById("screen-watch"), marketplace: document.getElementById("screen-marketplace") };
 
 let html5QrCode = null;
 let audioCtx = null;
+
+function sendHeartbeat(){
+  fetch("/api/heartbeat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ sessionId: state.sessionId })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.online) document.getElementById("liveOnlineCount").textContent = data.online;
+    if(data.totalRegistered) document.getElementById("totalUsersCount").textContent = data.totalRegistered.toLocaleString();
+  })
+  .catch(e => {});
+}
 
 function makeSafeKey(text) {
   if (!text) return "produkt_" + Date.now();
@@ -803,6 +833,8 @@ function init(){
   renderHistoryList(); 
   renderShoppingList();
   updateUI(); 
+  sendHeartbeat();
+  setInterval(sendHeartbeat, 15000); // Heartbeat každých 15 sekúnd
   if(window.lucide) lucide.createIcons(); 
 }
 
@@ -929,7 +961,7 @@ function bindEvents(){
   });
 }
 
-// ---------------- MARKETPLACE FUNKCIE ----------------
+// MARKETPLACE FUNKCIE
 async function loadMarketplaceItems(){
   const city = document.getElementById("userCityInput")?.value || "Revúca";
   try {
@@ -952,7 +984,7 @@ function renderMarketplaceList(list){
     <div class="card" style="padding:14px;border-color:rgba(234,179,8,0.2);">
       <div class="row-between">
         <span class="badge" style="background:rgba(234,179,8,0.2);color:#eab308;">${item.category}</span>
-        <span style="font-size:15px;font-weight:800;color:#0f9f74;">${item.price}</span>
+        <span style="font-size:15px;font-weight:800;color:#10b981;">${item.price}</span>
       </div>
       <h4 style="font-size:16px;font-weight:700;margin:6px 0 0 0;color:#fff;">${item.title}</h4>
       <p style="font-size:12px;margin:2px 0 0 0;color:#a1a1aa;">${item.description}</p>
@@ -998,7 +1030,7 @@ async function submitMarketplaceItem(){
   }
 }
 
-// ---------------- CLOUDOVÁ SYNCHRONIZÁCIA FUNKCIE ----------------
+// CLOUDOVÁ SYNCHRONIZÁCIA
 async function saveToCloud(){
   const syncKey = document.getElementById("cloudSyncKeyInput").value.trim();
   if(!syncKey){
@@ -1051,7 +1083,7 @@ async function loadFromCloud(){
   }
 }
 
-// ---------------- WATCH REŽIM FUNKCIE ----------------
+// WATCH REŽIM
 function updateWatchLactase(delta){
   state.watchPortionGrams = Math.max(25, state.watchPortionGrams + delta);
   document.getElementById("watchPortionGrams").innerText = state.watchPortionGrams;
@@ -1072,19 +1104,19 @@ function renderWatchShoppingList(){
   wrap.innerHTML = list.slice(0, 5).map(item => `
     <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;">
       <span style="font-size:12px;color:#fff;font-weight:600;">${item.name}</span>
-      <span style="font-size:11px;color:#0f9f74;font-weight:700;">${item.score}/100</span>
+      <span style="font-size:11px;color:#10b981;font-weight:700;">${item.score}/100</span>
     </div>
   `).join("");
 }
 
-// ---------------- FUNKCIE ASISTENTA & BUDÍKA ----------------
+// ASISTENT & BUDÍK
 function requestNotificationPermission(){
   if (!("Notification" in window)) {
     return alert("Váš prehliadač nepodporuje notifikácie.");
   }
   Notification.requestPermission().then(permission => {
     if (permission === "granted") {
-      alert("Notifikácie boli úspešne povolené! Budú sa zobrazovať na mobilnom telefóne aj smart hodinkách.");
+      alert("Notifikácie boli úspešne povolené!");
     } else {
       alert("Notifikácie neboli povolené.");
     }
@@ -1093,12 +1125,12 @@ function requestNotificationPermission(){
 
 function sendTestNotification(){
   if (Notification.permission === "granted") {
-    new Notification("⌚ Food Scanner Asistent", {
-      body: "Pozor: Zajtra je štátny sviatok. Nakúp si potraviny ešte dnes! Tesco je otvorené najdlhšie do 22:00.",
+    new Notification("⌚ NutriPulse AI Asistent", {
+      body: "Pozor: Zajtra je štátny sviatok. Nakúp si potraviny ešte dnes! Tesco do 22:00.",
       icon: "https://cdn-icons-png.flaticon.com/512/2927/2927347.png"
     });
   } else {
-    alert("Najprv povoľ notifikácie tlačidlom vyššie.");
+    alert("Najprv povoľ notifikácie.");
   }
 }
 
@@ -1109,7 +1141,7 @@ function toggleAlarm(){
 
   if(state.alarmActive){
     statusEl.innerText = `Budík AKTÍVNY na ${time}`;
-    alert(`Ranný budík nastavený na ${time} s plynulým zosilňovaním zvuku prírody.`);
+    alert(`Ranný budík nastavený na ${time}.`);
   } else {
     statusEl.innerText = "Aktivovať ranný budík";
     alert("Budík bol vypnutý.");
@@ -1135,7 +1167,7 @@ function playNatureSoundWithFadeIn(){
 
   osc.start();
   osc.stop(audioCtx.currentTime + 6);
-  alert("Spustená ukážka plynulého zosilňovania zvuku (Fade-In)...");
+  alert("Spustená ukážka plynulého zosilňovania zvuku...");
 }
 
 async function loadAssistantSummary(){
@@ -1171,7 +1203,7 @@ async function searchDailyMenu(){
     const data = await res.json();
     renderMenuResult(data);
   } catch(e){
-    alert("Chyba pri vyhľadávaní reštaurácií a denného menu.");
+    alert("Chyba pri vyhľadávaní reštaurácií.");
   } finally {
     document.getElementById("menuLoadingWrap").classList.add("hidden");
   }
@@ -1206,7 +1238,7 @@ function renderMenuResult(data){
               <div class="menu-item-row">
                 <div class="row-between">
                   <span style="font-size:13px;font-weight:600;color:#fff;">${item.title}</span>
-                  <span style="font-size:13px;font-weight:700;color:#0f9f74;">${item.price}</span>
+                  <span style="font-size:13px;font-weight:700;color:#10b981;">${item.price}</span>
                 </div>
                 <div class="row-between" style="margin-top:2px;">
                   ${statusBadge}
@@ -1336,14 +1368,14 @@ function renderShoppingList(){
   const discounts = state.lastDiscountsData?.discounted_items || [];
 
   wrap.innerHTML = list.map(item => {
-    const color = item.severity === "green" ? "#0f9f74" : item.severity === "red" ? "#df5252" : "#f29a2e";
+    const color = item.severity === "green" ? "#10b981" : item.severity === "red" ? "#ef4444" : "#f29a2e";
     const checkedClass = item.checked ? "checked" : "";
 
     const discInfo = discounts.find(d => d.product_name?.toLowerCase().includes(item.name.toLowerCase()) || item.name.toLowerCase().includes(d.product_name?.toLowerCase()));
 
     const discountBadge = discInfo ? `
       <div class="row" style="gap:6px;margin-top:4px;">
-        <span class="badge" style="background:rgba(15,159,116,0.2);color:#0f9f74;border:1px solid #0f9f74;font-size:11px;">
+        <span class="badge" style="background:rgba(16,185,129,0.2);color:#10b981;border:1px solid #10b981;font-size:11px;">
           🔥 AKCIA (${discInfo.store}): ${discInfo.discount_price} <s style="opacity:0.6">${discInfo.original_price}</s>
         </span>
       </div>
@@ -1353,7 +1385,7 @@ function renderShoppingList(){
       <div class="shopping-item ${checkedClass}" onclick="toggleShoppingItem('${item.id}')">
         <div class="row-between">
           <div class="row" style="gap:10px;">
-            <input type="checkbox" ${item.checked ? 'checked' : ''} style="width:18px;height:18px;accent-color:#0f9f74;" />
+            <input type="checkbox" ${item.checked ? 'checked' : ''} style="width:18px;height:18px;accent-color:#10b981;" />
             <div class="stack" style="gap:2px;">
               <h4 style="font-size:15px;font-weight:700;margin:0;color:#fff;">${item.name}</h4>
               <p class="muted" style="font-size:12px;margin:0;">${item.category}</p>
@@ -1361,7 +1393,7 @@ function renderShoppingList(){
           </div>
           <div class="row" style="gap:10px;">
             <span style="font-size:14px;font-weight:800;color:${color}">${item.score}/100</span>
-            <button onclick="deleteShoppingItem('${item.id}', event)" style="background:none;border:none;color:#df5252;cursor:pointer;padding:4px;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
+            <button onclick="deleteShoppingItem('${item.id}', event)" style="background:none;border:none;color:#ef4444;cursor:pointer;padding:4px;"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
           </div>
         </div>
         ${discountBadge}
@@ -1403,7 +1435,7 @@ function renderMedicalResult(data){
 
   const bloodWrap = document.getElementById("medBloodMarkersWrap");
   bloodWrap.innerHTML = (data.blood_markers || []).map(m => {
-    const badgeColor = m.status === 'high' || m.status === 'low' ? '#df5252' : '#0f9f74';
+    const badgeColor = m.status === 'high' || m.status === 'low' ? '#ef4444' : '#10b981';
     return `
       <div class="additive-item">
         <div class="row-between">
@@ -1585,7 +1617,7 @@ function renderHistoryList(){
   wrap.innerHTML = history.map((item, idx) => {
     const score = item.analysis?.verdict?.score || 0;
     const sev = item.analysis?.verdict?.severity || "orange";
-    const color = sev === "green" ? "#0f9f74" : sev === "red" ? "#df5252" : "#f29a2e";
+    const color = sev === "green" ? "#10b981" : sev === "red" ? "#ef4444" : "#f29a2e";
 
     return `
       <div class="history-item" onclick="openHistoryItem(${idx})">
@@ -1750,9 +1782,9 @@ function renderEnergyImpact(energy){
 
   if(type === "spike"){
     pathEl.setAttribute("d", "M10,40 Q50,0 100,38 T200,55 L290,42");
-    pathEl.setAttribute("stroke", "#df5252");
-    labelTitleEl.style.color = "#df5252";
-    if(iconEl) iconEl.style.color = "#df5252";
+    pathEl.setAttribute("stroke", "#ef4444");
+    labelTitleEl.style.color = "#ef4444";
+    if(iconEl) iconEl.style.color = "#ef4444";
   } else if(type === "moderate") {
     pathEl.setAttribute("d", "M10,40 Q90,15 170,35 T290,40");
     pathEl.setAttribute("stroke", "#f29a2e");
@@ -1760,9 +1792,9 @@ function renderEnergyImpact(energy){
     if(iconEl) iconEl.style.color = "#f29a2e";
   } else {
     pathEl.setAttribute("d", "M10,40 Q150,22 290,38");
-    pathEl.setAttribute("stroke", "#0f9f74");
-    labelTitleEl.style.color = "#0f9f74";
-    if(iconEl) iconEl.style.color = "#0f9f74";
+    pathEl.setAttribute("stroke", "#10b981");
+    labelTitleEl.style.color = "#10b981";
+    if(iconEl) iconEl.style.color = "#10b981";
   }
 }
 
@@ -1801,7 +1833,7 @@ function renderScores(scores){
     const val = item.data?.value || "—";
     const level = item.data?.level || "—";
     const sev = item.data?.severity || "orange";
-    const color = sev === "green" ? "#0f9f74" : sev === "red" ? "#df5252" : "#f29a2e";
+    const color = sev === "green" ? "#10b981" : sev === "red" ? "#ef4444" : "#f29a2e";
 
     return `<div class="score-card">
       <div class="row-between">
@@ -1832,11 +1864,11 @@ function renderHealthSwap(data){
   const s = data.analysis?.scores || {};
 
   document.getElementById("compareTableBody").innerHTML = `
-    <tr><td>Metrika</td><td>${currentScore}/100</td><td style="color:#4fbe99;">${swapScore}/100</td></tr>
-    <tr><td>Cukor</td><td>${s.sugar?.value || "0g"}</td><td style="color:#4fbe99;">${swap.product?.sugar || "0g"}</td></tr>
-    <tr><td>Soľ</td><td>${s.salt?.value || "2g"}</td><td style="color:#4fbe99;">${swap.product?.salt || "0.1g"}</td></tr>
-    <tr><td>Aditíva</td><td>${s.additives?.value || "2 aditíva"}</td><td style="color:#4fbe99;">${swap.product?.additives || "Bez E-čiek"}</td></tr>
-    <tr><td>Spracovanie</td><td>${s.processing?.value || "Spracovaná"}</td><td style="color:#4fbe99;">${swap.product?.processing || "Minimálne"}</td></tr>
+    <tr><td>Metrika</td><td>${currentScore}/100</td><td style="color:#10b981;">${swapScore}/100</td></tr>
+    <tr><td>Cukor</td><td>${s.sugar?.value || "0g"}</td><td style="color:#10b981;">${swap.product?.sugar || "0g"}</td></tr>
+    <tr><td>Soľ</td><td>${s.salt?.value || "2g"}</td><td style="color:#10b981;">${swap.product?.salt || "0.1g"}</td></tr>
+    <tr><td>Aditíva</td><td>${s.additives?.value || "2 aditíva"}</td><td style="color:#10b981;">${swap.product?.additives || "Bez E-čiek"}</td></tr>
+    <tr><td>Spracovanie</td><td>${s.processing?.value || "Spracovaná"}</td><td style="color:#10b981;">${swap.product?.processing || "Minimálne"}</td></tr>
   `;
 }
 
@@ -1848,24 +1880,24 @@ function updateBodyOrgans(scores){
   let impacts = [];
 
   if(scores?.salt?.severity === "red" || scores?.salt?.severity === "orange"){
-    heart.setAttribute("fill", "#df5252");
+    heart.setAttribute("fill", "#ef4444");
     impacts.push("cievy a tlak");
   } else {
-    heart.setAttribute("fill", "#0f9f74");
+    heart.setAttribute("fill", "#10b981");
   }
 
   if(scores?.additives?.severity === "red" || scores?.additives?.severity === "orange"){
     stomach.setAttribute("fill", "#f29a2e");
     impacts.push("trávenie");
   } else {
-    stomach.setAttribute("fill", "#0f9f74");
+    stomach.setAttribute("fill", "#10b981");
   }
 
   if(scores?.sugar?.severity === "red" || scores?.sugar?.severity === "orange"){
-    brain.setAttribute("fill", "#df5252");
+    brain.setAttribute("fill", "#ef4444");
     impacts.push("mozog");
   } else {
-    brain.setAttribute("fill", "#0f9f74");
+    brain.setAttribute("fill", "#10b981");
   }
 
   const titleEl = document.getElementById("bodyImpactTitle");
