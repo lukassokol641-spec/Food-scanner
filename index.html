@@ -442,7 +442,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN PROFIL -->
+    <!-- SCREEN PROFIL S PODPOROU A HLÁSENÍM CHÝB -->
     <section id="screen-profile" class="screen">
       <div class="row-between">
         <button id="backFromProfileBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnBackProfile">Späť</span></button>
@@ -467,6 +467,26 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           <input id="profileInfoInput" type="text" placeholder="napr. Silná alergia na laktózu, bez alkoholu" style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
 
           <button id="saveProfileBtn" class="btn btn-primary" style="margin-top:12px;" id="ui-btnSaveProfile">Uložiť profil</button>
+        </div>
+      </div>
+
+      <!-- KARTA: PODPORA & NAHLÁSENIE CHYBY -->
+      <div class="card" style="border-color:rgba(239,68,68,0.3);">
+        <div class="row" style="gap:10px;">
+          <div style="width:36px;height:36px;border-radius:12px;background:rgba(239,68,68,0.15);color:#ef4444;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <i data-lucide="message-square-warning" style="width:20px;height:20px;"></i>
+          </div>
+          <div>
+            <h3 style="font-size:16px;font-weight:700;margin:0;">💬 Podpora & Nahlásiť chybu</h3>
+            <p class="muted" style="font-size:12px;margin:0;">Napíš nám, ak niečo nefunguje správne</p>
+          </div>
+        </div>
+
+        <div style="width:100%;text-align:left;" class="stack">
+          <textarea id="supportMessageInput" placeholder="Popíš problém (napr. EAN kód neprečítalo, chyba v dennom menu...)" rows="3" style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:14px;outline:none;resize:none;"></textarea>
+          <input id="supportContactInput" type="text" placeholder="Tvoj e-mail alebo kontakt (voliteľné)" style="width:100%;background:#0b0f17;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:8px 12px;color:#fff;font-size:13px;outline:none;" />
+          
+          <button id="sendSupportBtn" class="btn btn-primary" style="padding:12px;font-size:14px;background:linear-gradient(135deg,#ef4444,#b91c1c);"><i data-lucide="send"></i><span>Odoslať hlásenie podpore</span></button>
         </div>
       </div>
 
@@ -527,7 +547,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
 
           <div class="details-box">
-            <p class="title-xs" style="color:#10b981;">Diétne odporúčania z nálezu</p>
+            <p class="title-xs" style="color:#0f9f74;">Diétne odporúčania z nálezu</p>
             <ul id="medDietRecsList" style="margin:0;padding-left:18px;font-size:12px;line-height:1.5;" class="stack" style="gap:4px;"></ul>
           </div>
 
@@ -567,7 +587,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
       </div>
     </section>
 
-    <!-- SCREEN RESULT S PÔVODOM POTRAVINY A KM -->
+    <!-- SCREEN RESULT -->
     <section id="screen-result" class="screen">
       <div class="row-between">
         <button id="backToScanBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span id="ui-btnScanAgain">Sken</span></button>
@@ -592,7 +612,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
           </div>
         </div>
 
-        <!-- KARTA PÔVODU A UHLÍKOVEJ STOPY (KM TOVARU) -->
         <div id="originImpactCard" class="details-box" style="border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.05);">
           <div class="row-between">
             <div class="row" style="gap:8px;">
@@ -866,6 +885,9 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
 
+  // PODPORA & HLÁSENIE CHÝB
+  document.getElementById("sendSupportBtn").addEventListener("click", submitSupportTicket);
+
   // MARKETPLACE EVENTY
   document.getElementById("marketNavBtn").addEventListener("click", () => { loadMarketplaceItems(); showScreen("marketplace"); });
   document.getElementById("backFromMarketBtn").addEventListener("click", () => showScreen("hero"));
@@ -975,6 +997,34 @@ function bindEvents(){
   document.getElementById("toggleTableBtn").addEventListener("click", () => {
     document.getElementById("compareTableWrap").classList.toggle("hidden");
   });
+}
+
+// PODPORA & HLÁSENIE CHÝB
+async function submitSupportTicket(){
+  const message = document.getElementById("supportMessageInput").value.trim();
+  const userContact = document.getElementById("supportContactInput").value.trim();
+
+  if(!message){
+    return alert("Prosím napíš správu pre podporu!");
+  }
+
+  const deviceInfo = navigator.userAgent;
+
+  try {
+    const res = await fetch("/api/support", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, deviceInfo, userContact })
+    });
+    const result = await res.json();
+    if(res.ok){
+      alert(result.message || "Hlásenie bolo odoslané!");
+      document.getElementById("supportMessageInput").value = "";
+      document.getElementById("supportContactInput").value = "";
+    }
+  } catch(e){
+    alert("Chyba pri odosielaní správy podpore.");
+  }
 }
 
 // MARKETPLACE
@@ -1487,7 +1537,7 @@ function applyMedicalRecommendations(){
     });
   }
 
-  alert("Odporúčania z lekárskej správy boli úspešne aplikované do tvojho zdravotného profilu!");
+  alert("Odporúčania z lekárskej správy boli úspešne aplikované do tvojho diétneho profilu!");
   showScreen("hero");
 }
 
@@ -1688,7 +1738,6 @@ function renderResult(data){
     alertBanner.classList.add("hidden");
   }
 
-  // REPOZÍCIA A RENDERING PÔVODU POTRAVINY & KM
   const origin = data.origin_info;
   if(origin){
     document.getElementById("originCountryText").textContent = origin.country || "Neuvedené";
