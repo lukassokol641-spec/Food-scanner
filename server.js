@@ -162,15 +162,11 @@ Zakázané alergény/zložky: ${(allergens || []).join(', ')}
 Poznámky z lekárskej správy: ${medicalNotes || "Žiadne špeciálne obmedzenia"}
 Jazyk: ${lang || 'sk'}
 
-Zisti/simuluj aktuálne reštaurácie a denné obedové menu pre dané mesto na Slovensku.
-Ak je čas medzi 10:30 a 14:30, zameraj sa na Denné obedové menu.
-Ak je mimo týchto hodín, zameraj sa na stálu ponuku a otváracie hodiny reštaurácií v okolí.
-
 Vráť STRICTNE čistý JSON:
 {
   "mode": "lunch_menu" | "regular_menu",
   "city": "${userCity}",
-  "time_info": "Text informujúci o aktuálnom režime (napr. Obedové menu 11:00 - 14:00)",
+  "time_info": "Text informujúci o aktuálnom režime",
   "restaurants": [
     {
       "name": "Názov reštaurácie",
@@ -178,10 +174,10 @@ Vráť STRICTNE čistý JSON:
       "serving_hours": "11:00 - 13:30",
       "menu_items": [
         {
-          "title": "Názov jedla (napr. Grilované kuracie prsia s ryžou)",
+          "title": "Názov jedla",
           "price": "6.50 €",
           "is_suitable": true | false,
-          "warning": "Dôvod ak nie je vhodné (napr. Obsahuje laktózu)",
+          "warning": "Dôvod ak nie je vhodné",
           "health_score": "Výborná voľba / Mierne rizikové / Nevhodné"
         }
       ]
@@ -198,12 +194,44 @@ Vráť STRICTNE čistý JSON:
 
     res.json(JSON.parse(response.choices[0].message.content));
   } catch (error) {
-    console.error('Chyba pri hľadaní denného menu:', error);
     res.status(500).json({ error: 'Chyba pri vyhľadávaní reštaurácií.' });
   }
 });
 
-// 5. ENDPOINTY PRE RECENZIE
+// 5. ENDPOINT PRE DENNÝ SÚHRN ASISTENTA (SVIATKY & DENNÝ TIP)
+app.post('/api/assistant-summary', async (req, res) => {
+  try {
+    const { city, lang } = req.body;
+    const userCity = city || "Revúca";
+
+    const promptText = `
+Si inteligentný osobné asistent na Slovensku.
+Mesto: ${userCity}
+Dnešný dátum / Obdobie: Aktuálny kalendárny deň na Slovensku.
+
+Priprav krátky, praktický denný prehľad. Ak hrozí nadchádzajúci štátny sviatok na Slovensku, upozorni na zatvorené obchody a otváracie hodiny (napr. Billa do 19:00, Tesco do 22:00).
+
+Vráť STRICTNE čistý JSON v jazyku ${lang || 'sk'}:
+{
+  "holiday_alert": "Varovanie pred sviatkom a otváracími hodinami (napr. Pozor, zajtra je štátny sviatok, ak potrebuješ nakúpiť urob to ešte dnes. Billa je otvorená do 19:00, nejdlhšie je Tesco do 22:00)",
+  "daily_tip": "Pripomienka pitného režimu a zdravého dňa",
+  "nameday_today": "Kto má dnes meniny na Slovensku"
+}
+`;
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "user", content: promptText }],
+      response_format: { type: "json_object" }
+    });
+
+    res.json(JSON.parse(response.choices[0].message.content));
+  } catch (error) {
+    res.status(500).json({ error: 'Chyba pri generovaní súhrnu asistenta.' });
+  }
+});
+
+// 6. ENDPOINTY PRE RECENZIE
 app.get('/api/reviews', (req, res) => {
   const key = req.query.key || 'general';
   res.json(reviewsDb[key] || []);
