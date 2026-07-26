@@ -84,6 +84,9 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 .shopping-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:6px;transition:all 0.2s;}
 .shopping-item.checked{opacity:0.5;text-decoration:line-through;}
 
+.restaurant-card{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.menu-item-row{background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:4px;}
+
 .store-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);font-size:12px;cursor:pointer;user-select:none;transition:all 0.2s;}
 .store-chip.active{background:rgba(15,159,116,0.2);border-color:#0f9f74;color:#0f9f74;font-weight:700;}
 
@@ -112,6 +115,7 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         </div>
       </div>
       <div class="row" style="gap:4px;">
+        <button id="menuNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="utensils" style="width:14px;height:14px;color:#f29a2e;"></i><span>Menu</span></button>
         <button id="shoppingNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="shopping-cart" style="width:14px;height:14px;color:#0f9f74;"></i><span>Zoznam</span></button>
         <button id="profileNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="user" style="width:14px;height:14px;"></i><span id="ui-btnProfile">Profil</span></button>
         <button id="historyNavBtn" class="toggle-pill" style="display:flex;align-items:center;gap:4px;"><i data-lucide="history" style="width:14px;height:14px;"></i><span id="ui-btnHistory">História</span></button>
@@ -179,6 +183,36 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
         <h3 id="ui-eanTitle" style="font-size:18px;font-weight:700;margin:0;">Namier kameru na čiarový kód</h3>
         <p id="ui-eanSub" class="muted" style="font-size:13px;margin:0;">Kód sa automaticky rozozná</p>
         <div id="barcode-scanner-container" style="width:100%;min-height:250px;border-radius:20px;overflow:hidden;background:#000;"></div>
+      </div>
+    </section>
+
+    <!-- SCREEN DENNÉ MENU A REŠTAURÁCIE -->
+    <section id="screen-menu" class="screen">
+      <div class="row-between">
+        <button id="backFromMenuBtn" class="btn btn-secondary" style="width:auto;padding:10px 14px;"><i data-lucide="chevron-left"></i><span>Späť</span></button>
+        <div class="badge badge-ok" style="background:rgba(242,154,46,0.15);color:#f29a2e;">🍽️ Denné menu & Reštaurácie</div>
+      </div>
+
+      <div class="card" style="border-color:rgba(242,154,46,0.3);">
+        <div class="stack" style="gap:6px;">
+          <label style="font-size:13px;color:#a1a1aa;font-weight:600;">📍 Moja momentálna lokalita / Mesto:</label>
+          <input id="menuCityInput" type="text" placeholder="napr. Revúca" value="Revúca" style="width:100%;background:#0e1013;border:1px solid rgba(255,255,255,0.15);border-radius:12px;padding:10px 14px;color:#fff;font-size:15px;outline:none;" />
+        </div>
+
+        <button id="searchMenuBtn" class="btn btn-primary" style="padding:12px 16px;font-size:14px;background:linear-gradient(180deg,#f29a2e,#da7101);"><i data-lucide="search"></i><span>Vyhľadať vhodné menu v meste</span></button>
+      </div>
+
+      <div id="menuLoadingWrap" class="stack hidden" style="text-align:center;padding:20px 0;">
+        <p style="font-size:13px;font-weight:600;color:#f29a2e;margin:0;">Prebieha kontrola ponuky reštaurácií a alergií...</p>
+      </div>
+
+      <div id="menuResultsWrap" class="stack hidden" style="gap:12px;">
+        <div class="details-box" style="border-color:rgba(242,154,46,0.3);background:rgba(242,154,46,0.05);">
+          <p class="title-xs" style="color:#f29a2e;" id="menuTimeInfoLabel">Režim vyhľadávania</p>
+          <p id="menuTimeInfoText" style="font-size:13px;line-height:1.4;margin:0;font-weight:600;color:#fff;"></p>
+        </div>
+
+        <div id="restaurantListContainer" class="stack" style="gap:12px;"></div>
       </div>
     </section>
 
@@ -513,7 +547,6 @@ table.compare-table th, table.compare-table td{padding:10px 12px;text-align:left
 </div>
 
 <script>
-// REGISTRÁCIA SERVICE WORKERA PRE PWA
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(err => console.log('SW registration failed:', err));
@@ -539,19 +572,13 @@ const UI_TRANSLATIONS = {
 };
 
 const state = { selectedFile: null, previewDataUrl: null, lang: "sk", profile: "general", allergens: [], selectedStores: ["Lidl", "Tesco", "Coop Jednota"], currentProductKey: null, currentData: null, currentLactosePer100g: 4.8, lastMedicalData: null, lastDiscountsData: null };
-const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping") };
+const screens = { hero: document.getElementById("screen-hero"), profile: document.getElementById("screen-profile"), barcode: document.getElementById("screen-barcode"), scan: document.getElementById("screen-scan"), result: document.getElementById("screen-result"), history: document.getElementById("screen-history"), shopping: document.getElementById("screen-shopping"), menu: document.getElementById("screen-menu") };
 
 let html5QrCode = null;
 
 function makeSafeKey(text) {
   if (!text) return "produkt_" + Date.now();
-  return String(text)
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "_")
-    .replace(/_+/g, "_")
-    .trim();
+  return String(text).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "_").replace(/_+/g, "_").trim();
 }
 
 function loadUserProfile(){
@@ -599,7 +626,12 @@ function bindEvents(){
   document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
   document.getElementById("submitReviewBtn").addEventListener("click", submitReview);
 
-  // NÁKUPNÝ ZOZNAM & OBCHODY EVENTY
+  // DENNÉ MENU EVENTY
+  document.getElementById("menuNavBtn").addEventListener("click", () => showScreen("menu"));
+  document.getElementById("backFromMenuBtn").addEventListener("click", () => showScreen("hero"));
+  document.getElementById("searchMenuBtn").addEventListener("click", searchDailyMenu);
+
+  // NÁKUPNÝ ZOZNAM EVENTY
   document.getElementById("shoppingNavBtn").addEventListener("click", () => { renderShoppingList(); showScreen("shopping"); });
   document.getElementById("backFromShoppingBtn").addEventListener("click", () => showScreen("hero"));
   document.getElementById("clearShoppingBtn").addEventListener("click", clearShoppingList);
@@ -618,7 +650,7 @@ function bindEvents(){
     });
   });
 
-  // LEKÁRSKA SPRÁVA EVENTY V PROFILE
+  // LEKÁRSKA SPRÁVA EVENTY
   document.getElementById("takeMedicalPhotoBtn").addEventListener("click", () => document.getElementById("medicalPhotoInput").click());
   document.getElementById("medicalPhotoInput").addEventListener("change", handleMedicalFileSelected);
   document.getElementById("applyMedicalProfileBtn").addEventListener("click", applyMedicalRecommendations);
@@ -676,6 +708,78 @@ function bindEvents(){
   document.getElementById("toggleTableBtn").addEventListener("click", () => {
     document.getElementById("compareTableWrap").classList.toggle("hidden");
   });
+}
+
+async function searchDailyMenu(){
+  const city = document.getElementById("menuCityInput").value || "Revúca";
+  const now = new Date();
+  const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+  const medicalNotes = state.lastMedicalData?.summary || "";
+
+  document.getElementById("menuLoadingWrap").classList.remove("hidden");
+  document.getElementById("menuResultsWrap").classList.add("hidden");
+
+  try {
+    const res = await fetch("/api/daily-menu", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ city, profile: state.profile, allergens: state.allergens, currentTime: timeStr, medicalNotes, lang: state.lang })
+    });
+
+    const data = await res.json();
+    renderMenuResult(data);
+  } catch(e){
+    alert("Chyba pri vyhľadávaní reštaurácií a denného menu.");
+  } finally {
+    document.getElementById("menuLoadingWrap").classList.add("hidden");
+  }
+}
+
+function renderMenuResult(data){
+  document.getElementById("menuTimeInfoText").textContent = data.time_info || "Vyhľadávanie v meste " + data.city;
+
+  const container = document.getElementById("restaurantListContainer");
+  const list = data.restaurants || [];
+
+  if(list.length === 0){
+    container.innerHTML = `<p class="muted" style="font-size:13px;text-align:center;">V tejto lokalite neboli nájdené žiadne reštaurácie.</p>`;
+  } else {
+    container.innerHTML = list.map(r => `
+      <div class="restaurant-card">
+        <div class="row-between">
+          <div>
+            <h4 style="font-size:16px;font-weight:700;margin:0;color:#fff;">${r.name}</h4>
+            <p class="muted" style="font-size:12px;margin:2px 0 0 0;">📍 ${r.address || "Centrum"}</p>
+          </div>
+          <span class="badge" style="background:rgba(242,154,46,0.15);color:#f29a2e;font-size:11px;">⏱️ ${r.serving_hours}</span>
+        </div>
+
+        <div class="stack" style="gap:6px;">
+          ${(r.menu_items || []).map(item => {
+            const statusBadge = item.is_suitable 
+              ? `<span class="badge badge-ok">✅ Vhodné pre teba</span>`
+              : `<span class="badge badge-red">⚠️ Nevhodné: ${item.warning || "Riziko"}</span>`;
+
+            return `
+              <div class="menu-item-row">
+                <div class="row-between">
+                  <span style="font-size:13px;font-weight:600;color:#fff;">${item.title}</span>
+                  <span style="font-size:13px;font-weight:700;color:#0f9f74;">${item.price}</span>
+                </div>
+                <div class="row-between" style="margin-top:2px;">
+                  ${statusBadge}
+                  <span class="muted" style="font-size:11px;">${item.health_score || ""}</span>
+                </div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `).join("");
+  }
+
+  document.getElementById("menuResultsWrap").classList.remove("hidden");
+  if(window.lucide) lucide.createIcons();
 }
 
 function getShoppingList(){
@@ -1343,11 +1447,7 @@ function vypocitajLaktazu(laktozaNa100g, porciaGramy, silaTabletky = 4500) {
   const fcc = Math.round(gLaktozy * 1250);
   const tabletky = Math.ceil(fcc / silaTabletky);
 
-  return {
-    gLaktozy: gLaktozy.toFixed(1),
-    fcc: fcc,
-    tabletky: tabletky
-  };
+  return { gLaktozy: gLaktozy.toFixed(1), fcc: fcc, tabletky: tabletky };
 }
 
 function aktualizujVypocetLaktazy(laktozaNa100g) {
